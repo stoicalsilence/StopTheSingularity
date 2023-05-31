@@ -12,7 +12,7 @@ public class Bullet : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        base.Invoke("DestroySelf", 5f);
+        base.Invoke("DestroySelf", 5f);//w
     }
 
     // Update is called once per frame
