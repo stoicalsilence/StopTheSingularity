@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
     public AudioClip[] blockSounds;
     public Slider progressBar;
     public float cooldownDuration = 1.0f;
-    public PostProcessProfile postProcessProfile; // Assign the post-processing profile in the inspector
+    public PostProcessProfile postProcessProfile;
     private Vignette vignette;
     public Slider hpSlider;
     public TextMeshProUGUI hpText;
@@ -39,12 +39,31 @@ public class Player : MonoBehaviour
     public bool swordEquipped;
     public bool grapplingGunEquipped;
     public bool glockEquipped;
+    public bool icePickEquipped;
     public GameObject grapplingGun;
     public GameObject sword;
     public Firearm glock;
     public TextMeshProUGUI ammoText;
+    public GameObject icePick;
 
     public AudioClip swordUnsheath;
+    public AudioClip icePickUnStick;
+    
+    public AudioClip[] icePickStickSounds;
+    public AudioSource icePickSound;
+
+    public GameObject icePickParticles;
+
+    float minimumSpeedThreshold = 8.0f;
+    float maximumSpeed = 30.0f;
+    public AudioSource windSoundEffect;
+
+    public AudioClip[] strongLandingSounds;
+    public AudioClip[] normalLandingSounds;
+    float fallThresholdVelocity = 8;
+    bool wasFalling;
+    bool wasJumping;
+    public AudioClip jumpSound;
     // Start is called before the first frame update
     void Start()
     {
@@ -57,38 +76,35 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            swordEquipped = true;
-            sword.SetActive(true);
-            swordSwoosh.PlayOneShot(swordUnsheath);
+            equipSword();
 
-            grapplingGun.SetActive(false);
-            grapplingGunEquipped = false;
-            glock.muzzleLight.SetActive(false);
-            glock.gameObject.SetActive(false);
-            glockEquipped = false;
+            unequipGlock();
+            unequipGrapplingGun();
+            unequipIcePick();
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            grapplingGunEquipped = true;
-            grapplingGun.SetActive(true);
+            equipGlock();
 
-            sword.SetActive(false);
-            swordEquipped = false;
-            glock.muzzleLight.SetActive(false);
-            glock.gameObject.SetActive(false);
-            glockEquipped = false;
+            unequipSword();
+            unequipGrapplingGun();
+            unequipIcePick();
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            glockEquipped = true;
-            glock.gameObject.SetActive(true);
-            glock.playCockingNoise();
-            glock.anim.Play("GlockIdle");
+            equipGrapplingGun();
 
-            sword.SetActive(false);
-            swordEquipped = false;
-            grapplingGun.SetActive(false);
-            grapplingGunEquipped = false;
+            unequipSword();
+            unequipGlock();
+            unequipIcePick();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            equipIcePick();
+
+            unequipSword();
+            unequipGlock();
+            unequipGrapplingGun();
         }
 
         hpSlider.value = HP;
@@ -102,7 +118,7 @@ public class Player : MonoBehaviour
         {
             ammoText.text = "";
         }
-        if(HP < 1)
+        if (HP < 1)
         {
             sliderFill.gameObject.SetActive(false);
         }
@@ -161,7 +177,7 @@ public class Player : MonoBehaviour
                 {
                     StartCoroutine(glock.reload());
                 }
-                else if(glock.ammoInMag == 0 && !glock.reloading)
+                else if (glock.ammoInMag == 0 && !glock.reloading)
                 {
                     StartCoroutine(glock.reloadOnEmpty());
                 }
@@ -177,7 +193,7 @@ public class Player : MonoBehaviour
             swordAnim.SetBool("isRunning", false);
         }
 
-        if(playerMovement.state == PlayerMovement.MovementState.air)
+        if (playerMovement.state == PlayerMovement.MovementState.air)
         {
             swordAnim.SetBool("isJumping", true);
         }
@@ -200,6 +216,47 @@ public class Player : MonoBehaviour
                 swordAnim.SetBool("isBlocking", false);
                 swordAnim.SetBool("isBlockIdling", false);
             }
+        }
+        
+        float currentSpeed = playerMovement.rb.velocity.magnitude;
+        if (currentSpeed > minimumSpeedThreshold)
+        {
+            float normalizedSpeed = Mathf.Clamp01((currentSpeed - minimumSpeedThreshold) / (maximumSpeed - minimumSpeedThreshold));
+            float targetVolume = Mathf.Lerp(0, 1, normalizedSpeed);
+            windSoundEffect.volume = targetVolume;
+        }
+        else
+        {
+            windSoundEffect.volume = windSoundEffect.volume - Time.deltaTime;
+        }
+
+        if (playerMovement.rb.velocity.y < -fallThresholdVelocity/3 && !playerMovement.grounded)
+        {
+            wasJumping = true;
+        }
+        if (playerMovement.rb.velocity.y < -fallThresholdVelocity && !playerMovement.grounded)
+        {
+            wasFalling = true;
+        }
+
+        if (playerMovement.grounded && wasFalling)
+        {
+            int randomIndex = Random.Range(0, strongLandingSounds.Length);
+            AudioClip sound = strongLandingSounds[randomIndex];
+            painAudio.PlayOneShot(sound);
+            ScreenShake.Shake(1f, 1f);
+            // Reset the flag
+            wasFalling = false;
+        }
+
+        if (playerMovement.grounded && wasJumping && !wasFalling)
+        {
+            int randomIndex = Random.Range(0, normalLandingSounds.Length);
+            AudioClip sound = normalLandingSounds[randomIndex];
+            painAudio.PlayOneShot(sound);
+            ScreenShake.Shake(0.25f, 0.010f);
+            // Reset the flag
+            wasJumping = false;
         }
     }
 
@@ -226,7 +283,7 @@ public class Player : MonoBehaviour
         swordAnim.SetBool("isJumpAttacking", true);
         playRandomLowSwordWoosh();
         yield return new WaitForSeconds(0.1f);
-        
+
         swordPokeTrail.gameObject.SetActive(true);
         yield return new WaitForSeconds(0.4f);
         swordAnim.SetBool("isJumpAttacking", false);
@@ -362,5 +419,59 @@ public class Player : MonoBehaviour
 
         // Disable vignette
         vignette.enabled.value = false;
+    }
+
+    public void playIcePickStickSound()
+    {
+        int randomIndex = Random.Range(0, icePickStickSounds.Length);
+        AudioClip sound = icePickStickSounds[randomIndex];
+        icePickSound.PlayOneShot(sound);
+    }
+    public void equipSword()
+    {
+        swordEquipped = true;
+        sword.SetActive(true);
+        swordSwoosh.PlayOneShot(swordUnsheath);
+    }
+    public void equipGlock()
+    {
+        glockEquipped = true;
+        glock.gameObject.SetActive(true);
+        glock.playCockingNoise();
+        glock.anim.Play("GlockIdle");
+    }
+    public void equipGrapplingGun()
+    {
+        grapplingGunEquipped = true;
+        grapplingGun.SetActive(true);
+    }
+    public void equipIcePick()
+    {
+        icePickEquipped = true;
+        icePick.gameObject.SetActive(true);
+        swordSwoosh.PlayOneShot(swordUnsheath);
+    }
+
+    public void unequipSword()
+    {
+        sword.SetActive(false);
+        swordEquipped = false;
+    }
+    public void unequipGlock()
+    {
+        glock.muzzleLight.SetActive(false);
+        glock.gameObject.SetActive(false);
+        glockEquipped = false;
+    }
+    public void unequipGrapplingGun()
+    {
+        grapplingGun.SetActive(false);
+        grapplingGunEquipped = false;
+    }
+    public void unequipIcePick()
+    {
+        icePick.SetActive(false);
+        icePickEquipped = false;
+        playerMovement.UnstickFromWall();
     }
 }

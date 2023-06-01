@@ -43,11 +43,15 @@ public class PlayerMovement : MonoBehaviour
     public float horizontalInput;
     public float verticalInput;
     Vector3 moveDirection;
-    Rigidbody rb;
+    public Rigidbody rb;
 
     public Transform playerVisual;
 
     public MovementState state;
+
+    public Player player;
+    public bool isSticking;
+    public bool canStick;
     public enum MovementState
     {
         walking, sprinting, crouching, air
@@ -93,6 +97,7 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         movePlayer();
+        
     }
 
     private void myInput()
@@ -118,6 +123,33 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyUp(crouchkey))
         {
             transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
+        }
+
+        if (player.icePickEquipped)
+        {
+            if (Input.GetMouseButtonDown(0) && canStick)
+            {
+                StickToWall();
+            }
+
+            if (Input.GetMouseButtonDown(1) && isSticking)
+            {
+                UnstickFromWall();
+            }
+        }
+        if (Input.GetKeyDown(jumpKey))
+        {
+            if (isSticking)
+            {
+                UnstickFromWall();
+                jump();
+            }
+            else if (readyToJump && grounded)
+            {
+                readyToJump = false;
+                jump();
+                Invoke(nameof(resetJump), jumpCooldown);
+            }
         }
     }
 
@@ -202,7 +234,7 @@ public class PlayerMovement : MonoBehaviour
     {
         exitingSlope = true;
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
+        player.painAudio.PlayOneShot(player.jumpSound);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         ScreenShake.Shake(0.05f, 0.05f);
     }
@@ -227,5 +259,38 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 GetSlopeMoveDirection()
     {
         return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
+    }
+
+    private void StickToWall()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, transform.forward, out hit, 1f))
+        {
+            float tiltAngle = 30f;
+            player.playIcePickStickSound();
+            isSticking = true;
+            //rb.useGravity = false;
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+            canStick = false;
+            readyToJump = true;
+            //player.icePick.transform.rotation = Quaternion.Euler(tiltAngle, player.icePick.transform.rotation.eulerAngles.y, player.icePick.transform.rotation.eulerAngles.z);
+            GameObject parts = Instantiate(player.icePickParticles, hit.point, Quaternion.identity);
+            Destroy(parts, 3f);
+        }
+    }
+
+    public void UnstickFromWall()
+    {
+        float tiltAngle = 30f;
+        float pitchRange = 0.1f;
+        player.icePickSound.pitch = Random.Range(1f - pitchRange, 1f + pitchRange);
+        player.icePickSound.PlayOneShot(player.icePickUnStick);
+       // player.icePick.transform.rotation = Quaternion.Euler(-tiltAngle, player.icePick.transform.rotation.eulerAngles.y, player.icePick.transform.rotation.eulerAngles.z);
+        isSticking = false;
+        //rb.useGravity = true;
+        rb.constraints = RigidbodyConstraints.None;
+        canStick = true;
     }
 }
