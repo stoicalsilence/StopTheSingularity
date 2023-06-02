@@ -80,6 +80,7 @@ public class PlayerMovement : MonoBehaviour
         {
             grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f, whatIsGround);
         }
+
         myInput();
         speedControl();
         stateHandler();
@@ -142,7 +143,10 @@ public class PlayerMovement : MonoBehaviour
             if (isSticking)
             {
                 UnstickFromWall();
-                jump();
+                if (!grounded)
+                {
+                    jump();
+                }
             }
             else if (readyToJump && grounded)
             {
@@ -236,6 +240,7 @@ public class PlayerMovement : MonoBehaviour
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         player.painAudio.PlayOneShot(player.jumpSound);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        player.spawnJumpParticles();
         ScreenShake.Shake(0.05f, 0.05f);
     }
     private void resetJump()
@@ -264,18 +269,24 @@ public class PlayerMovement : MonoBehaviour
     private void StickToWall()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, 1f))
+
+        if (Physics.Raycast(transform.position, playerCam.transform.forward, out hit, 0.95f))
         {
-            float tiltAngle = 30f;
             player.playIcePickStickSound();
             isSticking = true;
-            //rb.useGravity = false;
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-            rb.constraints = RigidbodyConstraints.FreezeAll;
+            //rb.constraints = RigidbodyConstraints.FreezeAll;
             canStick = false;
             readyToJump = true;
-            //player.icePick.transform.rotation = Quaternion.Euler(tiltAngle, player.icePick.transform.rotation.eulerAngles.y, player.icePick.transform.rotation.eulerAngles.z);
+            // Create a Fixed Joint component and attach it to the player and the surface
+            FixedJoint joint = gameObject.AddComponent<FixedJoint>();
+            joint.connectedBody = hit.rigidbody;
+
+            // Set the anchor and connectedAnchor positions to maintain the current position relative to the surface
+            joint.anchor = transform.InverseTransformPoint(hit.point);
+            joint.connectedAnchor = hit.transform.InverseTransformPoint(hit.point);
+
             GameObject parts = Instantiate(player.icePickParticles, hit.point, Quaternion.identity);
             Destroy(parts, 3f);
         }
@@ -283,14 +294,12 @@ public class PlayerMovement : MonoBehaviour
 
     public void UnstickFromWall()
     {
-        float tiltAngle = 30f;
         float pitchRange = 0.1f;
         player.icePickSound.pitch = Random.Range(1f - pitchRange, 1f + pitchRange);
         player.icePickSound.PlayOneShot(player.icePickUnStick);
-       // player.icePick.transform.rotation = Quaternion.Euler(-tiltAngle, player.icePick.transform.rotation.eulerAngles.y, player.icePick.transform.rotation.eulerAngles.z);
         isSticking = false;
-        //rb.useGravity = true;
-        rb.constraints = RigidbodyConstraints.None;
+        //rb.constraints = RigidbodyConstraints.None;
         canStick = true;
+        Destroy(GetComponent<FixedJoint>());
     }
 }

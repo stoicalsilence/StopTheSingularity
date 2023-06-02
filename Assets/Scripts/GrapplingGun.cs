@@ -59,8 +59,12 @@ public class GrapplingGun : MonoBehaviour
         }
     }
 
-    void StopGrapple()
+    public void StopGrapple()
     {
+        if (joint == null)
+        {
+            return;
+        }
         lr.positionCount = 0;
         Destroy(joint);
     }

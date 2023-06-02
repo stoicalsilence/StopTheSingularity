@@ -64,6 +64,11 @@ public class Player : MonoBehaviour
     bool wasFalling;
     bool wasJumping;
     public AudioClip jumpSound;
+
+    public GameObject jumpParticles;
+    public GameObject largeDropParticles;
+    public GameObject largeDropParticles2;
+    public Transform jumpParticlePos;
     // Start is called before the first frame update
     void Start()
     {
@@ -245,7 +250,7 @@ public class Player : MonoBehaviour
             AudioClip sound = strongLandingSounds[randomIndex];
             painAudio.PlayOneShot(sound);
             ScreenShake.Shake(1f, 1f);
-            // Reset the flag
+            spawnJumpParticles();
             wasFalling = false;
         }
 
@@ -254,8 +259,8 @@ public class Player : MonoBehaviour
             int randomIndex = Random.Range(0, normalLandingSounds.Length);
             AudioClip sound = normalLandingSounds[randomIndex];
             painAudio.PlayOneShot(sound);
+            spawnLargeDropParticles();
             ScreenShake.Shake(0.25f, 0.010f);
-            // Reset the flag
             wasJumping = false;
         }
     }
@@ -421,6 +426,19 @@ public class Player : MonoBehaviour
         vignette.enabled.value = false;
     }
 
+    public void spawnJumpParticles()
+    {
+        GameObject p = Instantiate(jumpParticles, jumpParticlePos.position, Quaternion.identity);
+        Destroy(p, 4f);
+    }
+    public void spawnLargeDropParticles()
+    {
+        GameObject p1 = Instantiate(largeDropParticles, jumpParticlePos.position, Quaternion.identity);
+        GameObject p2 = Instantiate(largeDropParticles2, jumpParticlePos.position, Quaternion.identity);
+        Destroy(p1, 4f);
+        Destroy(p2, 4f);
+    }
+
     public void playIcePickStickSound()
     {
         int randomIndex = Random.Range(0, icePickStickSounds.Length);
@@ -449,7 +467,6 @@ public class Player : MonoBehaviour
     {
         icePickEquipped = true;
         icePick.gameObject.SetActive(true);
-        swordSwoosh.PlayOneShot(swordUnsheath);
     }
 
     public void unequipSword()
@@ -465,6 +482,7 @@ public class Player : MonoBehaviour
     }
     public void unequipGrapplingGun()
     {
+        grapplingGun.GetComponent<GrapplingGun>().StopGrapple();
         grapplingGun.SetActive(false);
         grapplingGunEquipped = false;
     }

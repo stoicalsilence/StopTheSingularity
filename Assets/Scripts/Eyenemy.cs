@@ -28,6 +28,9 @@ public class Eyenemy : MonoBehaviour
     private bool isKnockedBack = false;
     private Color originalColor;
 
+    public GameObject jumpParticles;
+    public GameObject landParticles;
+    public Transform jumpParticlePos;
     public GameObject collisionParticles;
     public GameObject explosionParticles;
     public GameObject angryFace;
@@ -70,6 +73,13 @@ public class Eyenemy : MonoBehaviour
                 GameObject oof = Instantiate(explosionParticles, collisionPoint, Quaternion.identity);
                 Destroy(oof, 5f);
             }
+        }
+
+        if (collision.gameObject.layer == LayerMask.NameToLayer("whatisGround"))
+        {
+            Vector3 collisionPoint = collision.GetContact(0).point;
+            GameObject jp = Instantiate(landParticles, collisionPoint, Quaternion.identity);
+            Destroy(jp, 4f);
         }
 
         if (collision.collider.CompareTag("Player"))
@@ -166,6 +176,9 @@ public class Eyenemy : MonoBehaviour
             jumpForceVector.y += jumpHeight;
 
             rb.AddForce(jumpForceVector, ForceMode.Impulse);
+
+            GameObject jp = Instantiate(jumpParticles, jumpParticlePos.position, Quaternion.identity);
+            Destroy(jp, 4f);
         }
     }
 
