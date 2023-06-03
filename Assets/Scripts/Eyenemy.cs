@@ -60,6 +60,7 @@ public class Eyenemy : MonoBehaviour
             TakeDamage();
             Knockback(collision.GetContact(0).point);
             FlashColor();
+            FindObjectOfType<HitmarkerEffect>().ShowHitmarker();
 
             if (health > 0)
             {
