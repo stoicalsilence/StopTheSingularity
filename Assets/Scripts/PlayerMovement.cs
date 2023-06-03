@@ -276,14 +276,12 @@ public class PlayerMovement : MonoBehaviour
             isSticking = true;
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-            //rb.constraints = RigidbodyConstraints.FreezeAll;
             canStick = false;
             readyToJump = true;
-            // Create a Fixed Joint component and attach it to the player and the surface
+            
             FixedJoint joint = gameObject.AddComponent<FixedJoint>();
             joint.connectedBody = hit.rigidbody;
 
-            // Set the anchor and connectedAnchor positions to maintain the current position relative to the surface
             joint.anchor = transform.InverseTransformPoint(hit.point);
             joint.connectedAnchor = hit.transform.InverseTransformPoint(hit.point);
 
@@ -298,7 +296,6 @@ public class PlayerMovement : MonoBehaviour
         player.icePickSound.pitch = Random.Range(1f - pitchRange, 1f + pitchRange);
         player.icePickSound.PlayOneShot(player.icePickUnStick);
         isSticking = false;
-        //rb.constraints = RigidbodyConstraints.None;
         canStick = true;
         Destroy(GetComponent<FixedJoint>());
     }
