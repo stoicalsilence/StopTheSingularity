@@ -21,7 +21,10 @@ public class PlayerMovement : MonoBehaviour
     [Header("Crouching")]
     public float crouchSpeed;
     public float crouchYScale;
+    public bool isCrouching;
     private float startYScale;
+    public float maxSlideSpeed;
+    public float slideSpeed;
 
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
@@ -52,6 +55,7 @@ public class PlayerMovement : MonoBehaviour
     public Player player;
     public bool isSticking;
     public bool canStick;
+
     public enum MovementState
     {
         walking, sprinting, crouching, air
@@ -93,12 +97,37 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.drag = 0;
         }
+
+        if (isCrouching)
+        {
+            if (grounded)
+            {
+                if (slideSpeed > 0)
+                {
+                    player.playSlideSound();
+                }
+                else
+                {
+                    player.muteSlideSound();
+                }
+            }
+        }
     }
 
     private void FixedUpdate()
     {
         movePlayer();
-        
+        if (rb.velocity.magnitude > 0.5f)
+        {
+            if (isCrouching)
+            {
+                rb.AddForce(orientation.transform.forward * slideSpeed);
+                if (slideSpeed > 0)
+                {
+                    slideSpeed = slideSpeed - (Time.deltaTime * 120);
+                }
+            }
+        }
     }
 
     private void myInput()
@@ -117,12 +146,16 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(crouchkey))
         {
+            slideSpeed = maxSlideSpeed;
+            isCrouching = true;
             transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
             rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
         }
 
         if (Input.GetKeyUp(crouchkey))
         {
+            player.muteSlideSound();
+            isCrouching = false;
             transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
         }
 
@@ -166,21 +199,21 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Mode - Sprinting
-        if (grounded && Input.GetKey(sprintKey))
+        if (grounded && Input.GetKey(sprintKey) && !isCrouching)
         {
             state = MovementState.sprinting;
             moveSpeed = sprintSpeed;
         }
 
         // Mode - Walking
-        else if (grounded)
+        else if (grounded && !isCrouching)
         {
             state = MovementState.walking;
             moveSpeed = walkSpeed;
         }
 
         // Mode - Air
-        else
+        else if (!isCrouching)
         {
             state = MovementState.air;
         }

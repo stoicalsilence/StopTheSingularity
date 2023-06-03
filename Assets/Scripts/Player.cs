@@ -48,7 +48,7 @@ public class Player : MonoBehaviour
 
     public AudioClip swordUnsheath;
     public AudioClip icePickUnStick;
-    
+
     public AudioClip[] icePickStickSounds;
     public AudioSource icePickSound;
 
@@ -57,6 +57,7 @@ public class Player : MonoBehaviour
     float minimumSpeedThreshold = 8.0f;
     float maximumSpeed = 30.0f;
     public AudioSource windSoundEffect;
+    public AudioSource slideAudioSource;
 
     public AudioClip[] strongLandingSounds;
     public AudioClip[] normalLandingSounds;
@@ -64,7 +65,8 @@ public class Player : MonoBehaviour
     bool wasFalling;
     bool wasJumping;
     public AudioClip jumpSound;
-
+    public AudioClip[] slideSounds;
+    public AudioClip[] slideStops;
     public GameObject jumpParticles;
     public GameObject largeDropParticles;
     public GameObject largeDropParticles2;
@@ -403,6 +405,20 @@ public class Player : MonoBehaviour
         int randomIndex = Random.Range(0, blockSounds.Length);
         AudioClip sound = blockSounds[randomIndex];
         blockSound.PlayOneShot(sound);
+    }
+
+    public void playSlideSound()
+    {
+        slideAudioSource.volume = 0.3f;
+    }
+    public void muteSlideSound()
+    {
+        slideAudioSource.volume = 0f;
+    }
+
+    public void stopSlideSound()
+    {
+        slideAudioSource.Stop();
     }
 
     private IEnumerator FadeOutVignette()
