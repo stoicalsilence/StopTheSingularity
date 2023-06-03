@@ -81,6 +81,12 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //if(Input.GetKeyDown(KeyCode.V))
+        //{
+        //    startSlowmotion();
+        //    Invoke("stopSlowmotion", 2f);
+        //}
+
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             equipSword();
@@ -356,6 +362,15 @@ public class Player : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void startSlowmotion()
+    {
+        TimeManager.doSlowmotion();
+    }
+    public void stopSlowmotion()
+    {
+        TimeManager.undoSlowmotion();
     }
 
     private IEnumerator ActivateInvincibility()

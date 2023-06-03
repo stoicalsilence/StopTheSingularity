@@ -33625,7 +33625,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 3078461179943877191, guid: 9326cc6a4c6edc54bb055494707db73a, type: 3}
   cooldownTime: 0.6
-  bulletSpeed: 25
+  bulletSpeed: 50
   reloading: 0
   reloadTime: 1.45
   reloadTimeOnEmpty: 2
@@ -35090,6 +35090,50 @@ CapsuleCollider:
   m_Height: 1.332209
   m_Direction: 1
   m_Center: {x: 0, y: -0.6661045, z: 0}
+--- !u!1 &2133226336
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2133226338}
+  - component: {fileID: 2133226337}
+  m_Layer: 0
+  m_Name: TimeManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2133226337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2133226336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca5c83484f48f1a48b65d9869c41149a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allAudioSources: []
+--- !u!4 &2133226338
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2133226336}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -11.416174, y: -1.531198, z: 4.723183}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 42
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2137144088
 GameObject:
   m_ObjectHideFlags: 0
@@ -35427,7 +35471,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1518123143842794891, guid: 578aaa2ee2bb4ed4b84fccff945829b6, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1518123143842794897, guid: 578aaa2ee2bb4ed4b84fccff945829b6, type: 3}
       propertyPath: m_RootOrder
@@ -35443,7 +35487,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1518123143842794897, guid: 578aaa2ee2bb4ed4b84fccff945829b6, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.9596868
+      value: -8.64
       objectReference: {fileID: 0}
     - target: {fileID: 1518123143842794897, guid: 578aaa2ee2bb4ed4b84fccff945829b6, type: 3}
       propertyPath: m_LocalRotation.w

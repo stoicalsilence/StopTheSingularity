@@ -33,7 +33,7 @@ public class KillText : MonoBehaviour
 
     private IEnumerator AnimateFontSize()
     {
-        float targetFontSize = 64f;
+        float targetFontSize = 72f;
         float animationDuration = 0.25f;
 
         float elapsedTime = 0f;

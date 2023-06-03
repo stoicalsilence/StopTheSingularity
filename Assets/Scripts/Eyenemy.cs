@@ -46,6 +46,7 @@ public class Eyenemy : MonoBehaviour
     public AudioClip[] dedSounds;
     private void Start()
     {
+        player = FindObjectOfType<Player>().transform;
         blackScreen = enemyRendererScreen.material;
         rb = GetComponent<Rigidbody>();
         originalColor = enemyRenderer.material.color;
