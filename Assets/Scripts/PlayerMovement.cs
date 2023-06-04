@@ -232,7 +232,7 @@ public class PlayerMovement : MonoBehaviour
                 rb.AddForce(Vector3.down * 80f, ForceMode.Force);
             }
         }
-
+        
         if (grounded)
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);

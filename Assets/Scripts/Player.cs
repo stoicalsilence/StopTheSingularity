@@ -279,6 +279,7 @@ public class Player : MonoBehaviour
         swordCollider.enabled = true;
         swordAnim.SetBool("isAttacking", true);
         playRandomSwordWoosh();
+        ScreenShake.SmoothShake(1f, .25f);
         yield return new WaitForSeconds(0.3f);
         swordTrail.gameObject.SetActive(true);
         yield return new WaitForSeconds(0.2f);

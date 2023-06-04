@@ -11,6 +11,10 @@ public class ScreenShake : MonoBehaviour
     private float shakeMagnitude = 0.7f;
     private float dampingSpeed = 1.0f;
 
+    private float smoothShakeDuration = 0f;
+    private float smoothShakeMagnitude = 0.5f;
+    private float smoothDampingSpeed = 2.0f;
+
     private void Awake()
     {
         instance = this;
@@ -26,12 +30,28 @@ public class ScreenShake : MonoBehaviour
         if (shakeDuration > 0)
         {
             transform.localPosition = originalPosition + Random.insideUnitSphere * shakeMagnitude;
-
             shakeDuration -= Time.deltaTime * dampingSpeed;
         }
         else
         {
             shakeDuration = 0f;
+            transform.localPosition = originalPosition;
+        }
+
+        if (smoothShakeDuration > 0)
+        {
+            float smoothX = Mathf.PerlinNoise(Time.time * smoothDampingSpeed, 0f) - 0.5f;
+            float smoothY = Mathf.PerlinNoise(0f, Time.time * smoothDampingSpeed) - 0.5f;
+            float smoothZ = Mathf.PerlinNoise(Time.time * smoothDampingSpeed, Time.time * smoothDampingSpeed) - 0.5f;
+
+            Vector3 smoothOffset = new Vector3(smoothX, smoothY, smoothZ) * smoothShakeMagnitude;
+            transform.localPosition = originalPosition + smoothOffset;
+
+            smoothShakeDuration -= Time.deltaTime;
+        }
+        else
+        {
+            smoothShakeDuration = 0f;
             transform.localPosition = originalPosition;
         }
     }
@@ -40,5 +60,11 @@ public class ScreenShake : MonoBehaviour
     {
         instance.shakeDuration = duration;
         instance.shakeMagnitude = magnitude;
+    }
+
+    public static void SmoothShake(float duration, float magnitude)
+    {
+        instance.smoothShakeDuration = duration;
+        instance.smoothShakeMagnitude = magnitude;
     }
 }
