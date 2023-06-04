@@ -287,6 +287,21 @@ public class Player : MonoBehaviour
         }
     }
 
+    public IEnumerator plasmatanaAttack()
+    {
+        plasmatanaReady = false;
+        plasmatana.SetActive(true);
+        plasmatanaTrails.Clear();
+        plasmatanaTrails2.Clear();
+        float randomValue = Random.value;
+        AnimationClip chosenAnimation = randomValue < 0.5f ? hitAnimation1 : hitAnimation2;
+        plasmatanaAnimation.Play(chosenAnimation.name);
+        ScreenShake.SmoothShake(chosenAnimation.length, 0.15f);
+        yield return new WaitForSeconds(chosenAnimation.length);
+        plasmatana.SetActive(false);
+        plasmatanaReady = true;
+    }
+
     IEnumerator swordAttack()
     {
         slashOnCD = true;
@@ -379,19 +394,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    public IEnumerator plasmatanaAttack()
-    {
-        plasmatanaReady = false;
-        plasmatana.SetActive(true);
-        plasmatanaTrails.Clear();
-        plasmatanaTrails2.Clear();
-        float randomValue = Random.value;
-        AnimationClip chosenAnimation = randomValue < 0.5f ? hitAnimation1 : hitAnimation2;
-        plasmatanaAnimation.Play(chosenAnimation.name);
-        yield return new WaitForSeconds(chosenAnimation.length);
-        plasmatana.SetActive(false);
-        plasmatanaReady = true;
-    }
     public void startSlowmotion()
     {
         TimeManager.doSlowmotion();

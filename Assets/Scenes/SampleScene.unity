@@ -9611,7 +9611,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh18014
+  m_Name: pb_Mesh132108
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -10917,7 +10917,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh17514
+  m_Name: pb_Mesh131606
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -29900,10 +29900,10 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 5
+  m_Time: 0.15
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 0.4
+    widthMultiplier: 0.05
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -44056,6 +44056,7 @@ GameObject:
   - component: {fileID: 1376718740}
   - component: {fileID: 1376718739}
   - component: {fileID: 1376718738}
+  - component: {fileID: 1376718742}
   m_Layer: 0
   m_Name: Blade
   m_TagString: PlayerAttack
@@ -44356,6 +44357,22 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
+--- !u!54 &1376718742
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1376718736}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 3
 --- !u!1 &1379595296
 GameObject:
   m_ObjectHideFlags: 0
@@ -48112,10 +48129,10 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 5
+  m_Time: 0.15
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 0.3
+    widthMultiplier: 0.1
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -48129,7 +48146,7 @@ TrailRenderer:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 1
+        time: 0.2880795
         value: 0
         inSlope: 0
         outSlope: 0
@@ -50727,7 +50744,7 @@ MonoBehaviour:
   sliderFill: {fileID: 1985465886}
   swordEquipped: 0
   grapplingGunEquipped: 0
-  glockEquipped: 1
+  glockEquipped: 0
   icePickEquipped: 0
   grapplingGun: {fileID: 1352734075}
   sword: {fileID: 355312524639558768}
