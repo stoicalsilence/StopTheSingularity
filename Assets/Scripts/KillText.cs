@@ -7,11 +7,11 @@ public class KillText : MonoBehaviour
 {
     public List<string> stringList = new List<string>();
     public TextMeshProUGUI killText;
-    private Coroutine animationCoroutine;
+    public AudioSource audioSource;
     // Start is called before the first frame update
     void Start()
     {
-        
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -27,7 +27,7 @@ public class KillText : MonoBehaviour
         int randomIndex = Random.Range(0, stringList.Count);
         string foundText = stringList[randomIndex];
         killText.text = foundText;
-
+        audioSource.PlayOneShot(audioSource.clip);
         StartCoroutine(AnimateFontSize());
     }
 

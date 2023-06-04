@@ -293,6 +293,11 @@ public class Player : MonoBehaviour
         plasmatana.SetActive(true);
         plasmatanaTrails.Clear();
         plasmatanaTrails2.Clear();
+
+        int randomIndex = Random.Range(0, swordSwooshSounds.Length);
+        AudioClip sound = swordSwooshSounds[randomIndex];
+        blockSound.PlayOneShot(sound);
+
         float randomValue = Random.value;
         AnimationClip chosenAnimation = randomValue < 0.5f ? hitAnimation1 : hitAnimation2;
         plasmatanaAnimation.Play(chosenAnimation.name);
