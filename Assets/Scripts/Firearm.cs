@@ -30,6 +30,10 @@ public class Firearm : MonoBehaviour
     public GameObject muzzleLight;
     private bool isNoAmmoSoundPlayed = false;
 
+    public AnimationClip slideAnim;
+    public AnimationClip reloadAnim;
+    public AnimationClip reloadOnEmptyAnim;
+
     void Update()
     {
         if (cooldownTimer > 0)
@@ -83,31 +87,26 @@ public class Firearm : MonoBehaviour
 
     public IEnumerator shootAnimation()
     {
-        //muzzleflash todo
-        anim.SetBool("isFiring", true);
+        anim.Play(slideAnim.name);
         muzzleFlash.Play();
         muzzleLight.SetActive(true);
         yield return new WaitForSeconds(0.16f);
         muzzleLight.SetActive(false);
-        //bullet casing sound
-        yield return new WaitForSeconds(0.16f);
-        anim.SetBool("isFiring", false);
     }
 
     public IEnumerator reload()
     {
         
         reloading = true;
-        anim.SetBool("isReloading", true);
-        yield return new WaitForSeconds(reloadTime/2);
+        anim.Play(reloadAnim.name);
+        yield return new WaitForSeconds(reloadAnim.length / 2);
         int randomIndex = Random.Range(0, magReleases.Length);
         AudioClip sound = magReleases[randomIndex];
         gunShotSound.PlayOneShot(sound);
-        yield return new WaitForSeconds(reloadTime/2);
+        yield return new WaitForSeconds(reloadAnim.length / 2);
         int randomIndex2 = Random.Range(0, magInserts.Length);
         AudioClip sound2 = magInserts[randomIndex2];
         gunShotSound.PlayOneShot(sound2);
-        anim.SetBool("isReloading", false);
         ammoInMag = magCapacity;
         reloading = false;
     }
@@ -116,20 +115,19 @@ public class Firearm : MonoBehaviour
     {
         
         reloading = true;
-        anim.SetBool("isReloadingOnEmpty", true);
-        yield return new WaitForSeconds(reloadTimeOnEmpty / 3);
+        anim.Play(reloadOnEmptyAnim.name);
+        yield return new WaitForSeconds(reloadOnEmptyAnim.length / 3);
         int randomIndex = Random.Range(0, magReleases.Length);
         AudioClip sound = magReleases[randomIndex];
         gunShotSound.PlayOneShot(sound);
-        yield return new WaitForSeconds(reloadTimeOnEmpty / 3);
+        yield return new WaitForSeconds(reloadOnEmptyAnim.length / 3);
         int randomIndex2 = Random.Range(0, magInserts.Length);
         AudioClip sound2 = magInserts[randomIndex2];
         gunShotSound.PlayOneShot(sound2);
-        yield return new WaitForSeconds(reloadTimeOnEmpty / 3);
+        yield return new WaitForSeconds(reloadOnEmptyAnim.length / 3);
         int randomIndex3 = Random.Range(0, gunCocking.Length);
         AudioClip sound3 = gunCocking[randomIndex3];
         gunShotSound.PlayOneShot(sound3);
-        anim.SetBool("isReloadingOnEmpty", false);
         ammoInMag = magCapacity;
         reloading = false;
     }
