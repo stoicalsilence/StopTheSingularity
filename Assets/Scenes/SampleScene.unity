@@ -211,7 +211,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-682710
+  m_Name: pb_Mesh17626
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1137,7 +1137,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-682708
+  m_Name: pb_Mesh18312
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -7730,7 +7730,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-682706
+  m_Name: pb_Mesh17920
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -8879,7 +8879,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-118494
+  m_Name: pb_Mesh17416
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -9611,7 +9611,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-123600
+  m_Name: pb_Mesh18014
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -10917,7 +10917,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-350230
+  m_Name: pb_Mesh17514
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -11800,7 +11800,7 @@ MeshCollider:
   m_GameObject: {fileID: 698437786}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
@@ -12103,7 +12103,7 @@ Transform:
   - {fileID: 1352734076}
   - {fileID: 2040842491}
   - {fileID: 1426197360}
-  - {fileID: 769260156}
+  - {fileID: 885110531}
   m_Father: {fileID: 0}
   m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -13083,36 +13083,6 @@ MonoBehaviour:
   hitParticles: {fileID: 3796706651217081072, guid: 2e91906b45d488841a86bf3bfe21b6f9, type: 3}
   destroyParticles: {fileID: 3796706651217081072, guid: 2e91906b45d488841a86bf3bfe21b6f9, type: 3}
   hp: 100
---- !u!1 &769260155
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 769260156}
-  m_Layer: 0
-  m_Name: PlasmaSword
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &769260156
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 769260155}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 703211143}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &769934442
 GameObject:
   m_ObjectHideFlags: 0
@@ -13424,7 +13394,7 @@ Transform:
   m_LocalScale: {x: 0.36521, y: 0.36521, z: 0.36521}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 43
+  m_RootOrder: 42
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &772825711
 GameObject:
@@ -18907,13 +18877,14 @@ GameObject:
   - component: {fileID: 885110531}
   - component: {fileID: 885110530}
   - component: {fileID: 885110529}
+  - component: {fileID: 885110532}
   m_Layer: 0
   m_Name: Plasmatana
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!199 &885110529
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -23694,9 +23665,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 885110528}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.129, y: 4.825, z: -1.853}
-  m_LocalScale: {x: 0.054459613, y: 0.41199684, z: 0.11013642}
+  m_LocalRotation: {x: 0.7869436, y: -0.49801213, z: 0.15422633, w: 0.33002716}
+  m_LocalPosition: {x: -2.2359996, y: -0.852, z: 0.5289999}
+  m_LocalScale: {x: 0.05445963, y: 0.41199684, z: 0.110136464}
   m_Children:
   - {fileID: 2103658315}
   - {fileID: 698437787}
@@ -23707,9 +23678,28 @@ Transform:
   - {fileID: 1741877371}
   - {fileID: 311922442}
   - {fileID: 996160411}
-  m_Father: {fileID: 0}
-  m_RootOrder: 42
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Father: {fileID: 703211143}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 42.302, y: -173.324, z: -112.76}
+--- !u!95 &885110532
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 885110528}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 617e2f395e43e864c85da26a3d4ea173, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &890287101
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23940,7 +23930,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-161708
+  m_Name: pb_Mesh17804
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -29993,7 +29983,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!199 &998022811
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -34788,7 +34778,7 @@ Transform:
   - {fileID: 901078115}
   - {fileID: 1500293692}
   m_Father: {fileID: 0}
-  m_RootOrder: 44
+  m_RootOrder: 43
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1001248454
 PrefabInstance:
@@ -34857,7 +34847,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-107194
+  m_Name: pb_Mesh18584
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -43522,7 +43512,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-682714
+  m_Name: pb_Mesh17212
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -44068,7 +44058,7 @@ GameObject:
   - component: {fileID: 1376718738}
   m_Layer: 0
   m_Name: Blade
-  m_TagString: Untagged
+  m_TagString: PlayerAttack
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -50126,7 +50116,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-682712
+  m_Name: pb_Mesh17440
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -50306,7 +50296,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-170290
+  m_Name: pb_Mesh17380
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -50767,6 +50757,13 @@ MonoBehaviour:
   largeDropParticles: {fileID: 3595356282696700333, guid: 94ae9deaf31cbad4c8d9c3e03addb4c7, type: 3}
   largeDropParticles2: {fileID: 3687194249104678244, guid: 0a63edfbca4ba884594c9463cb1a40ed, type: 3}
   jumpParticlePos: {fileID: 792759923}
+  plasmatana: {fileID: 885110528}
+  hitAnimation1: {fileID: 7400000, guid: a8a0b5b9fdc785141800cd648e45e5fd, type: 2}
+  hitAnimation2: {fileID: 7400000, guid: 2c0995e7d8e30054f90579ee91a924ea, type: 2}
+  plasmatanaAnimation: {fileID: 0}
+  plasmatanaTrails: {fileID: 1741877374}
+  plasmatanaTrails2: {fileID: 996160412}
+  plasmatanaReady: 0
 --- !u!136 &2085330645
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -51247,7 +51244,7 @@ MeshCollider:
   m_GameObject: {fileID: 2103658314}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
@@ -52073,7 +52070,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1518123143842794891, guid: 578aaa2ee2bb4ed4b84fccff945829b6, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1518123143842794897, guid: 578aaa2ee2bb4ed4b84fccff945829b6, type: 3}
       propertyPath: m_RootOrder

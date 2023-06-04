@@ -71,11 +71,20 @@ public class Player : MonoBehaviour
     public GameObject largeDropParticles;
     public GameObject largeDropParticles2;
     public Transform jumpParticlePos;
+
+    public GameObject plasmatana; 
+    public AnimationClip hitAnimation1, hitAnimation2; 
+    public Animator plasmatanaAnimation; 
+    public TrailRenderer plasmatanaTrails, plasmatanaTrails2;
+    public bool plasmatanaReady;
+
     // Start is called before the first frame update
     void Start()
     {
+        plasmatanaAnimation = plasmatana.GetComponent<Animator>();
         hpSlider.maxValue = maxHP;
         vignette = postProcessProfile.GetSetting<Vignette>();
+        plasmatanaReady = true;
     }
 
     // Update is called once per frame
@@ -86,6 +95,11 @@ public class Player : MonoBehaviour
         //    startSlowmotion();
         //    Invoke("stopSlowmotion", 2f);
         //}
+
+        if (Input.GetKeyDown(KeyCode.V) && plasmatanaReady)
+        {
+            StartCoroutine(plasmatanaAttack());
+        }
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
@@ -365,6 +379,19 @@ public class Player : MonoBehaviour
         }
     }
 
+    public IEnumerator plasmatanaAttack()
+    {
+        plasmatanaReady = false;
+        plasmatana.SetActive(true);
+        plasmatanaTrails.Clear();
+        plasmatanaTrails2.Clear();
+        float randomValue = Random.value;
+        AnimationClip chosenAnimation = randomValue < 0.5f ? hitAnimation1 : hitAnimation2;
+        plasmatanaAnimation.Play(chosenAnimation.name);
+        yield return new WaitForSeconds(chosenAnimation.length);
+        plasmatana.SetActive(false);
+        plasmatanaReady = true;
+    }
     public void startSlowmotion()
     {
         TimeManager.doSlowmotion();
