@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Firearm : MonoBehaviour
+public class AssaultRifle : MonoBehaviour
 {
-    public GameObject bulletPrefab;  
-    public float cooldownTime = 0.5f;  
+    public GameObject bulletPrefab;
+    public float cooldownTime = 0.5f;
     public float bulletSpeed = 20f;
     private float cooldownTimer = 0f;
     public bool reloading;
@@ -30,7 +30,7 @@ public class Firearm : MonoBehaviour
     public GameObject muzzleLight;
     private bool isNoAmmoSoundPlayed = false;
 
-    public AnimationClip slideAnim;
+    public AnimationClip fireAnim;
     public AnimationClip reloadAnim;
     public AnimationClip reloadOnEmptyAnim;
 
@@ -92,7 +92,7 @@ public class Firearm : MonoBehaviour
 
     public IEnumerator shootAnimation()
     {
-        anim.Play(slideAnim.name);
+        anim.Play(fireAnim.name);
         muzzleFlash.Play();
         muzzleLight.SetActive(true);
         yield return new WaitForSeconds(0.16f);
@@ -101,7 +101,7 @@ public class Firearm : MonoBehaviour
 
     public IEnumerator reload()
     {
-        
+
         reloading = true;
         anim.Play(reloadAnim.name);
         yield return new WaitForSeconds(reloadAnim.length / 2);
@@ -118,7 +118,7 @@ public class Firearm : MonoBehaviour
 
     public IEnumerator reloadOnEmpty()
     {
-        
+
         reloading = true;
         anim.Play(reloadOnEmptyAnim.name);
         yield return new WaitForSeconds(reloadOnEmptyAnim.length / 3);

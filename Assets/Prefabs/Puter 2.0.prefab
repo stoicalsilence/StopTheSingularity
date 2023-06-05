@@ -2257,6 +2257,7 @@ MonoBehaviour:
   dedSounds:
   - {fileID: 8300000, guid: 6acd53972f85b9f4681c5a98130bfc4c, type: 3}
   - {fileID: 8300000, guid: f2ad983b9cf5e114d92dfce69fff864e, type: 3}
+  orangeLight: {fileID: 2500206811799547937, guid: 385167f560c71a941a81c1abf65a8bc7, type: 3}
 --- !u!54 &1518123143842794900
 Rigidbody:
   m_ObjectHideFlags: 0

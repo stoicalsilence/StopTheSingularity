@@ -44,6 +44,8 @@ public class Eyenemy : MonoBehaviour
     public AudioClip[] getHitSounds;
     public AudioClip[] passiveSounds;
     public AudioClip[] dedSounds;
+
+    public GameObject orangeLight;
     private void Start()
     {
         player = FindObjectOfType<Player>().transform;
@@ -74,6 +76,8 @@ public class Eyenemy : MonoBehaviour
                 Vector3 collisionPoint = collision.GetContact(0).point;
                 GameObject oof = Instantiate(explosionParticles, collisionPoint, Quaternion.identity);
                 Destroy(oof, 5f);
+                GameObject lighty = Instantiate(orangeLight, collisionPoint, Quaternion.identity);
+                Destroy(lighty, 0.25f);
             }
         }
 

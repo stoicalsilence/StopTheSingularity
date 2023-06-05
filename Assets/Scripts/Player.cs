@@ -40,11 +40,13 @@ public class Player : MonoBehaviour
     public bool grapplingGunEquipped;
     public bool glockEquipped;
     public bool icePickEquipped;
+    public bool assaultrifleEquipped;
     public GameObject grapplingGun;
     public GameObject sword;
     public Firearm glock;
     public TextMeshProUGUI ammoText;
     public GameObject icePick;
+    public AssaultRifle assaultRifle;
 
     public AudioClip swordUnsheath;
     public AudioClip icePickUnStick;
@@ -77,6 +79,8 @@ public class Player : MonoBehaviour
     public Animator plasmatanaAnimation; 
     public TrailRenderer plasmatanaTrails, plasmatanaTrails2;
     public bool plasmatanaReady;
+    public bool attackingWithPlasmatana;
+    public GameObject ItemHolder;
 
     // Start is called before the first frame update
     void Start()
@@ -108,6 +112,7 @@ public class Player : MonoBehaviour
             unequipGlock();
             unequipGrapplingGun();
             unequipIcePick();
+            unequipAssaultRifle();
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
@@ -116,6 +121,7 @@ public class Player : MonoBehaviour
             unequipSword();
             unequipGrapplingGun();
             unequipIcePick();
+            unequipAssaultRifle();
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
@@ -124,6 +130,7 @@ public class Player : MonoBehaviour
             unequipSword();
             unequipGlock();
             unequipIcePick();
+            unequipAssaultRifle();
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
@@ -132,6 +139,16 @@ public class Player : MonoBehaviour
             unequipSword();
             unequipGlock();
             unequipGrapplingGun();
+            unequipAssaultRifle();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            equipAR();
+
+            unequipSword();
+            unequipGlock();
+            unequipGrapplingGun();
+            unequipIcePick();
         }
 
         hpSlider.value = HP;
@@ -192,15 +209,34 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (glockEquipped)
+        if (assaultrifleEquipped)
         {
-            if (Input.GetKey(KeyCode.Mouse0) && !glock.reloading)
+            if (Input.GetKey(KeyCode.Mouse0) && !assaultRifle.reloading)
             {
-                glock.Shoot();
+                assaultRifle.Shoot();
             }
             if (Input.GetKeyDown(KeyCode.R))
             {
-                if (glock.ammoInMag > 0 && !glock.reloading)
+                if (assaultRifle.ammoInMag > 0 && !assaultRifle.reloading)
+                {
+                    StartCoroutine(glock.reload());
+                }
+                else if (assaultRifle.ammoInMag == 0 && !assaultRifle.reloading)
+                {
+                    StartCoroutine(assaultRifle.reloadOnEmpty());
+                }
+            }
+        }
+
+        if (assaultrifleEquipped)
+        {
+            if (Input.GetKey(KeyCode.Mouse0) && !assaultRifle.reloading)
+            {
+                assaultRifle.Shoot();
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                if (assaultRifle.ammoInMag > 0 && !glock.reloading)
                 {
                     StartCoroutine(glock.reload());
                 }
@@ -289,6 +325,7 @@ public class Player : MonoBehaviour
 
     public IEnumerator plasmatanaAttack()
     {
+        attackingWithPlasmatana = true;
         plasmatanaReady = false;
         plasmatana.SetActive(true);
         plasmatanaTrails.Clear();
@@ -305,6 +342,7 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(chosenAnimation.length);
         plasmatana.SetActive(false);
         plasmatanaReady = true;
+        attackingWithPlasmatana = false;
     }
 
     IEnumerator swordAttack()
@@ -534,7 +572,11 @@ public class Player : MonoBehaviour
         icePickEquipped = true;
         icePick.gameObject.SetActive(true);
     }
-
+    public void equipAR()
+    {
+        assaultrifleEquipped = true;
+        assaultRifle.gameObject.SetActive(true);
+    }
     public void unequipSword()
     {
         sword.SetActive(false);
@@ -557,5 +599,11 @@ public class Player : MonoBehaviour
         icePick.SetActive(false);
         icePickEquipped = false;
         playerMovement.UnstickFromWall();
+    }
+    public void unequipAssaultRifle()
+    {
+        assaultRifle.muzzleLight.SetActive(false);
+        assaultRifle.gameObject.SetActive(false);
+        assaultrifleEquipped = false;
     }
 }
