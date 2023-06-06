@@ -92,6 +92,7 @@ public class Firearm : MonoBehaviour
 
     public IEnumerator shootAnimation()
     {
+        ScreenShake.Shake(0.1f, 0.1f);
         anim.Play(slideAnim.name);
         muzzleFlash.Play();
         muzzleLight.SetActive(true);

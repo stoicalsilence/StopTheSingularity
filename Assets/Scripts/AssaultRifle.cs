@@ -30,6 +30,7 @@ public class AssaultRifle : MonoBehaviour
     public GameObject muzzleLight;
     private bool isNoAmmoSoundPlayed = false;
 
+    public AnimationClip idleAnim;
     public AnimationClip fireAnim;
     public AnimationClip reloadAnim;
     public AnimationClip reloadOnEmptyAnim;
@@ -65,9 +66,9 @@ public class AssaultRifle : MonoBehaviour
                 GameObject bullet = Instantiate(bulletPrefab, shootHole.position, transform.rotation);
                 int randomIndex = Random.Range(0, gunShots.Length);
                 AudioClip sound = gunShots[randomIndex];
-                gunShotSound.volume = 0.5f;
+                gunShotSound.volume = 0.1f;
                 gunShotSound.PlayOneShot(sound);
-                gunShotSound.volume = 1f;
+                gunShotSound.volume = 0.5f;
                 Vector3 direction = (targetPoint - shootHole.position).normalized;
 
                 Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
@@ -92,6 +93,7 @@ public class AssaultRifle : MonoBehaviour
 
     public IEnumerator shootAnimation()
     {
+        ScreenShake.Shake(0.1f, 0.1f);
         anim.Play(fireAnim.name);
         muzzleFlash.Play();
         muzzleLight.SetActive(true);
@@ -101,7 +103,7 @@ public class AssaultRifle : MonoBehaviour
 
     public IEnumerator reload()
     {
-
+        gunShotSound.volume = 0.5f;
         reloading = true;
         anim.Play(reloadAnim.name);
         yield return new WaitForSeconds(reloadAnim.length / 2);
@@ -118,7 +120,7 @@ public class AssaultRifle : MonoBehaviour
 
     public IEnumerator reloadOnEmpty()
     {
-
+        gunShotSound.volume = 0.5f;
         reloading = true;
         anim.Play(reloadOnEmptyAnim.name);
         yield return new WaitForSeconds(reloadOnEmptyAnim.length / 3);

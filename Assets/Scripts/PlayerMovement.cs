@@ -274,12 +274,12 @@ public class PlayerMovement : MonoBehaviour
         player.painAudio.PlayOneShot(player.jumpSound);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         player.spawnJumpParticles();
-        ScreenShake.Shake(0.05f, 0.05f);
     }
     private void resetJump()
     {
         readyToJump = true;
         exitingSlope = false;
+        slideSpeed = maxSlideSpeed;
         ScreenShake.Shake(0.05f, 0.05f);
     }
 

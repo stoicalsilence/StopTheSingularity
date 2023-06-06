@@ -35,7 +35,8 @@ public class ScreenShake : MonoBehaviour
         else
         {
             shakeDuration = 0f;
-            transform.localPosition = originalPosition;
+            if (smoothShakeDuration <= 0f) // Only reset position if there's no smooth shake active
+                transform.localPosition = originalPosition;
         }
 
         if (smoothShakeDuration > 0)
@@ -49,7 +50,7 @@ public class ScreenShake : MonoBehaviour
 
             smoothShakeDuration -= Time.deltaTime;
         }
-        else
+        else if (shakeDuration <= 0f) // Only reset position if there's no shake active
         {
             smoothShakeDuration = 0f;
             transform.localPosition = originalPosition;

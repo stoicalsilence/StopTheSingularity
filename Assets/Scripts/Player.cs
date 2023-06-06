@@ -158,10 +158,15 @@ public class Player : MonoBehaviour
         {
             ammoText.text = "Glock\n" + glock.ammoInMag.ToString() + " / " + glock.magCapacity.ToString();
         }
+        else if (assaultrifleEquipped)
+        {
+            ammoText.text = "Assault Rifle\n" + assaultRifle.ammoInMag.ToString() + " / " + assaultRifle.magCapacity.ToString();
+        }
         else
         {
             ammoText.text = "";
         }
+        
         if (HP < 1)
         {
             sliderFill.gameObject.SetActive(false);
@@ -209,21 +214,21 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (assaultrifleEquipped)
+        if (glockEquipped)
         {
-            if (Input.GetKey(KeyCode.Mouse0) && !assaultRifle.reloading)
+            if (Input.GetKey(KeyCode.Mouse0) && !glock.reloading)
             {
-                assaultRifle.Shoot();
+                glock.Shoot();
             }
             if (Input.GetKeyDown(KeyCode.R))
             {
-                if (assaultRifle.ammoInMag > 0 && !assaultRifle.reloading)
+                if (glock.ammoInMag > 0 && !glock.reloading && glock.ammoInMag < glock.magCapacity && glock.maxAmmo > 0)
                 {
                     StartCoroutine(glock.reload());
                 }
-                else if (assaultRifle.ammoInMag == 0 && !assaultRifle.reloading)
+                else if (glock.ammoInMag == 0 && !glock.reloading && glock.ammoInMag < glock.magCapacity && glock.maxAmmo > 0)
                 {
-                    StartCoroutine(assaultRifle.reloadOnEmpty());
+                    StartCoroutine(glock.reloadOnEmpty());
                 }
             }
         }
@@ -236,13 +241,13 @@ public class Player : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.R))
             {
-                if (assaultRifle.ammoInMag > 0 && !glock.reloading)
+                if (assaultRifle.ammoInMag > 0 && !assaultRifle.reloading && assaultRifle.ammoInMag < assaultRifle.magCapacity && assaultRifle.maxAmmo > 0)
                 {
-                    StartCoroutine(glock.reload());
+                    StartCoroutine(assaultRifle.reload());
                 }
-                else if (glock.ammoInMag == 0 && !glock.reloading)
+                else if (assaultRifle.ammoInMag == 0 && !assaultRifle.reloading && assaultRifle.ammoInMag < assaultRifle.magCapacity && assaultRifle.maxAmmo > 0)
                 {
-                    StartCoroutine(glock.reloadOnEmpty());
+                    StartCoroutine(assaultRifle.reloadOnEmpty());
                 }
             }
         }
