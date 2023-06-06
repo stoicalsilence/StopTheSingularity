@@ -581,6 +581,7 @@ public class Player : MonoBehaviour
     {
         assaultrifleEquipped = true;
         assaultRifle.gameObject.SetActive(true);
+        assaultRifle.playCockingNoise();
     }
     public void unequipSword()
     {

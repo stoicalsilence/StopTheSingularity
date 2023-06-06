@@ -141,6 +141,7 @@ public class AssaultRifle : MonoBehaviour
 
     public void playCockingNoise()
     {
+        gunShotSound.volume = 0.5f;
         int randomIndex3 = Random.Range(0, gunCocking.Length);
         AudioClip sound3 = gunCocking[randomIndex3];
         gunShotSound.PlayOneShot(sound3);
