@@ -41,12 +41,14 @@ public class Player : MonoBehaviour
     public bool glockEquipped;
     public bool icePickEquipped;
     public bool assaultrifleEquipped;
+    public bool shotgunEquipped;
     public GameObject grapplingGun;
     public GameObject sword;
     public Firearm glock;
     public TextMeshProUGUI ammoText;
     public GameObject icePick;
     public AssaultRifle assaultRifle;
+    public Shotgun shotgun;
 
     public AudioClip swordUnsheath;
     public AudioClip icePickUnStick;
@@ -113,6 +115,7 @@ public class Player : MonoBehaviour
             unequipGrapplingGun();
             unequipIcePick();
             unequipAssaultRifle();
+            unequipShotgun();
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
@@ -122,6 +125,7 @@ public class Player : MonoBehaviour
             unequipGrapplingGun();
             unequipIcePick();
             unequipAssaultRifle();
+            unequipShotgun();
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
@@ -131,6 +135,7 @@ public class Player : MonoBehaviour
             unequipGlock();
             unequipIcePick();
             unequipAssaultRifle();
+            unequipShotgun();
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
@@ -140,6 +145,7 @@ public class Player : MonoBehaviour
             unequipGlock();
             unequipGrapplingGun();
             unequipAssaultRifle();
+            unequipShotgun();
         }
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
@@ -149,6 +155,17 @@ public class Player : MonoBehaviour
             unequipGlock();
             unequipGrapplingGun();
             unequipIcePick();
+            unequipShotgun();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            equipShotgun();
+
+            unequipSword();
+            unequipGlock();
+            unequipGrapplingGun();
+            unequipIcePick();
+            unequipAssaultRifle();
         }
 
         hpSlider.value = HP;
@@ -161,6 +178,10 @@ public class Player : MonoBehaviour
         else if (assaultrifleEquipped)
         {
             ammoText.text = "Assault Rifle\n" + assaultRifle.ammoInMag.ToString() + " / " + assaultRifle.magCapacity.ToString();
+        }
+        else if (shotgunEquipped)
+        {
+            ammoText.text = "Shotgun\n" + shotgun.ammoInMag.ToString() + " / " + shotgun.magCapacity.ToString();
         }
         else
         {
@@ -248,6 +269,21 @@ public class Player : MonoBehaviour
                 else if (assaultRifle.ammoInMag == 0 && !assaultRifle.reloading && assaultRifle.ammoInMag < assaultRifle.magCapacity && assaultRifle.maxAmmo > 0)
                 {
                     StartCoroutine(assaultRifle.reloadOnEmpty());
+                }
+            }
+        }
+
+        if (shotgunEquipped)
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                shotgun.Shoot();
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                if (shotgun.ammoInMag < shotgun.magCapacity && !shotgun.reloading)
+                {
+                    StartCoroutine(shotgun.reload());
                 }
             }
         }
@@ -583,6 +619,12 @@ public class Player : MonoBehaviour
         assaultRifle.gameObject.SetActive(true);
         assaultRifle.playCockingNoise();
     }
+    public void equipShotgun()
+    {
+        shotgunEquipped = true;
+        shotgun.gameObject.SetActive(true);
+        shotgun.playCockingNoise();
+    }
     public void unequipSword()
     {
         sword.SetActive(false);
@@ -611,5 +653,12 @@ public class Player : MonoBehaviour
         assaultRifle.muzzleLight.SetActive(false);
         assaultRifle.gameObject.SetActive(false);
         assaultrifleEquipped = false;
+    }
+    public void unequipShotgun()
+    {
+        shotgun.StopAllCoroutines();
+        shotgun.muzzleLight.SetActive(false);
+        shotgun.gameObject.SetActive(false);
+        shotgunEquipped = false;
     }
 }
