@@ -66,17 +66,25 @@ public class Shotgun : MonoBehaviour
                 reloading = false;
                 StartCoroutine(shootAnimation());
                 ammoInMag--;
-                GameObject bullet = Instantiate(bulletPrefab, shootHole.position, transform.rotation);
                 int randomIndex = Random.Range(0, gunShots.Length);
                 AudioClip sound = gunShots[randomIndex];
                 gunShotSound.volume = 0.1f;
                 gunShotSound.PlayOneShot(sound);
                 gunShotSound.volume = 0.5f;
-                Vector3 direction = (targetPoint - shootHole.position).normalized;
+                for (int i = 0; i < 6; i++)
+                {
+                    GameObject bullet = Instantiate(bulletPrefab, shootHole.position, transform.rotation);
+                    
+                    
+                    Vector3 direction = (targetPoint - shootHole.position).normalized;
+                    direction = Quaternion.Euler(Random.Range(-5f, 5f), Random.Range(-5f, 5f), 0f) * direction;
+                    direction.Normalize();
 
-                Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
+                    Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
 
-                bulletRigidbody.AddForce(direction * bulletSpeed, ForceMode.VelocityChange);
+                    float bulletSpeedWithInaccuracy = bulletSpeed * Random.Range(0.9f, 1.1f);
+                    bulletRigidbody.AddForce(direction * bulletSpeedWithInaccuracy, ForceMode.VelocityChange);
+                }
 
                 cooldownTimer = fireAnim.length;
             }
@@ -128,6 +136,10 @@ public class Shotgun : MonoBehaviour
             if(ammoInMag == magCapacity)
             {
                 anim.Play(reloadEnd.name);
+                gunShotSound.volume = 0.5f;
+                int randomIndex3 = Random.Range(0, shotgunPumps.Length);
+                AudioClip sound3 = shotgunPumps[randomIndex3];
+                gunShotSound.PlayOneShot(sound3);
                 yield return new WaitForSeconds(reloadEnd.length);
             }
         }

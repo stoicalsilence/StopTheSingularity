@@ -37,6 +37,10 @@ public class Bullet : MonoBehaviour
         {
             Physics.IgnoreCollision(GetComponent<Collider>(), other.collider);
         }
+        if (other.gameObject.CompareTag("PlayerAttack"))
+        {
+            Physics.IgnoreCollision(GetComponent<Collider>(), other.collider);
+        }
         else
         {
             int randomIndex = Random.Range(0, impacts.Length);
