@@ -64,12 +64,13 @@ public class Shotgun : MonoBehaviour
 
             if (ammoInMag > 0)
             {
+                StopAllCoroutines();
                 reloading = false;
                 StartCoroutine(shootAnimation());
                 ammoInMag--;
                 int randomIndex = Random.Range(0, gunShots.Length);
                 AudioClip sound = gunShots[randomIndex];
-                gunShotSound.volume = 0.1f;
+                gunShotSound.volume = 0.3f;
                 gunShotSound.PlayOneShot(sound);
                 gunShotSound.volume = 0.5f;
                 for (int i = 0; i < 6; i++)
@@ -127,8 +128,6 @@ public class Shotgun : MonoBehaviour
         yield return new WaitForSeconds(reloadStart.length);
         while (ammoInMag < magCapacity)
         {
-            if (stoprel)
-                yield break;
             if (ammoInMag < magCapacity)
             {
                 anim.Play(reloadOne.name);

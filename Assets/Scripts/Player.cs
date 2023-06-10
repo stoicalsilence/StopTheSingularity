@@ -83,6 +83,9 @@ public class Player : MonoBehaviour
     public bool plasmatanaReady;
     public bool attackingWithPlasmatana;
     public GameObject ItemHolder;
+    public AudioClip slideInit;
+    public AudioClip[] plasmaSwings;
+    public AudioSource plamsatanasound;
 
     // Start is called before the first frame update
     void Start()
@@ -275,7 +278,7 @@ public class Player : MonoBehaviour
 
         if (shotgunEquipped)
         {
-            if (Input.GetKeyDown(KeyCode.Mouse0))
+            if (Input.GetKeyDown(KeyCode.Mouse0) && !shotgun.reloading)
             {
                 shotgun.Shoot();
             }
@@ -375,7 +378,9 @@ public class Player : MonoBehaviour
         int randomIndex = Random.Range(0, swordSwooshSounds.Length);
         AudioClip sound = swordSwooshSounds[randomIndex];
         blockSound.PlayOneShot(sound);
-
+        int e = Random.Range(0, plasmaSwings.Length);
+        AudioClip d = plasmaSwings[e];
+        plamsatanasound.PlayOneShot(d);
         float randomValue = Random.value;
         AnimationClip chosenAnimation = randomValue < 0.5f ? hitAnimation1 : hitAnimation2;
         plasmatanaAnimation.Play(chosenAnimation.name);
@@ -534,6 +539,11 @@ public class Player : MonoBehaviour
         int randomIndex = Random.Range(0, blockSounds.Length);
         AudioClip sound = blockSounds[randomIndex];
         blockSound.PlayOneShot(sound);
+    }
+
+    public void playStartSlideSound()
+    {
+        painAudio.PlayOneShot(slideInit);
     }
 
     public void playSlideSound()

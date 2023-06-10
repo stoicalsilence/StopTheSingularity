@@ -18,6 +18,7 @@ public class Killbot : MonoBehaviour
     {
         // Calculate the direction from the whole object to the player
         Vector3 directionToPlayer = player.position - transform.position;
+        directionToPlayer.y = 0;
 
         // Calculate the target rotation based on the corrected direction
         Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer, Vector3.up);

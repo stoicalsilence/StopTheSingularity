@@ -56,6 +56,10 @@ public class PlayerMovement : MonoBehaviour
     public bool isSticking;
     public bool canStick;
 
+    public AudioSource footstepFX;
+    public AudioClip[] footsteps;
+    private float lastFootstepTime;
+
     public enum MovementState
     {
         walking, sprinting, crouching, air
@@ -74,6 +78,21 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        if (((state == MovementState.walking || state == MovementState.sprinting) && rb.velocity.magnitude > 2) || state == MovementState.crouching && slideSpeed < 0.4f && rb.velocity.magnitude > 1)
+        {
+            float footstepInterval = 3f / rb.velocity.magnitude;  // Inversely proportional interval
+            float timeSinceLastFootstep = Time.time - lastFootstepTime;
+
+            if (timeSinceLastFootstep >= footstepInterval)
+            {
+                AudioClip footstepSound = footsteps[Random.Range(0, footsteps.Length)];
+                footstepFX.PlayOneShot(footstepSound);
+
+                lastFootstepTime = Time.time;  // Update the last footstep time
+            }
+        }
+
         transform.rotation = Quaternion.Euler(0f, playerCam.transform.rotation.eulerAngles.y, 0f);
 
         if (state != MovementState.crouching)
@@ -98,6 +117,11 @@ public class PlayerMovement : MonoBehaviour
             rb.drag = 0;
         }
 
+        if (!isCrouching)
+        {
+            slideSpeed = rb.velocity.magnitude * 40;
+        }
+
         if (isCrouching)
         {
             if (grounded)
@@ -119,9 +143,18 @@ public class PlayerMovement : MonoBehaviour
         movePlayer();
         if (rb.velocity.magnitude > 0.5f)
         {
-            if (isCrouching)
+            if (isCrouching && grounded)
             {
-                rb.AddForce(orientation.transform.forward * slideSpeed);
+                Vector3 slideDirection = rb.velocity.normalized; //slide in the direction of movement
+                rb.AddForce(slideDirection * slideSpeed);
+                if (slideSpeed > 0)
+                {
+                    slideSpeed = slideSpeed - (Time.deltaTime * 120);
+                }
+            }
+            if(isCrouching && !grounded)
+            {
+                rb.AddForce(orientation.transform.forward * slideSpeed); // so you dont zoom up or down when in air
                 if (slideSpeed > 0)
                 {
                     slideSpeed = slideSpeed - (Time.deltaTime * 120);
@@ -146,7 +179,11 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(crouchkey))
         {
-            slideSpeed = maxSlideSpeed;
+            // slideSpeed = maxSlideSpeed;
+            if (rb.velocity.magnitude > 2)
+            {
+                player.playStartSlideSound();
+            }
             isCrouching = true;
             transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
             rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
