@@ -35,6 +35,7 @@ public class Shotgun : MonoBehaviour
     public AnimationClip reloadStart;
     public AnimationClip reloadOne;
     public AnimationClip reloadEnd;
+    private bool stoprel;
 
     void Update()
     {
@@ -45,7 +46,8 @@ public class Shotgun : MonoBehaviour
     }
     public void Shoot()
     {
-        if (cooldownTimer <= 0f && !reloading)
+
+        if (cooldownTimer <= 0f)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -62,7 +64,6 @@ public class Shotgun : MonoBehaviour
 
             if (ammoInMag > 0)
             {
-                StopAllCoroutines();
                 reloading = false;
                 StartCoroutine(shootAnimation());
                 ammoInMag--;
@@ -104,6 +105,7 @@ public class Shotgun : MonoBehaviour
 
     public IEnumerator shootAnimation()
     {
+        stoprel = true;
         ScreenShake.Shake(0.1f, 0.25f);
         float randomValue = Random.value;
         AnimationClip chosenAnimation = randomValue < 0.5f ? fireAnim : fireAnim2;
@@ -115,6 +117,7 @@ public class Shotgun : MonoBehaviour
         int randomIndex = Random.Range(0, shotgunPumps.Length);
         AudioClip sound = shotgunPumps[randomIndex];
         gunShotSound.PlayOneShot(sound);
+        stoprel = false;
     }
 
     public IEnumerator reload()
@@ -124,6 +127,8 @@ public class Shotgun : MonoBehaviour
         yield return new WaitForSeconds(reloadStart.length);
         while (ammoInMag < magCapacity)
         {
+            if (stoprel)
+                yield break;
             if (ammoInMag < magCapacity)
             {
                 anim.Play(reloadOne.name);
@@ -144,19 +149,6 @@ public class Shotgun : MonoBehaviour
             }
         }
         reloading = false;
-        //gunShotSound.volume = 0.5f;
-        //reloading = true;
-        //anim.Play(reloadAnim.name);
-        //yield return new WaitForSeconds(reloadAnim.length / 2);
-        //int randomIndex = Random.Range(0, magReleases.Length);
-        //AudioClip sound = magReleases[randomIndex];
-        //gunShotSound.PlayOneShot(sound);
-        //yield return new WaitForSeconds(reloadAnim.length / 2);
-        //int randomIndex2 = Random.Range(0, magInserts.Length);
-        //AudioClip sound2 = magInserts[randomIndex2];
-        //gunShotSound.PlayOneShot(sound2);
-        //ammoInMag = magCapacity;
-        //reloading = false;
     }
 
    

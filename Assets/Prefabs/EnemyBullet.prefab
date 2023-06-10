@@ -145,7 +145,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletHitFx: {fileID: 1618909817115037549, guid: ebca6d3a6c8d4284680a8f80e91c2d79, type: 3}
   impactSound: {fileID: 7844900104772677564}
-  ignoreTag: a
+  ignoreTag: EnemyBody
   impacts:
   - {fileID: 8300000, guid: 5f7ae5f8ed3389a4b9a61896cdf58900, type: 3}
 --- !u!65 &18469487422841019
