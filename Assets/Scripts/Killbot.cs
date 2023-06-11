@@ -13,7 +13,6 @@ public class Killbot : MonoBehaviour
     public float minimumRange = 3f;
     public float movementSpeed = 5f; // New speed variable
     public Animator animator;
-    public Animator bobAnimation; // Reference to the animation object
 
     public ParticleSystem muzzleFlare;
     public GameObject orangeLight, bulletPrefab;
@@ -52,7 +51,7 @@ public class Killbot : MonoBehaviour
         player = FindObjectOfType<Player>().transform;
         animator = GetComponent<Animator>(); // Assign the animator to the animation object
         animator.SetBool("Idle", true);
-        bobAnimation = gameObject.transform.parent.gameObject.GetComponent<Animator>();
+     
     }
 
     private void Update()
@@ -71,7 +70,7 @@ public class Killbot : MonoBehaviour
                     triggered = true;
                     animator.SetBool("Idle", false);
                     animator.SetBool("Attacking", true);
-                    bobAnimation.SetBool("Triggered", true);
+                    
                 }
             }
         }
@@ -89,7 +88,7 @@ public class Killbot : MonoBehaviour
             if (distanceToPlayer < minimumRange)
             {
                 animator.SetBool("AttackingStanding", true);
-                bobAnimation.SetBool("Triggered", false);
+                animator.SetBool("Attacking", false);
                 shootTimer += Time.deltaTime;
                 if (shootTimer >= shootInterval)
                 {
@@ -102,13 +101,12 @@ public class Killbot : MonoBehaviour
             }
             else
             {
-                bobAnimation.SetBool("Triggered", true);
                 animator.SetBool("AttackingStanding", false);
                 animator.SetBool("Attacking", true);
                 // Move towards the player with a specific speed
                 transform.position += directionToPlayer.normalized * movementSpeed * Time.deltaTime;
 
-                float footstepInterval = 0.2f / rb.velocity.magnitude;  // Inversely proportional interval
+                float footstepInterval = 0.02f / rb.velocity.magnitude;  // Inversely proportional interval
                 float timeSinceLastFootstep = Time.time - lastFootstepTime;
 
                 if (timeSinceLastFootstep >= footstepInterval)
@@ -135,8 +133,6 @@ public class Killbot : MonoBehaviour
                     audioSource.PlayOneShot(targetedSound);
                     triggered = true;
                     animator.SetBool("Idle", false);
-                    animator.SetBool("Attacking", true);
-                    bobAnimation.SetBool("Triggered", true);
                 }
                 int randomIndex = Random.Range(0, damageSounds.Length);
                 AudioClip hitSound2 = damageSounds[randomIndex];
