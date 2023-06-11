@@ -31,6 +31,7 @@ public class Killbot : MonoBehaviour
     public AudioClip[] dieSounds;
     public AudioClip[] passiveSounds;
     public AudioClip targetedSound;
+    public AudioClip letsGetItOn;
 
     private RaycastHit hitInfo;
 
@@ -63,6 +64,10 @@ public class Killbot : MonoBehaviour
                 if (hitInfo.collider.CompareTag("Player"))
                 {
                     audioSource.PlayOneShot(targetedSound);
+                    if (Random.value < 0.25f)
+                    {
+                        audioSource.PlayOneShot(letsGetItOn);
+                    }
                     triggered = true;
                     animator.SetBool("Idle", false);
                     animator.SetBool("Attacking", true);
@@ -125,7 +130,7 @@ public class Killbot : MonoBehaviour
             takeDamage();
             if (health > 0)
             {
-                if (!triggered)
+                if (!triggered && animator)
                 {
                     audioSource.PlayOneShot(targetedSound);
                     triggered = true;
@@ -134,8 +139,8 @@ public class Killbot : MonoBehaviour
                     bobAnimation.SetBool("Triggered", true);
                 }
                 int randomIndex = Random.Range(0, damageSounds.Length);
-                AudioClip hitSound = damageSounds[randomIndex];
-                audioSource.clip = hitSound;
+                AudioClip hitSound2 = damageSounds[randomIndex];
+                audioSource.clip = hitSound2;
                 audioSource.PlayOneShot(audioSource.clip);
                 Vector3 collisionPoint = collision.GetContact(0).point;
                 GameObject ded = Instantiate(collisionParticles, collisionPoint, Quaternion.identity);
@@ -187,7 +192,6 @@ public class Killbot : MonoBehaviour
     public void takeDamage()
     {
         health--;
-        Debug.Log("bodyhit");
         FindObjectOfType<HitmarkerEffect>().ShowHitmarker();    
     }
 
