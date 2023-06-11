@@ -2178,6 +2178,7 @@ MonoBehaviour:
   dieSounds: []
   passiveSounds: []
   targetedSound: {fileID: 0}
+  letsGetItOn: {fileID: 0}
   bodyHitbox: {fileID: 0}
   headHitbox: {fileID: 0}
   collisionParticles: {fileID: 0}
@@ -116647,6 +116648,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 5283e3ee59c203b46809b434bdc2e1a8, type: 3}
   - {fileID: 8300000, guid: 64984af7011cd2a4f8b0b8c49b1e8931, type: 3}
   targetedSound: {fileID: 8300000, guid: 6ebbb5d7aed9ee446934b2121a523f0b, type: 3}
+  letsGetItOn: {fileID: 8300000, guid: 79d6a7fb0751aa64c8e2e1d910e188b9, type: 3}
   bodyHitbox: {fileID: 2924962493498312706}
   headHitbox: {fileID: 2924962493498312705}
   collisionParticles: {fileID: 8643709319016830340, guid: dfffeec8ea5f6174e91740c5ec25f036, type: 3}
