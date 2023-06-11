@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Killbot : MonoBehaviour
 {
+    public int health = 7;
     public Transform player, bullethole;
     public float damping = 2f;
     public float yRotationOffset = 120f;
@@ -24,12 +25,29 @@ public class Killbot : MonoBehaviour
     private float shootTimer = 0.0f;
 
     public AudioSource audioSource;
+    public AudioSource hitSounds;
     public AudioClip[] gunShots;
+    public AudioClip[] damageSounds;
+    public AudioClip[] dieSounds;
+    public AudioClip[] passiveSounds;
+    public AudioClip targetedSound;
 
     private RaycastHit hitInfo;
 
+    public Collider bodyHitbox;
+    public Collider headHitbox;
+    public GameObject collisionParticles;
+    public GameObject explosionParticles;
+
+    public AudioSource footstepFX;
+    public AudioClip[] footsteps;
+    private float lastFootstepTime;
+    public Rigidbody rb;
+    public GameObject footstepParticles;
     private void Start()
     {
+        rb = GetComponent<Rigidbody>();
+        InvokeRepeating("PlayPassiveSounds", 0.1f, 5);
         player = FindObjectOfType<Player>().transform;
         animator = GetComponent<Animator>(); // Assign the animator to the animation object
         animator.SetBool("Idle", true);
@@ -44,6 +62,7 @@ public class Killbot : MonoBehaviour
             {
                 if (hitInfo.collider.CompareTag("Player"))
                 {
+                    audioSource.PlayOneShot(targetedSound);
                     triggered = true;
                     animator.SetBool("Idle", false);
                     animator.SetBool("Attacking", true);
@@ -83,8 +102,110 @@ public class Killbot : MonoBehaviour
                 animator.SetBool("Attacking", true);
                 // Move towards the player with a specific speed
                 transform.position += directionToPlayer.normalized * movementSpeed * Time.deltaTime;
+
+                float footstepInterval = 0.2f / rb.velocity.magnitude;  // Inversely proportional interval
+                float timeSinceLastFootstep = Time.time - lastFootstepTime;
+
+                if (timeSinceLastFootstep >= footstepInterval)
+                {
+                    AudioClip footstepSound = footsteps[Random.Range(0, footsteps.Length)];
+                    footstepFX.PlayOneShot(footstepSound);
+                    GameObject step = Instantiate(footstepParticles, footstepFX.transform.position, Quaternion.identity);
+                    Destroy(step, 3f);
+                    lastFootstepTime = Time.time;  // Update the last footstep time
+                }
             }
         }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("PlayerAttack"))
+        {
+            takeDamage();
+            if (health > 0)
+            {
+                if (!triggered)
+                {
+                    audioSource.PlayOneShot(targetedSound);
+                    triggered = true;
+                    animator.SetBool("Idle", false);
+                    animator.SetBool("Attacking", true);
+                    bobAnimation.SetBool("Triggered", true);
+                }
+                int randomIndex = Random.Range(0, damageSounds.Length);
+                AudioClip hitSound = damageSounds[randomIndex];
+                audioSource.clip = hitSound;
+                audioSource.PlayOneShot(audioSource.clip);
+                Vector3 collisionPoint = collision.GetContact(0).point;
+                GameObject ded = Instantiate(collisionParticles, collisionPoint, Quaternion.identity);
+                Destroy(ded, 5f);
+            }
+            else
+            {
+                int randomIndex = Random.Range(0, dieSounds.Length);
+                AudioClip hitSound = dieSounds[randomIndex];
+                audioSource.clip = hitSound;
+                audioSource.PlayOneShot(audioSource.clip);
+                Vector3 collisionPoint = collision.GetContact(0).point;
+                GameObject oof = Instantiate(explosionParticles, collisionPoint, Quaternion.identity);
+                Destroy(oof, 5f);
+                GameObject lighty = Instantiate(orangeLight, collisionPoint, Quaternion.identity);
+                Destroy(lighty, 0.25f);
+                FindObjectOfType<KillText>().getReportedTo();
+                ScreenShake.Shake(0.25f, 0.05f);
+                Destroy(this); // add change to ragdoll
+                Animator animator = GetComponent<Animator>();
+                Destroy(animator);
+
+                // Add rigidbody to each child GameObject and apply random torqued force
+                foreach (Transform child in transform)
+                {
+                    if (child.gameObject.activeInHierarchy)
+                    {
+                        Rigidbody childRigidbody = child.gameObject.AddComponent<Rigidbody>();
+                        Destroy(child.gameObject, 4f);
+
+                        Vector3 randomForce = Random.onUnitSphere * Random.Range(2f, 5f);
+                        Vector3 randomTorque = new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f), Random.Range(-10f, 10f));
+
+                        childRigidbody.AddForce(randomForce, ForceMode.Impulse);
+                        childRigidbody.AddTorque(randomTorque, ForceMode.Impulse);
+
+                        BoxCollider boxCollider = child.gameObject.GetComponent<BoxCollider>();
+                        if (boxCollider != null)
+                        {
+                            boxCollider.enabled = true;
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+
+    public void takeDamage()
+    {
+        health--;
+        Debug.Log("bodyhit");
+        FindObjectOfType<HitmarkerEffect>().ShowHitmarker();    
+    }
+
+    private void PlayPassiveSounds()
+    {
+       
+            if (!audioSource.isPlaying)
+            {
+                int randomIndex = Random.Range(0, passiveSounds.Length);
+                AudioClip sound = passiveSounds[randomIndex];
+                audioSource.PlayOneShot(sound);
+            }
+        
+    }
+
+    public void takeCritDamage()
+    {
+        Debug.Log("headhit");
     }
 
     private void ShootBullet()
