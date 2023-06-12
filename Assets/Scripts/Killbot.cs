@@ -155,6 +155,9 @@ public class Killbot : MonoBehaviour
                 Destroy(lighty, 0.25f);
                 FindObjectOfType<KillText>().getReportedTo();
                 ScreenShake.Shake(0.25f, 0.05f);
+                Destroy(bodyHitbox);
+                Destroy(headHitbox);
+                Destroy(this.gameObject, 4.2f);
                 Destroy(this); // add change to ragdoll
                 Animator animator = GetComponent<Animator>();
                 Destroy(animator);
