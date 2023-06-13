@@ -617,6 +617,7 @@ MonoBehaviour:
   minimumRange: 3
   movementSpeed: 5
   animator: {fileID: 0}
+  headTransform: {fileID: 0}
   muzzleFlare: {fileID: 0}
   orangeLight: {fileID: 0}
   bulletPrefab: {fileID: 0}
@@ -1592,6 +1593,36 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &4696944167384275971
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5681207449983547234}
+  m_Layer: 0
+  m_Name: Headtransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5681207449983547234
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4696944167384275971}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 2.576, z: 0.179}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 8021140852757169559}
+  m_RootOrder: 13
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4782578840585302621
 GameObject:
   m_ObjectHideFlags: 0
@@ -2287,6 +2318,7 @@ GameObject:
   - component: {fileID: 5883039692735370274}
   - component: {fileID: 5883039692735370273}
   - component: {fileID: 8625300414318712299}
+  - component: {fileID: 688663349123716975}
   m_Layer: 0
   m_Name: Killbot
   m_TagString: Untagged
@@ -2318,6 +2350,7 @@ Transform:
   - {fileID: 8733408259391482679}
   - {fileID: 2260956189360532810}
   - {fileID: 1274944883250289061}
+  - {fileID: 5681207449983547234}
   m_Father: {fileID: 8733408259278970804}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2369,6 +2402,7 @@ MonoBehaviour:
   minimumRange: 7
   movementSpeed: 3
   animator: {fileID: 0}
+  headTransform: {fileID: 5681207449983547234}
   muzzleFlare: {fileID: 8733408259274347878}
   orangeLight: {fileID: 8733408258858500818}
   bulletPrefab: {fileID: 3593518444365075395, guid: 927db56ce837cce43afd330a7f08499e, type: 3}
@@ -2443,6 +2477,28 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!195 &688663349123716975
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5883039692735372253}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 1
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 3
+  m_BaseOffset: 0.4
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &6004087004264552836
 GameObject:
   m_ObjectHideFlags: 0

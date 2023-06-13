@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Killbot : MonoBehaviour
 {
@@ -44,6 +45,8 @@ public class Killbot : MonoBehaviour
     private float lastFootstepTime;
     public Rigidbody rb;
     public GameObject footstepParticles;
+
+    private NavMeshAgent agent;
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -51,7 +54,10 @@ public class Killbot : MonoBehaviour
         player = FindObjectOfType<Player>().transform;
         animator = GetComponent<Animator>(); // Assign the animator to the animation object
         animator.SetBool("Idle", true);
-     
+
+        agent = GetComponent<NavMeshAgent>();
+        agent.speed = movementSpeed;
+        agent.updateRotation = false;
     }
 
     private void Update()
@@ -87,6 +93,7 @@ public class Killbot : MonoBehaviour
 
             if (distanceToPlayer < minimumRange)
             {
+                agent.isStopped = true;
                 animator.SetBool("AttackingStanding", true);
                 animator.SetBool("Attacking", false);
                 shootTimer += Time.deltaTime;
@@ -101,10 +108,11 @@ public class Killbot : MonoBehaviour
             }
             else
             {
+                agent.isStopped = false;
                 animator.SetBool("AttackingStanding", false);
                 animator.SetBool("Attacking", true);
                 // Move towards the player with a specific speed
-                transform.position += directionToPlayer.normalized * movementSpeed * Time.deltaTime;
+                agent.SetDestination(player.position);
 
                 float footstepInterval = 0.02f / rb.velocity.magnitude;  // Inversely proportional interval
                 float timeSinceLastFootstep = Time.time - lastFootstepTime;
@@ -161,7 +169,7 @@ public class Killbot : MonoBehaviour
                 Destroy(this); // add change to ragdoll
                 Animator animator = GetComponent<Animator>();
                 Destroy(animator);
-
+                orangeLight.gameObject.SetActive(false);
                 // Add rigidbody to each child GameObject and apply random torqued force
                 foreach (Transform child in transform)
                 {

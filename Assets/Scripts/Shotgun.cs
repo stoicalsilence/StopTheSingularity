@@ -36,6 +36,8 @@ public class Shotgun : MonoBehaviour
     public AnimationClip reloadOne;
     public AnimationClip reloadEnd;
     private bool stoprel;
+    public float recoilForce = 5f;
+    Vector3 recoilDirection;
 
     void Update()
     {
@@ -81,12 +83,13 @@ public class Shotgun : MonoBehaviour
                     Vector3 direction = (targetPoint - shootHole.position).normalized;
                     direction = Quaternion.Euler(Random.Range(-5f, 5f), Random.Range(-5f, 5f), 0f) * direction;
                     direction.Normalize();
-
+                    recoilDirection = -direction;
                     Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
 
                     float bulletSpeedWithInaccuracy = bulletSpeed * Random.Range(0.9f, 1.1f);
                     bulletRigidbody.AddForce(direction * bulletSpeedWithInaccuracy, ForceMode.VelocityChange);
                 }
+                FindObjectOfType<Player>().GetComponent<Rigidbody>().AddForce(recoilDirection * recoilForce, ForceMode.Impulse);
 
                 cooldownTimer = fireAnim.length;
             }

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class GrapplingGun : MonoBehaviour
 {
-
     private LineRenderer lr;
     private Vector3 grapplePoint;
     public LayerMask whatIsGrappleable;
@@ -14,6 +13,10 @@ public class GrapplingGun : MonoBehaviour
 
     public AudioSource audioSource;
     public AudioClip grappleSound;
+
+    // Adjust these values to control the swinging effect
+    public float swingForce = 4f;
+    public float maxSwingAngle = 45f;
 
     void Awake()
     {
@@ -32,7 +35,7 @@ public class GrapplingGun : MonoBehaviour
         }
     }
 
-    //Called after Update
+    // Called after Update
     void LateUpdate()
     {
         DrawRope();
@@ -84,6 +87,19 @@ public class GrapplingGun : MonoBehaviour
 
         lr.SetPosition(0, gunTip.position);
         lr.SetPosition(1, currentGrapplePosition);
+
+        // Calculate the direction from the player to the grapple point
+        Vector3 grappleDirection = (grapplePoint - player.position).normalized;
+
+        // Calculate the angle between the player's forward direction and the grapple direction
+        float angle = Vector3.Angle(player.forward, grappleDirection);
+
+        // Apply swing force based on the angle
+        if (angle <= maxSwingAngle)
+        {
+            Vector3 swingForceVector = Quaternion.Euler(0f, angle, 0f) * player.forward * swingForce;
+            player.GetComponent<Rigidbody>().AddForce(swingForceVector, ForceMode.Acceleration);
+        }
     }
 
     public bool IsGrappling()
