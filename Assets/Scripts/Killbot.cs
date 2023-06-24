@@ -46,7 +46,8 @@ public class Killbot : MonoBehaviour
     public Rigidbody rb;
     public GameObject footstepParticles;
 
-    private NavMeshAgent agent;
+    public NavMeshAgent agent;
+    bool ded;
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -93,6 +94,7 @@ public class Killbot : MonoBehaviour
 
             if (distanceToPlayer < minimumRange)
             {
+                if(agent.enabled)
                 agent.isStopped = true;
                 animator.SetBool("AttackingStanding", true);
                 animator.SetBool("Attacking", false);
@@ -108,13 +110,16 @@ public class Killbot : MonoBehaviour
             }
             else
             {
+                if(agent.enabled)
                 agent.isStopped = false;
                 animator.SetBool("AttackingStanding", false);
                 animator.SetBool("Attacking", true);
                 // Move towards the player with a specific speed
-                agent.SetDestination(player.position);
-
-                float footstepInterval = 0.02f / rb.velocity.magnitude;  // Inversely proportional interval
+                if (agent.enabled)
+                {
+                    agent.SetDestination(player.position);
+                }
+                float footstepInterval = 0.1f / rb.velocity.magnitude;  // Inversely proportional interval
                 float timeSinceLastFootstep = Time.time - lastFootstepTime;
 
                 if (timeSinceLastFootstep >= footstepInterval)
@@ -131,69 +136,72 @@ public class Killbot : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("PlayerAttack"))
+        if (!ded)
         {
-            takeDamage();
-            if (health > 0)
+            if (collision.gameObject.CompareTag("PlayerAttack"))
             {
-                if (!triggered && animator)
+                takeDamage();
+                if (health > 0)
                 {
-                    audioSource.PlayOneShot(targetedSound);
-                    triggered = true;
-                    animator.SetBool("Idle", false);
-                }
-                int randomIndex = Random.Range(0, damageSounds.Length);
-                AudioClip hitSound2 = damageSounds[randomIndex];
-                audioSource.clip = hitSound2;
-                audioSource.PlayOneShot(audioSource.clip);
-                Vector3 collisionPoint = collision.GetContact(0).point;
-                GameObject ded = Instantiate(collisionParticles, collisionPoint, Quaternion.identity);
-                Destroy(ded, 5f);
-            }
-            else
-            {
-                int randomIndex = Random.Range(0, dieSounds.Length);
-                AudioClip hitSound = dieSounds[randomIndex];
-                audioSource.clip = hitSound;
-                audioSource.PlayOneShot(audioSource.clip);
-                Vector3 collisionPoint = collision.GetContact(0).point;
-                GameObject oof = Instantiate(explosionParticles, collisionPoint, Quaternion.identity);
-                Destroy(oof, 5f);
-                GameObject lighty = Instantiate(orangeLight, collisionPoint, Quaternion.identity);
-                Destroy(lighty, 0.25f);
-                FindObjectOfType<KillText>().getReportedTo();
-                ScreenShake.Shake(0.25f, 0.05f);
-                Destroy(bodyHitbox);
-                Destroy(headHitbox);
-                Destroy(this.gameObject, 4.2f);
-                Destroy(this); // add change to ragdoll
-                Animator animator = GetComponent<Animator>();
-                Destroy(animator);
-                orangeLight.gameObject.SetActive(false);
-                // Add rigidbody to each child GameObject and apply random torqued force
-                foreach (Transform child in transform)
-                {
-                    if (child.gameObject.activeInHierarchy)
+                    if (!triggered && animator)
                     {
-                        Rigidbody childRigidbody = child.gameObject.AddComponent<Rigidbody>();
-                        Destroy(child.gameObject, 4f);
-
-                        Vector3 randomForce = Random.onUnitSphere * Random.Range(2f, 5f);
-                        Vector3 randomTorque = new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f), Random.Range(-10f, 10f));
-
-                        childRigidbody.AddForce(randomForce, ForceMode.Impulse);
-                        childRigidbody.AddTorque(randomTorque, ForceMode.Impulse);
-
-                        BoxCollider boxCollider = child.gameObject.GetComponent<BoxCollider>();
-                        if (boxCollider != null)
+                        audioSource.PlayOneShot(targetedSound);
+                        triggered = true;
+                        animator.SetBool("Idle", false);
+                    }
+                    int randomIndex = Random.Range(0, damageSounds.Length);
+                    AudioClip hitSound2 = damageSounds[randomIndex];
+                    audioSource.clip = hitSound2;
+                    audioSource.PlayOneShot(audioSource.clip);
+                    Vector3 collisionPoint = collision.GetContact(0).point;
+                    GameObject ded = Instantiate(collisionParticles, collisionPoint, Quaternion.identity);
+                    Destroy(ded, 5f);
+                }
+                else
+                {
+                    ded = true;
+                    int randomIndex = Random.Range(0, dieSounds.Length);
+                    AudioClip hitSound = dieSounds[randomIndex];
+                    audioSource.clip = hitSound;
+                    audioSource.PlayOneShot(audioSource.clip);
+                    Vector3 collisionPoint = collision.GetContact(0).point;
+                    GameObject oof = Instantiate(explosionParticles, collisionPoint, Quaternion.identity);
+                    Destroy(oof, 5f);
+                    GameObject lighty = Instantiate(orangeLight, collisionPoint, Quaternion.identity);
+                    Destroy(lighty, 0.25f);
+                    FindObjectOfType<KillText>().getReportedTo();
+                    ScreenShake.Shake(0.25f, 0.05f);
+                    Destroy(bodyHitbox);
+                    Destroy(headHitbox);
+                    Destroy(this.gameObject, 4.2f);
+                    Destroy(this); // add change to ragdoll
+                    Animator animator = GetComponent<Animator>();
+                    Destroy(animator);
+                    orangeLight.gameObject.SetActive(false);
+                    // Add rigidbody to each child GameObject and apply random torqued force
+                    foreach (Transform child in transform)
+                    {
+                        if (child.gameObject.activeInHierarchy)
                         {
-                            boxCollider.enabled = true;
+                            Rigidbody childRigidbody = child.gameObject.AddComponent<Rigidbody>();
+                            Destroy(child.gameObject, 4f);
+
+                            Vector3 randomForce = Random.onUnitSphere * Random.Range(2f, 5f);
+                            Vector3 randomTorque = new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f), Random.Range(-10f, 10f));
+
+                            childRigidbody.AddForce(randomForce, ForceMode.Impulse);
+                            childRigidbody.AddTorque(randomTorque, ForceMode.Impulse);
+
+                            BoxCollider boxCollider = child.gameObject.GetComponent<BoxCollider>();
+                            if (boxCollider != null)
+                            {
+                                boxCollider.enabled = true;
+                            }
                         }
                     }
                 }
             }
         }
-        
     }
 
     public void takeDamage()
@@ -212,6 +220,20 @@ public class Killbot : MonoBehaviour
                 audioSource.PlayOneShot(sound);
             }
         
+    }
+
+    public void turnOnNavMeshAgent()
+    {
+        agent.enabled = true;
+    }
+    public void turnOffNavMeshAgent()
+    {
+        agent.enabled = false;
+    }
+    public void toggleNavMeshAgent(float duration)
+    {
+        agent.enabled = false;
+        Invoke("turnOnNavMeshAgent", duration);
     }
 
     public void takeCritDamage()

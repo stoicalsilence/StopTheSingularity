@@ -5,6 +5,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     public GameObject bulletHitFx;
+    public Mesh dblMesh;
 
     public AudioSource impactSound;
     public string ignoreTag;
@@ -22,7 +23,24 @@ public class Bullet : MonoBehaviour
     }
 
     private void OnCollisionEnter(Collision other)
-    {   if(other.gameObject.tag == "EnemyBody")
+    {
+
+        if (this.gameObject.tag == "EnemyBody" && other.gameObject.tag == "PlayerAttack")
+        {
+            Mesh m1 = Instantiate(dblMesh, transform.position, Quaternion.identity);
+            Mesh m2 = Instantiate(dblMesh, transform.position, Quaternion.identity);
+            GameObject ffx = Instantiate(bulletHitFx, transform.position, Quaternion.identity);
+
+            //play dosh sound
+            Debug.Log("DOSH");
+
+            Destroy(m1, 2f);
+            Destroy(m2, 2f);
+            Destroy(ffx, 2f);
+            Destroy(this.gameObject);
+        }
+
+        if (other.gameObject.tag == "EnemyBody")
         {
             int randomIndex = Random.Range(0, impacts.Length);
             AudioClip sound = impacts[randomIndex];
@@ -52,6 +70,8 @@ public class Bullet : MonoBehaviour
             Destroy(parts, 5f);
             DestroySelf();
         }
+
+        
     }
 
     private void DestroySelf()

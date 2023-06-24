@@ -30,7 +30,14 @@ public class Destructable : MonoBehaviour
         audioSource.gameObject.transform.SetParent(null);
         audioSource.PlayOneShot(sound);
         Destroy(audioSource.gameObject, 5f);
-        Destroy(this.gameObject);
+        if (gameObject.GetComponent<MeshDestroy>())
+        {
+            gameObject.GetComponent<MeshDestroy>().DestroyMesh();
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
     }
     private void OnCollisionEnter(Collision collision)
     {

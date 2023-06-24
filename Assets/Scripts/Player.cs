@@ -86,6 +86,7 @@ public class Player : MonoBehaviour
     public AudioClip slideInit;
     public AudioClip[] plasmaSwings;
     public AudioSource plamsatanasound;
+    public GameObject windParticles;
 
     // Start is called before the first frame update
     void Start()
@@ -324,17 +325,21 @@ public class Player : MonoBehaviour
                 swordAnim.SetBool("isBlockIdling", false);
             }
         }
-        
+
         float currentSpeed = playerMovement.rb.velocity.magnitude;
         if (currentSpeed > minimumSpeedThreshold)
         {
             float normalizedSpeed = Mathf.Clamp01((currentSpeed - minimumSpeedThreshold) / (maximumSpeed - minimumSpeedThreshold));
             float targetVolume = Mathf.Lerp(0, 1, normalizedSpeed);
             windSoundEffect.volume = targetVolume;
-        }
-        else
+            windParticles.SetActive(true);
+}
+        else if (playerMovement.rb.velocity.magnitude > 0)
         {
-            windSoundEffect.volume = windSoundEffect.volume - Time.deltaTime;
+            float targetVolume = windSoundEffect.volume - Time.deltaTime;
+            windSoundEffect.volume = Mathf.Clamp01(targetVolume);
+            if (windSoundEffect.volume == 0)
+                windParticles.SetActive(false);
         }
 
         if (playerMovement.rb.velocity.y < -fallThresholdVelocity/3 && !playerMovement.grounded)

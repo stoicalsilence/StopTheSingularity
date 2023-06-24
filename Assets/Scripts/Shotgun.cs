@@ -109,6 +109,7 @@ public class Shotgun : MonoBehaviour
 
     public IEnumerator shootAnimation()
     {
+        gunShotSound.volume = 0.5f;
         stoprel = true;
         ScreenShake.Shake(0.1f, 0.25f);
         float randomValue = Random.value;
@@ -118,6 +119,7 @@ public class Shotgun : MonoBehaviour
         muzzleLight.SetActive(true);
         yield return new WaitForSeconds(0.16f);
         muzzleLight.SetActive(false);
+        
         int randomIndex = Random.Range(0, shotgunPumps.Length);
         AudioClip sound = shotgunPumps[randomIndex];
         gunShotSound.PlayOneShot(sound);

@@ -145,6 +145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletHitFx: {fileID: 1618909817115037549, guid: ebca6d3a6c8d4284680a8f80e91c2d79, type: 3}
+  dblMesh: {fileID: 4300000, guid: 58f9b64d890cc20468ad99f4045ba26d, type: 2}
   impactSound: {fileID: 7844900104772677564}
   ignoreTag: EnemyBody
   impacts:

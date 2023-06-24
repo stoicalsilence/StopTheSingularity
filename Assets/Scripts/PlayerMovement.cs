@@ -117,7 +117,7 @@ public class PlayerMovement : MonoBehaviour
             rb.drag = 0;
         }
 
-        if (!isCrouching)
+        if (!isCrouching )
         {
             slideSpeed = rb.velocity.magnitude * 40;
         }
@@ -145,19 +145,20 @@ public class PlayerMovement : MonoBehaviour
         {
             if (isCrouching && grounded)
             {
-                Vector3 slideDirection = rb.velocity.normalized; //slide in the direction of movement
+                Vector3 slideDirection = rb.velocity.normalized; // Slide in the direction of movement
                 rb.AddForce(slideDirection * slideSpeed);
                 if (slideSpeed > 0)
                 {
-                    slideSpeed = slideSpeed - (Time.deltaTime * 120);
+                    slideSpeed -= Time.deltaTime * 120;
                 }
             }
-            if(isCrouching && !grounded)
+
+            if (isCrouching && !grounded && !readyToJump)
             {
-                rb.AddForce(orientation.transform.forward * slideSpeed); // so you dont zoom up or down when in air
+                rb.AddForce(orientation.transform.forward * slideSpeed); // So you don't zoom up or down when in the air
                 if (slideSpeed > 0)
                 {
-                    slideSpeed = slideSpeed - (Time.deltaTime * 120);
+                    slideSpeed -= Time.deltaTime * 120;
                 }
             }
         }
@@ -208,32 +209,27 @@ public class PlayerMovement : MonoBehaviour
                 UnstickFromWall();
             }
         }
-        if (Input.GetKeyDown(jumpKey))
+        if (Input.GetKeyDown(jumpKey) && isSticking)
         {
-            if (isSticking)
-            {
+            
                 UnstickFromWall();
                 if (!grounded)
                 {
                     jump();
                 }
-            }
-            else if (readyToJump && grounded)
-            {
-                readyToJump = false;
-                jump();
-                Invoke(nameof(resetJump), jumpCooldown);
-            }
+            
+            //else if (readyToJump && grounded && state != MovementState.crouching)
+            //{
+            //    readyToJump = false;
+            //    jump();
+            //    Invoke(nameof(resetJump), jumpCooldown);
+            //}
         }
     }
 
     private void stateHandler()
     {
-        if (Input.GetKey(crouchkey))
-        {
-            state = MovementState.crouching;
-            moveSpeed = crouchSpeed;
-        }
+        
 
         // Mode - Sprinting
         if (grounded && Input.GetKey(sprintKey) && !isCrouching)
@@ -254,6 +250,11 @@ public class PlayerMovement : MonoBehaviour
         {
             state = MovementState.air;
         }
+        else if (Input.GetKey(crouchkey) && grounded)
+        {
+            state = MovementState.crouching;
+            moveSpeed = crouchSpeed;
+        }
     }
 
     private void movePlayer()
@@ -263,13 +264,17 @@ public class PlayerMovement : MonoBehaviour
         if (OnSlope())
         {
             rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
-
             if (rb.velocity.y > 0)
             {
                 rb.AddForce(Vector3.down * 80f, ForceMode.Force);
             }
+            if (rb.velocity.y < 0f && (horizontalInput > 0 || verticalInput > 0))
+            {
+                rb.AddForce(Vector3.down * 80f, ForceMode.Force);
+            }
+
         }
-        
+
         if (grounded)
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
@@ -306,6 +311,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void jump()
     {
+        slideSpeed = slideSpeed / 2;
         exitingSlope = true;
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         player.painAudio.PlayOneShot(player.jumpSound);
@@ -316,7 +322,7 @@ public class PlayerMovement : MonoBehaviour
     {
         readyToJump = true;
         exitingSlope = false;
-        slideSpeed = maxSlideSpeed;
+        //slideSpeed = maxSlideSpeed;
         ScreenShake.Shake(0.05f, 0.05f);
     }
 
