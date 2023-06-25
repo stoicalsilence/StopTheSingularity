@@ -42,6 +42,7 @@ public class Player : MonoBehaviour
     public bool icePickEquipped;
     public bool assaultrifleEquipped;
     public bool shotgunEquipped;
+    public bool uziEquipped;
     public GameObject grapplingGun;
     public GameObject sword;
     public Firearm glock;
@@ -49,6 +50,7 @@ public class Player : MonoBehaviour
     public GameObject icePick;
     public AssaultRifle assaultRifle;
     public Shotgun shotgun;
+    public Uzi uzi;
 
     public AudioClip swordUnsheath;
     public AudioClip icePickUnStick;
@@ -120,6 +122,7 @@ public class Player : MonoBehaviour
             unequipIcePick();
             unequipAssaultRifle();
             unequipShotgun();
+            unequipUzi();
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
@@ -130,6 +133,7 @@ public class Player : MonoBehaviour
             unequipIcePick();
             unequipAssaultRifle();
             unequipShotgun();
+            unequipUzi();
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
@@ -140,6 +144,7 @@ public class Player : MonoBehaviour
             unequipIcePick();
             unequipAssaultRifle();
             unequipShotgun();
+            unequipUzi();
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
@@ -150,6 +155,7 @@ public class Player : MonoBehaviour
             unequipGrapplingGun();
             unequipAssaultRifle();
             unequipShotgun();
+            unequipUzi();
         }
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
@@ -160,6 +166,7 @@ public class Player : MonoBehaviour
             unequipGrapplingGun();
             unequipIcePick();
             unequipShotgun();
+            unequipUzi();
         }
         if (Input.GetKeyDown(KeyCode.Alpha6))
         {
@@ -170,6 +177,18 @@ public class Player : MonoBehaviour
             unequipGrapplingGun();
             unequipIcePick();
             unequipAssaultRifle();
+            unequipUzi();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            equipUzi();
+
+            unequipSword();
+            unequipGlock();
+            unequipGrapplingGun();
+            unequipIcePick();
+            unequipAssaultRifle();
+            unequipShotgun();
         }
 
         hpSlider.value = HP;
@@ -186,6 +205,10 @@ public class Player : MonoBehaviour
         else if (shotgunEquipped)
         {
             ammoText.text = "Shotgun\n" + shotgun.ammoInMag.ToString() + " / " + shotgun.magCapacity.ToString();
+        }
+        else if (uziEquipped)
+        {
+            ammoText.text = "Uzi\n" + uzi.ammoInMag.ToString() + " / " + uzi.magCapacity.ToString();
         }
         else
         {
@@ -288,6 +311,25 @@ public class Player : MonoBehaviour
                 if (shotgun.ammoInMag < shotgun.magCapacity && !shotgun.reloading)
                 {
                     StartCoroutine(shotgun.reload());
+                }
+            }
+        }
+
+        if (uziEquipped)
+        {
+            if (Input.GetKey(KeyCode.Mouse0) && !uzi.reloading)
+            {
+                uzi.Shoot();
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                if (uzi.ammoInMag > 0 && !uzi.reloading && uzi.ammoInMag < uzi.magCapacity && uzi.maxAmmo > 0)
+                {
+                    StartCoroutine(uzi.reload());
+                }
+                else if (uzi.ammoInMag == 0 && !uzi.reloading && uzi.ammoInMag < uzi.magCapacity && uzi.maxAmmo > 0)
+                {
+                    StartCoroutine(uzi.reloadOnEmpty());
                 }
             }
         }
@@ -640,6 +682,13 @@ public class Player : MonoBehaviour
         shotgun.gameObject.SetActive(true);
         shotgun.playCockingNoise();
     }
+    public void equipUzi()
+    {
+        uziEquipped = true;
+        uzi.gameObject.SetActive(true);
+        uzi.playCockingNoise();
+    }
+
     public void unequipSword()
     {
         sword.SetActive(false);
@@ -647,6 +696,7 @@ public class Player : MonoBehaviour
     }
     public void unequipGlock()
     {
+        glock.disableMuzzleSmoke();
         glock.muzzleLight.SetActive(false);
         glock.gameObject.SetActive(false);
         glockEquipped = false;
@@ -665,15 +715,25 @@ public class Player : MonoBehaviour
     }
     public void unequipAssaultRifle()
     {
+        assaultRifle.disableMuzzleSmoke();
         assaultRifle.muzzleLight.SetActive(false);
         assaultRifle.gameObject.SetActive(false);
         assaultrifleEquipped = false;
     }
     public void unequipShotgun()
     {
+        shotgun.disableMuzzleSmoke();
         shotgun.StopAllCoroutines();
         shotgun.muzzleLight.SetActive(false);
         shotgun.gameObject.SetActive(false);
         shotgunEquipped = false;
+    }
+    public void unequipUzi()
+    {
+        uzi.disableMuzzleSmoke();
+        uzi.StopAllCoroutines();
+        uzi.muzzleLight.SetActive(false);
+        uzi.gameObject.SetActive(false);
+        uziEquipped = false;
     }
 }

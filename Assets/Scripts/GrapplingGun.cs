@@ -15,8 +15,8 @@ public class GrapplingGun : MonoBehaviour
     public AudioClip grappleSound;
 
     // Adjust these values to control the swinging effect
-    public float swingForce = 4f;
-    public float maxSwingAngle = 45f;
+    public float swingForce = 10f;
+    public float maxSwingAngle = 90f;
 
     void Awake()
     {
@@ -53,11 +53,11 @@ public class GrapplingGun : MonoBehaviour
 
             float distanceFromPoint = Vector3.Distance(player.position, grapplePoint);
 
-            joint.maxDistance = distanceFromPoint * 0.8f;
-            joint.minDistance = distanceFromPoint * 0.25f;
+            joint.maxDistance = distanceFromPoint * 0.9f; 
+            joint.minDistance = distanceFromPoint * 0.1f; 
 
-            joint.spring = 4.5f;
-            joint.damper = 7f;
+            joint.spring = 10f; // Increase the spring value
+            joint.damper = 15f; // Increase the damper value
             joint.massScale = 4.5f;
 
             lr.positionCount = 2;
@@ -97,7 +97,8 @@ public class GrapplingGun : MonoBehaviour
         // Apply swing force based on the angle
         if (angle <= maxSwingAngle)
         {
-            Vector3 swingForceVector = Quaternion.Euler(0f, angle, 0f) * player.forward * swingForce;
+            // Adjust the swing force calculation
+            Vector3 swingForceVector = Quaternion.AngleAxis(angle, Vector3.Cross(player.forward, grappleDirection)) * player.forward * swingForce;
             player.GetComponent<Rigidbody>().AddForce(swingForceVector, ForceMode.Acceleration);
         }
     }

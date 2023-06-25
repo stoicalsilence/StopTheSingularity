@@ -10,18 +10,21 @@ public class Launchpad : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Rigidbody rb = other.GetComponent<Rigidbody>();
-        if (rb != null)
+        if (other.gameObject.tag != "PlayerAttack")
         {
-            
-            int randomIndex = Random.Range(0, jumpSounds.Length);
-            AudioClip jumpSound = jumpSounds[randomIndex];
-            audioSource.clip = jumpSound;
-            audioSource.PlayOneShot(audioSource.clip);
-            rb.AddForce(transform.up * launchForce, ForceMode.Impulse);
-            if (rb.gameObject.GetComponent<Killbot>())
+            Rigidbody rb = other.GetComponent<Rigidbody>();
+            if (rb != null)
             {
-                rb.gameObject.GetComponent<Killbot>().turnOffNavMeshAgent();
+
+                int randomIndex = Random.Range(0, jumpSounds.Length);
+                AudioClip jumpSound = jumpSounds[randomIndex];
+                audioSource.clip = jumpSound;
+                audioSource.PlayOneShot(audioSource.clip);
+                rb.AddForce(transform.up * launchForce, ForceMode.Impulse);
+                if (rb.gameObject.GetComponent<Killbot>())
+                {
+                    rb.gameObject.GetComponent<Killbot>().turnOffNavMeshAgent();
+                }
             }
         }
     }

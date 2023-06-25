@@ -119,7 +119,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (!isCrouching )
         {
-            slideSpeed = rb.velocity.magnitude * 40;
+            slideSpeed = rb.velocity.magnitude * 60;
         }
 
         if (isCrouching)

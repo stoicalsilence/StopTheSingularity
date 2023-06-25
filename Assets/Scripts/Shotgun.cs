@@ -39,6 +39,11 @@ public class Shotgun : MonoBehaviour
     public float recoilForce = 5f;
     Vector3 recoilDirection;
 
+    private bool isMuzzleSmokeActive = false;
+    private Coroutine disableMuzzleSmokeCoroutine;
+    public ParticleSystem muzzleSmoke;
+    public ParticleSystem muzzleSmoke1;
+
     void Update()
     {
         if (cooldownTimer > 0)
@@ -68,6 +73,7 @@ public class Shotgun : MonoBehaviour
             {
                 StopAllCoroutines();
                 reloading = false;
+                enableMuzzleSmoke();
                 StartCoroutine(shootAnimation());
                 ammoInMag--;
                 int randomIndex = Random.Range(0, gunShots.Length);
@@ -106,7 +112,37 @@ public class Shotgun : MonoBehaviour
             isNoAmmoSoundPlayed = false;
         }
     }
+    public void enableMuzzleSmoke()
+    {
+        if (isMuzzleSmokeActive)
+        {
+            if (disableMuzzleSmokeCoroutine != null)
+            {
+                StopCoroutine(disableMuzzleSmokeCoroutine);
+            }
+        }
+        else
+        {
+            muzzleSmoke.Play();
+            muzzleSmoke1.Play();
+            isMuzzleSmokeActive = true;
+        }
 
+        disableMuzzleSmokeCoroutine = StartCoroutine(DisableMuzzleSmokeAfterDelay(3f));
+    }
+
+    private IEnumerator DisableMuzzleSmokeAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        disableMuzzleSmoke();
+    }
+
+    public void disableMuzzleSmoke()
+    {
+        muzzleSmoke.Stop();
+        muzzleSmoke1.Stop();
+        isMuzzleSmokeActive = false;
+    }
     public IEnumerator shootAnimation()
     {
         gunShotSound.volume = 0.5f;

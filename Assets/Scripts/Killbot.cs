@@ -148,6 +148,7 @@ public class Killbot : MonoBehaviour
                         audioSource.PlayOneShot(targetedSound);
                         triggered = true;
                         animator.SetBool("Idle", false);
+                        animator.SetBool("Attacking", true);
                     }
                     int randomIndex = Random.Range(0, damageSounds.Length);
                     AudioClip hitSound2 = damageSounds[randomIndex];

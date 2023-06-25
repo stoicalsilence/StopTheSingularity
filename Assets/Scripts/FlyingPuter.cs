@@ -32,15 +32,22 @@ public class FlyingPuter : MonoBehaviour
     private float nextShotTime;
     private float nextBurstTime;
     public AudioSource audioSource;
+    public AudioSource crashtalker;
     public AudioSource hitSounds;
     public AudioClip targetedSound;
+    public AudioClip letsGetItOn;
     public AudioClip[] gunShots;
+    public AudioClip[] crashTalk;
     public AudioClip[] damageSounds;
     public AudioClip[] dieSounds;
     public AudioClip[] passiveSounds;
-
+    public AudioClip[] thudSounds;
+    public GameObject thudParticles;
+    public ParticleSystem muzzleFlare;
+    public ParticleSystem muzzleFlare2;
     private void Start()
     {
+        InvokeRepeating("PlayPassiveSounds", 0.1f, 5);
         wandering = true;
         rb = GetComponent<Rigidbody>();
         isTriggered = false;
@@ -48,9 +55,49 @@ public class FlyingPuter : MonoBehaviour
         shootTimer = 0f;
         player = FindObjectOfType<Player>().transform;
     }
+    private void PlayPassiveSounds()
+    {
 
+        if (!audioSource.isPlaying)
+        {
+            int randomIndex = Random.Range(0, passiveSounds.Length);
+            AudioClip sound = passiveSounds[randomIndex];
+            crashtalker.PlayOneShot(sound);
+        }
+
+    }
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("whatisGround"))
+        {
+            Vector3 collisionPoint = collision.GetContact(0).point;
+            GameObject jp = Instantiate(thudParticles, collisionPoint, Quaternion.identity);
+            Destroy(jp, 4f);
+            int c3 = Random.Range(0, thudSounds.Length);
+            AudioClip c2 = thudSounds[c3];
+            hitSounds.PlayOneShot(c2);
+            if (Random.value < 0.10f)
+            {
+                int c4 = Random.Range(0, crashTalk.Length);
+                AudioClip c5 = crashTalk[c4];
+                crashtalker.PlayOneShot(c5);
+            }
+        }
+
+        if (collision.collider.CompareTag("Player"))
+        {
+            Vector3 direction = transform.position - collision.transform.position;
+            direction.y = 0f;
+
+
+            float jumpForce = Mathf.Sqrt(2f * Physics.gravity.magnitude * 1);
+
+            jumpForce *= 1.5f;
+
+            rb.AddForce(direction.normalized * jumpForce, ForceMode.VelocityChange);
+        }
+
+
         if (!ded)
         {
             if (collision.gameObject.CompareTag("PlayerAttack"))
@@ -61,6 +108,10 @@ public class FlyingPuter : MonoBehaviour
                     if (!isTriggered)
                     {
                        audioSource.PlayOneShot(targetedSound);
+                        if (Random.value < 0.25f)
+                        {
+                            audioSource.PlayOneShot(letsGetItOn);
+                        }
                         isTriggered = true;
                         wandering = false;
                     }
@@ -243,12 +294,14 @@ public class FlyingPuter : MonoBehaviour
                     GameObject bullet = Instantiate(bulletPrefab, muzzle1.position, Quaternion.identity);
                     Rigidbody bulletRB = bullet.GetComponent<Rigidbody>();
                     bulletRB.velocity = bulletDirection * bulletSpeed;
+                    muzzleFlare.Play();
                 }
                 else
                 {
                     GameObject bullet = Instantiate(bulletPrefab, muzzle2.position, Quaternion.identity);
                     Rigidbody bulletRB = bullet.GetComponent<Rigidbody>();
                     bulletRB.velocity = bulletDirection * bulletSpeed;
+                    muzzleFlare2.Play();
                 }
 
                 int r2 = Random.Range(0, gunShots.Length);

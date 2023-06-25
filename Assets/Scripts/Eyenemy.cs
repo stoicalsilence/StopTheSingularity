@@ -44,18 +44,44 @@ public class Eyenemy : MonoBehaviour
     public AudioClip[] getHitSounds;
     public AudioClip[] passiveSounds;
     public AudioClip[] dedSounds;
+    public AudioClip[] thudSounds;
 
     public GameObject orangeLight;
+    public float detectionRange;
+    bool isTriggered;
+    bool startedAttacking;
     private void Start()
     {
         player = FindObjectOfType<Player>().transform;
         blackScreen = enemyRendererScreen.material;
         rb = GetComponent<Rigidbody>();
         originalColor = enemyRenderer.material.color;
-        InvokeRepeating("Jump", jumpInterval, jumpInterval);
+       // InvokeRepeating("Jump", jumpInterval, jumpInterval);
         StartCoroutine(PlayPassiveSounds());
     }
 
+    private void Update()
+    {
+        if (!isTriggered)
+        {
+            // Perform raycast to detect player
+            RaycastHit hit;
+            Vector3 rayDirection = player.position - transform.position;
+
+            if (Physics.Raycast(transform.position, rayDirection, out hit, detectionRange))
+            {
+                if (hit.collider.CompareTag("Player"))
+                {
+                    isTriggered = true;
+                }
+            }
+        }
+        else if(!startedAttacking)
+        {
+            startedAttacking = true;
+            InvokeRepeating("Jump", jumpInterval, jumpInterval);
+        }
+    }
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.collider.CompareTag("PlayerAttack"))
@@ -86,6 +112,9 @@ public class Eyenemy : MonoBehaviour
             Vector3 collisionPoint = collision.GetContact(0).point;
             GameObject jp = Instantiate(landParticles, collisionPoint, Quaternion.identity);
             Destroy(jp, 4f);
+            int c3 = Random.Range(0, thudSounds.Length);
+            AudioClip c2 = thudSounds[c3];
+            deadSound.PlayOneShot(c2);
         }
 
         if (collision.collider.CompareTag("Player"))
@@ -129,6 +158,7 @@ public class Eyenemy : MonoBehaviour
             RemoveTagsRecursively(transform);
             FindObjectOfType<KillText>().getReportedTo();
             ScreenShake.Shake(0.25f, 0.05f);
+            Destroy(this.gameObject, 15f);
             Destroy(this);
         }
     }

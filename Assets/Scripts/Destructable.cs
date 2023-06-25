@@ -11,6 +11,7 @@ public class Destructable : MonoBehaviour
 
     public GameObject hitParticles;
     public GameObject destroyParticles;
+    public bool destroyableBySlide;
     public int hp;
     void Start()
     {
@@ -23,7 +24,7 @@ public class Destructable : MonoBehaviour
         
     }
 
-    private void explode()
+    public void explode()
     {
         int randomIndex = Random.Range(0, destroyClips.Length);
         AudioClip sound = destroyClips[randomIndex];
@@ -41,6 +42,14 @@ public class Destructable : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.tag == "Player" && FindObjectOfType<PlayerMovement>().isCrouching && destroyableBySlide && FindObjectOfType<PlayerMovement>().slideSpeed > 5)
+        {
+            Vector3 collisionPoint = collision.GetContact(0).point;
+            GameObject ded = Instantiate(destroyParticles, collisionPoint, Quaternion.identity);
+            Destroy(ded, 5f);
+            explode();
+        }
+
         if (collision.gameObject.CompareTag("PlayerAttack"))
         {
             hp--;

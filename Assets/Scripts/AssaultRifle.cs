@@ -34,6 +34,14 @@ public class AssaultRifle : MonoBehaviour
     public AnimationClip fireAnim;
     public AnimationClip reloadAnim;
     public AnimationClip reloadOnEmptyAnim;
+    public ParticleSystem muzzleSmoke, muzzleSmoke1;
+    private bool isMuzzleSmokeActive = false;
+    private Coroutine disableMuzzleSmokeCoroutine;
+    private int bulletCounter = 0;
+    private int bulletsThreshold = 3;
+    private float timeWindow = 2f; // Time window in seconds
+
+    private float lastFireTime;
 
     void Update()
     {
@@ -62,6 +70,19 @@ public class AssaultRifle : MonoBehaviour
             if (ammoInMag > 0)
             {
                 StartCoroutine(shootAnimation());
+                if (Time.time - lastFireTime > timeWindow)
+                {
+                    // Reset the bullet counter if the time window has expired
+                    bulletCounter = 0;
+                }
+
+                bulletCounter++;
+                lastFireTime = Time.time;
+
+                if (bulletCounter >= bulletsThreshold && !isMuzzleSmokeActive)
+                {
+                    enableMuzzleSmoke();
+                }
                 ammoInMag--;
                 GameObject bullet = Instantiate(bulletPrefab, shootHole.position, transform.rotation);
                 int randomIndex = Random.Range(0, gunShots.Length);
@@ -99,6 +120,37 @@ public class AssaultRifle : MonoBehaviour
         muzzleLight.SetActive(true);
         yield return new WaitForSeconds(0.16f);
         muzzleLight.SetActive(false);
+    }
+    public void enableMuzzleSmoke()
+    {
+        if (isMuzzleSmokeActive)
+        {
+            if (disableMuzzleSmokeCoroutine != null)
+            {
+                StopCoroutine(disableMuzzleSmokeCoroutine);
+            }
+        }
+        else
+        {
+            muzzleSmoke.Play();
+            muzzleSmoke1.Play();
+            isMuzzleSmokeActive = true;
+        }
+
+        disableMuzzleSmokeCoroutine = StartCoroutine(DisableMuzzleSmokeAfterDelay(3f));
+    }
+
+    private IEnumerator DisableMuzzleSmokeAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        disableMuzzleSmoke();
+    }
+
+    public void disableMuzzleSmoke()
+    {
+        muzzleSmoke.Stop();
+        muzzleSmoke1.Stop();
+        isMuzzleSmokeActive = false;
     }
 
     public IEnumerator reload()
