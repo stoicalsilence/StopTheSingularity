@@ -131,7 +131,7 @@ public class Eyenemy : MonoBehaviour
         }
     }
 
-    private void TakeDamage()
+    public void TakeDamage()
     {
         health--;
         switchToSad();

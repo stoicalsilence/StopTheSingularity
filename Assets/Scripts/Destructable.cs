@@ -24,6 +24,12 @@ public class Destructable : MonoBehaviour
         
     }
 
+    public void spawnDestroyParticles()
+    {
+        GameObject ded = Instantiate(destroyParticles, transform.position, Quaternion.identity);
+        Destroy(ded, 5f);
+    }
+
     public void explode()
     {
         int randomIndex = Random.Range(0, destroyClips.Length);

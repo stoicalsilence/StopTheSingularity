@@ -322,5 +322,50 @@ public class FlyingPuter : MonoBehaviour
     {
         health--;
         FindObjectOfType<HitmarkerEffect>().ShowHitmarker();
+        if(health < 1)
+        {
+            ded = true;
+            int randomIndex = Random.Range(0, dieSounds.Length);
+            AudioClip hitSound = dieSounds[randomIndex];
+            audioSource.clip = hitSound;
+            audioSource.PlayOneShot(audioSource.clip);
+            GameObject oof = Instantiate(explosionParticles, transform.position, Quaternion.identity);
+            Destroy(oof, 5f);
+            GameObject lighty = Instantiate(orangeLight, transform.position, Quaternion.identity);
+            Destroy(lighty, 0.25f);
+            FindObjectOfType<KillText>().getReportedTo();
+            ScreenShake.Shake(0.25f, 0.05f);
+            Destroy(GetComponent<BoxCollider>());
+            Destroy(this.gameObject, 4.2f);
+            Destroy(this); // add change to ragdoll
+            orangeLight.gameObject.SetActive(false);
+            // Add rigidbody to each child GameObject and apply random torqued force
+            foreach (Transform child in transform)
+            {
+                if (child.gameObject.activeInHierarchy)
+                {
+                    Rigidbody childRigidbody = child.gameObject.AddComponent<Rigidbody>();
+                    Destroy(child.gameObject, 4f);
+
+                    Vector3 randomForce = Random.onUnitSphere * Random.Range(2f, 5f);
+                    Vector3 randomTorque = new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f), Random.Range(-10f, 10f));
+
+                    childRigidbody.AddForce(randomForce, ForceMode.Impulse);
+                    childRigidbody.AddTorque(randomTorque, ForceMode.Impulse);
+
+                    BoxCollider boxCollider = child.gameObject.GetComponent<BoxCollider>();
+                    CapsuleCollider caps = child.gameObject.GetComponent<CapsuleCollider>();
+                    if (boxCollider != null)
+                    {
+                        boxCollider.enabled = true;
+                    }
+                    if (caps != null)
+                    {
+                        caps.enabled = false;
+                    }
+                }
+            }
+        
+    }
     }
 }

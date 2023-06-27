@@ -43,14 +43,20 @@ public class Player : MonoBehaviour
     public bool assaultrifleEquipped;
     public bool shotgunEquipped;
     public bool uziEquipped;
+    public bool redDotRifleEquipped;
+    public bool singleShotRifleEquipped;
+    public bool grenadePistolEquipped;
     public GameObject grapplingGun;
     public GameObject sword;
     public Firearm glock;
     public TextMeshProUGUI ammoText;
     public GameObject icePick;
     public AssaultRifle assaultRifle;
+    public AssaultRifle redDotRifle;
+    public AssaultRifle singleShotRifle;
     public Shotgun shotgun;
     public Uzi uzi;
+    public GrenadePistol grenadePistol;
 
     public AudioClip swordUnsheath;
     public AudioClip icePickUnStick;
@@ -123,6 +129,10 @@ public class Player : MonoBehaviour
             unequipAssaultRifle();
             unequipShotgun();
             unequipUzi();
+            unequipGrenadePistol();
+
+            unequipRedDotRifle();
+            unequipSingleShotRifle();
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
@@ -134,6 +144,10 @@ public class Player : MonoBehaviour
             unequipAssaultRifle();
             unequipShotgun();
             unequipUzi();
+            unequipGrenadePistol();
+
+            unequipRedDotRifle();
+            unequipSingleShotRifle();
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
@@ -145,6 +159,10 @@ public class Player : MonoBehaviour
             unequipAssaultRifle();
             unequipShotgun();
             unequipUzi();
+            unequipGrenadePistol();
+
+            unequipRedDotRifle();
+            unequipSingleShotRifle();
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
@@ -156,6 +174,10 @@ public class Player : MonoBehaviour
             unequipAssaultRifle();
             unequipShotgun();
             unequipUzi();
+            unequipGrenadePistol();
+
+            unequipRedDotRifle();
+            unequipSingleShotRifle();
         }
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
@@ -167,6 +189,10 @@ public class Player : MonoBehaviour
             unequipIcePick();
             unequipShotgun();
             unequipUzi();
+            unequipGrenadePistol();
+
+            unequipRedDotRifle();
+            unequipSingleShotRifle();
         }
         if (Input.GetKeyDown(KeyCode.Alpha6))
         {
@@ -178,6 +204,10 @@ public class Player : MonoBehaviour
             unequipIcePick();
             unequipAssaultRifle();
             unequipUzi();
+            unequipGrenadePistol();
+
+            unequipRedDotRifle();
+            unequipSingleShotRifle();
         }
         if (Input.GetKeyDown(KeyCode.Alpha7))
         {
@@ -189,6 +219,55 @@ public class Player : MonoBehaviour
             unequipIcePick();
             unequipAssaultRifle();
             unequipShotgun();
+            unequipGrenadePistol();
+
+            unequipRedDotRifle();
+            unequipSingleShotRifle();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            equipRedDotAR();
+
+            unequipSword();
+            unequipGlock();
+            unequipGrapplingGun();
+            unequipIcePick();
+            unequipShotgun();
+            unequipUzi();
+            unequipGrenadePistol();
+
+            unequipAssaultRifle();
+            unequipSingleShotRifle();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            equipScopeAR();
+
+            unequipSword();
+            unequipGlock();
+            unequipGrapplingGun();
+            unequipIcePick();
+            unequipShotgun();
+            unequipUzi();
+            unequipGrenadePistol();
+
+            unequipAssaultRifle();
+            unequipRedDotRifle();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            equipGrenadePistol();
+
+            unequipSword();
+            unequipGlock();
+            unequipGrapplingGun();
+            unequipIcePick();
+            unequipShotgun();
+            unequipUzi();
+
+            unequipSingleShotRifle();
+            unequipAssaultRifle();
+            unequipRedDotRifle();
         }
 
         hpSlider.value = HP;
@@ -202,6 +281,14 @@ public class Player : MonoBehaviour
         {
             ammoText.text = "Assault Rifle\n" + assaultRifle.ammoInMag.ToString() + " / " + assaultRifle.magCapacity.ToString();
         }
+        else if (redDotRifleEquipped)
+        {
+            ammoText.text = "Assault Rifle\n" + redDotRifle.ammoInMag.ToString() + " / " + redDotRifle.magCapacity.ToString();
+        }
+        else if (singleShotRifleEquipped)
+        {
+            ammoText.text = "Assault Rifle\n" + singleShotRifle.ammoInMag.ToString() + " / " + singleShotRifle.magCapacity.ToString();
+        }
         else if (shotgunEquipped)
         {
             ammoText.text = "Shotgun\n" + shotgun.ammoInMag.ToString() + " / " + shotgun.magCapacity.ToString();
@@ -209,6 +296,10 @@ public class Player : MonoBehaviour
         else if (uziEquipped)
         {
             ammoText.text = "Uzi\n" + uzi.ammoInMag.ToString() + " / " + uzi.magCapacity.ToString();
+        }
+        else if (grenadePistolEquipped)
+        {
+            ammoText.text = "Grenade Pistol\n" + grenadePistol.ammoInMag.ToString() + " / " + grenadePistol.magCapacity.ToString();
         }
         else
         {
@@ -264,7 +355,7 @@ public class Player : MonoBehaviour
 
         if (glockEquipped)
         {
-            if (Input.GetKey(KeyCode.Mouse0) && !glock.reloading)
+            if (Input.GetKeyDown(KeyCode.Mouse0) && !glock.reloading)
             {
                 glock.Shoot();
             }
@@ -300,6 +391,44 @@ public class Player : MonoBehaviour
             }
         }
 
+        if (redDotRifleEquipped)
+        {
+            if (Input.GetKey(KeyCode.Mouse0) && !redDotRifle.reloading)
+            {
+                redDotRifle.Shoot();
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                if (redDotRifle.ammoInMag > 0 && !redDotRifle.reloading && redDotRifle.ammoInMag < redDotRifle.magCapacity && redDotRifle.maxAmmo > 0)
+                {
+                    StartCoroutine(redDotRifle.reload());
+                }
+                else if (redDotRifle.ammoInMag == 0 && !redDotRifle.reloading && redDotRifle.ammoInMag < redDotRifle.magCapacity && redDotRifle.maxAmmo > 0)
+                {
+                    StartCoroutine(redDotRifle.reloadOnEmpty());
+                }
+            }
+        }
+
+        if (singleShotRifleEquipped)
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0) && !singleShotRifle.reloading)
+            {
+                singleShotRifle.Shoot();
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                if (singleShotRifle.ammoInMag > 0 && !singleShotRifle.reloading && singleShotRifle.ammoInMag < singleShotRifle.magCapacity && singleShotRifle.maxAmmo > 0)
+                {
+                    StartCoroutine(singleShotRifle.reload());
+                }
+                else if (singleShotRifle.ammoInMag == 0 && !singleShotRifle.reloading && singleShotRifle.ammoInMag < singleShotRifle.magCapacity && singleShotRifle.maxAmmo > 0)
+                {
+                    StartCoroutine(singleShotRifle.reloadOnEmpty());
+                }
+            }
+        }
+
         if (shotgunEquipped)
         {
             if (Input.GetKeyDown(KeyCode.Mouse0) && !shotgun.reloading)
@@ -331,6 +460,18 @@ public class Player : MonoBehaviour
                 {
                     StartCoroutine(uzi.reloadOnEmpty());
                 }
+            }
+        }
+
+        if (grenadePistolEquipped)
+        {
+            if(Input.GetKeyDown(KeyCode.Mouse0) && !grenadePistol.reloading)
+            {
+                grenadePistol.Shoot();
+            }
+            if (Input.GetKeyDown(KeyCode.R) && !grenadePistol.reloading && grenadePistol.ammoInMag < grenadePistol.magCapacity && grenadePistol.maxAmmo > 0)
+            {
+                StartCoroutine(grenadePistol.reload());
             }
         }
 
@@ -676,6 +817,18 @@ public class Player : MonoBehaviour
         assaultRifle.gameObject.SetActive(true);
         assaultRifle.playCockingNoise();
     }
+    public void equipRedDotAR()
+    {
+        redDotRifleEquipped = true;
+        redDotRifle.gameObject.SetActive(true);
+        redDotRifle.playCockingNoise();
+    }
+    public void equipScopeAR()
+    {
+        singleShotRifleEquipped= true;
+        singleShotRifle.gameObject.SetActive(true);
+        singleShotRifle.playCockingNoise();
+    }
     public void equipShotgun()
     {
         shotgunEquipped = true;
@@ -687,6 +840,12 @@ public class Player : MonoBehaviour
         uziEquipped = true;
         uzi.gameObject.SetActive(true);
         uzi.playCockingNoise();
+    }
+    public void equipGrenadePistol()
+    {
+        grenadePistolEquipped = true;
+        grenadePistol.gameObject.SetActive(true);
+        grenadePistol.playCockingNoise();
     }
 
     public void unequipSword()
@@ -720,6 +879,20 @@ public class Player : MonoBehaviour
         assaultRifle.gameObject.SetActive(false);
         assaultrifleEquipped = false;
     }
+    public void unequipRedDotRifle()
+    {
+        redDotRifle.disableMuzzleSmoke();
+        redDotRifle.muzzleLight.SetActive(false);
+        redDotRifle.gameObject.SetActive(false);
+        redDotRifleEquipped = false;
+    }
+    public void unequipSingleShotRifle()
+    {
+        singleShotRifle.disableMuzzleSmoke();
+        singleShotRifle.muzzleLight.SetActive(false);
+        singleShotRifle.gameObject.SetActive(false);
+        singleShotRifleEquipped = false;
+    }
     public void unequipShotgun()
     {
         shotgun.disableMuzzleSmoke();
@@ -735,5 +908,12 @@ public class Player : MonoBehaviour
         uzi.muzzleLight.SetActive(false);
         uzi.gameObject.SetActive(false);
         uziEquipped = false;
+    }
+    public void unequipGrenadePistol()
+    {
+        grenadePistol.disableMuzzleSmoke();
+        grenadePistol.StopAllCoroutines();
+        grenadePistol.gameObject.SetActive(false);
+        grenadePistolEquipped = false;
     }
 }
