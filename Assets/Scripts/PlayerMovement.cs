@@ -121,6 +121,10 @@ public class PlayerMovement : MonoBehaviour
         {
             slideSpeed = rb.velocity.magnitude * 60;
         }
+        if(slideSpeed > maxSlideSpeed)
+        {
+            slideSpeed = maxSlideSpeed;
+        }
 
         if (isCrouching)
         {
@@ -143,24 +147,40 @@ public class PlayerMovement : MonoBehaviour
         movePlayer();
         if (rb.velocity.magnitude > 0.5f)
         {
-            if (isCrouching && grounded)
+            if (isCrouching && !OnSlope())
             {
                 Vector3 slideDirection = rb.velocity.normalized; // Slide in the direction of movement
+                slideDirection.y = 0;
                 rb.AddForce(slideDirection * slideSpeed);
                 if (slideSpeed > 0)
                 {
                     slideSpeed -= Time.deltaTime * 120;
                 }
             }
-
-            if (isCrouching && !grounded && !readyToJump)
+            else if(rb.velocity.y < 0)
             {
-                rb.AddForce(orientation.transform.forward * slideSpeed); // So you don't zoom up or down when in the air
+
+                slideSpeed += Time.deltaTime * 120;
+            }
+            else
+            {
                 if (slideSpeed > 0)
                 {
                     slideSpeed -= Time.deltaTime * 120;
                 }
             }
+            
+           // else
+
+           //if (isCrouching && !grounded && !readyToJump)
+           // {
+           //     rb.AddForce(orientation.transform.forward * slideSpeed); // So you don't zoom up or down when in the air
+           //     if (slideSpeed > 0)
+           //     {
+           //         slideSpeed -= Time.deltaTime * 120;
+           //     }
+           // }
+
         }
     }
 
@@ -242,7 +262,10 @@ public class PlayerMovement : MonoBehaviour
         else if (grounded && !isCrouching)
         {
             state = MovementState.walking;
-            moveSpeed = walkSpeed;
+            if (moveSpeed < 6.9f)
+            {
+                moveSpeed = walkSpeed;
+            }
         }
 
         // Mode - Air
@@ -253,7 +276,14 @@ public class PlayerMovement : MonoBehaviour
         else if (Input.GetKey(crouchkey) && grounded)
         {
             state = MovementState.crouching;
-            moveSpeed = crouchSpeed;
+            if (moveSpeed > 3.5f)
+            {
+                moveSpeed = (crouchSpeed * slideSpeed) / 240;
+            }
+            else
+            {
+                moveSpeed = 3.5f;
+            }
         }
     }
 
@@ -301,17 +331,30 @@ public class PlayerMovement : MonoBehaviour
         {
             Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
-            if (flatVel.magnitude > moveSpeed)
+            if (flatVel.magnitude > moveSpeed && state == MovementState.air || flatVel.magnitude > moveSpeed && state == MovementState.crouching)
             {
                 Vector3 limitedVel = flatVel.normalized * moveSpeed;
                 rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
             }
         }
-    }
+
+        if (!isCrouching && state != MovementState.sprinting)
+        {
+            if (moveSpeed < walkSpeed)
+            {
+                moveSpeed = Mathf.Lerp(moveSpeed, walkSpeed, Time.deltaTime * 2.5f);
+            }
+            else if (moveSpeed > walkSpeed)
+            {
+                moveSpeed = walkSpeed;
+            }
+        }
+    
+}
 
     private void jump()
     {
-        slideSpeed = slideSpeed / 2;
+        //slideSpeed = slideSpeed / 2;
         exitingSlope = true;
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         player.painAudio.PlayOneShot(player.jumpSound);
