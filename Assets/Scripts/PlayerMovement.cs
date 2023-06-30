@@ -157,12 +157,13 @@ public class PlayerMovement : MonoBehaviour
                     slideSpeed -= Time.deltaTime * 120;
                 }
             }
-            else if(rb.velocity.y < 0)
+            else if(isCrouching && rb.velocity.y < 0)
             {
-
+                
+                rb.AddForce(GetSlopeMoveDirection() * slideSpeed);
                 slideSpeed += Time.deltaTime * 120;
             }
-            else
+            else if(isCrouching)
             {
                 if (slideSpeed > 0)
                 {
