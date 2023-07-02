@@ -208,7 +208,7 @@ public class PlayerMovement : MonoBehaviour
             Invoke(nameof(resetJump), jumpCooldown);
         }
 
-        if (Input.GetKeyDown(crouchkey))
+        if (Input.GetKeyDown(crouchkey) && !wallrunning)
         {
             // slideSpeed = maxSlideSpeed;
             if (rb.velocity.magnitude > 2)
