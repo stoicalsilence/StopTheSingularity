@@ -17,6 +17,7 @@ public class PlayerMovement : MonoBehaviour
     public float jumpCooldown;
     public float airMultiplier;
     bool readyToJump;
+    public float wallrunSpeed;
 
     [Header("Crouching")]
     public float crouchSpeed;
@@ -60,9 +61,11 @@ public class PlayerMovement : MonoBehaviour
     public AudioClip[] footsteps;
     private float lastFootstepTime;
 
+    public bool wallrunning;
+
     public enum MovementState
     {
-        walking, sprinting, crouching, air
+        walking, sprinting, wallrunning, crouching, air
     }
 
     // Start is called before the first frame update
@@ -79,7 +82,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
 
-        if (((state == MovementState.walking || state == MovementState.sprinting) && rb.velocity.magnitude > 2) || state == MovementState.crouching && slideSpeed < 0.4f && rb.velocity.magnitude > 1)
+        if (((state == MovementState.walking || state == MovementState.sprinting) && rb.velocity.magnitude > 2) || state == MovementState.crouching && slideSpeed < 0.4f && rb.velocity.magnitude > 1 || state == MovementState.wallrunning && rb.velocity.magnitude > 2)
         {
             float footstepInterval = 3f / rb.velocity.magnitude;  // Inversely proportional interval
             float timeSinceLastFootstep = Time.time - lastFootstepTime;
@@ -145,6 +148,12 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         movePlayer();
+
+        if (wallrunning && moveSpeed > 0.1f)
+        {
+            moveSpeed -= Time.deltaTime * 400;
+        }
+
         if (rb.velocity.magnitude > 0.5f)
         {
             if (isCrouching && !OnSlope())
@@ -286,6 +295,15 @@ public class PlayerMovement : MonoBehaviour
                 moveSpeed = 3.5f;
             }
         }
+
+        // Mode - Wallrunning
+        if (wallrunning)
+        {
+            state = MovementState.wallrunning;
+            
+                moveSpeed = wallrunSpeed;
+            
+        }
     }
 
     private void movePlayer()
@@ -316,7 +334,7 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
         }
 
-        rb.useGravity = !OnSlope();
+        if(!wallrunning) rb.useGravity = !OnSlope();
     }
 
     private void speedControl()
@@ -350,7 +368,10 @@ public class PlayerMovement : MonoBehaviour
                 moveSpeed = walkSpeed;
             }
         }
-    
+    if(rb.velocity.magnitude > 8 && wallrunning)
+        {
+            rb.velocity = rb.velocity.normalized * 8;
+        } 
 }
 
     private void jump()

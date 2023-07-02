@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,7 @@ public class PlayerCam : MonoBehaviour
 {
     public float sensitivity;
     public Transform orientation;
-
+    public Transform cameraHolder;
     float xRotation;
     float yRotation;
     public float tiltAngle;
@@ -31,12 +32,22 @@ public class PlayerCam : MonoBehaviour
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
         if (playerMovement.isCrouching && playerMovement.slideSpeed > 0)
         {
-            transform.rotation = Quaternion.Euler(xRotation, yRotation, tiltAngle);
+            cameraHolder.rotation = Quaternion.Euler(xRotation, yRotation, tiltAngle);
         }
         else
         {
-            transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+            cameraHolder.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         }
         orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+    }
+
+    public void DoFov(float endValue)
+    {
+        GetComponent<Camera>().DOFieldOfView(endValue, 0.25f);
+    }
+
+    public void DoTilt(float zTilt)
+    {
+        transform.DOLocalRotate(new Vector3(0, 0, zTilt), 0.25f);
     }
 }
