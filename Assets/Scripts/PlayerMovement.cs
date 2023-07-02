@@ -383,6 +383,14 @@ public class PlayerMovement : MonoBehaviour
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         player.spawnJumpParticles();
     }
+    public void playJumpSound()
+    {
+        player.painAudio.PlayOneShot(player.jumpSound);
+    }
+    public void playWallRunStartSound()
+    {
+        player.painAudio.PlayOneShot(player.wallRunStartSound);
+    }
     private void resetJump()
     {
         readyToJump = true;

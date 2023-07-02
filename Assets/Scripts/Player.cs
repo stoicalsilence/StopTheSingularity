@@ -77,6 +77,7 @@ public class Player : MonoBehaviour
     bool wasFalling;
     bool wasJumping;
     public AudioClip jumpSound;
+    public AudioClip wallRunStartSound;
     public AudioClip[] slideSounds;
     public AudioClip[] slideStops;
     public GameObject jumpParticles;

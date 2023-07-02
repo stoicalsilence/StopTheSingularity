@@ -123,17 +123,20 @@ public class WallRunning : MonoBehaviour
 
     private void StartWallRun()
     {
-        pm.wallrunning = true;
+        if (!pm.isCrouching)
+        {
+            pm.wallrunning = true;
 
-        wallRunTimer = maxWallRunTime;
+            wallRunTimer = maxWallRunTime;
 
-        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-        // apply camera effects
-        cam.DoFov(70f);
-        if (wallLeft) cam.DoTilt(-5f);
-        if (wallRight) cam.DoTilt(5f);
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            // apply camera effects
+            cam.DoFov(70f);
+            if (wallLeft) cam.DoTilt(-5f);
+            if (wallRight) cam.DoTilt(5f);
 
-        currentGravityCounterForce = initialGravityCounterForce;
+            currentGravityCounterForce = initialGravityCounterForce;
+        }
     }
 
     private void WallRunningMovement()
@@ -180,7 +183,7 @@ public class WallRunning : MonoBehaviour
         // enter exiting wall state
         exitingWall = true;
         exitWallTimer = exitWallTime;
-
+        pm.playJumpSound();
         Vector3 wallNormal = wallRight ? rightWallhit.normal : leftWallhit.normal;
 
         Vector3 forceToApply = transform.up * wallJumpUpForce + wallNormal * wallJumpSideForce;
