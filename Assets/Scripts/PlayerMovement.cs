@@ -161,7 +161,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 
                 rb.AddForce(GetSlopeMoveDirection() * slideSpeed);
-                slideSpeed += Time.deltaTime * 120;
+                slideSpeed += (Time.deltaTime * 120) * 2;
             }
             else if(isCrouching)
             {
