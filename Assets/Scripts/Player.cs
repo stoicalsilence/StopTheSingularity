@@ -153,21 +153,21 @@ public class Player : MonoBehaviour
         //    unequipRedDotRifle();
         //    unequipSingleShotRifle();
         //}
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            equipGrapplingGun();
+        //if (Input.GetKeyDown(KeyCode.Alpha3))
+        //{
+        //    equipGrapplingGun();
 
-            unequipSword();
-            unequipGlock();
-            unequipIcePick();
-            unequipAssaultRifle();
-            unequipShotgun();
-            unequipUzi();
-            unequipGrenadePistol();
+        //    unequipSword();
+        //    unequipGlock();
+        //    unequipIcePick();
+        //    unequipAssaultRifle();
+        //    unequipShotgun();
+        //    unequipUzi();
+        //    unequipGrenadePistol();
 
-            unequipRedDotRifle();
-            unequipSingleShotRifle();
-        }
+        //    unequipRedDotRifle();
+        //    unequipSingleShotRifle();
+        //}
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             equipIcePick();

@@ -75,7 +75,7 @@ public class PlayerInventory : MonoBehaviour
 
     public void PickupWeapon(int slotIndex, GameObject item)
     {
-        if(slotIndex != 2 && inventorySlots[slotIndex] == null)
+        if(slotIndex != 2 && !inventorySlots[slotIndex])
         {
             inventorySlots[slotIndex] = item.gameObject;
             SwitchWeapon(activeSlot, slotIndex);
@@ -95,6 +95,10 @@ public class PlayerInventory : MonoBehaviour
                 if (pickupPrefab != null)
                 {
                     GameObject spawnedPickup = Instantiate(pickupPrefab, droppedWeapon.transform.position, droppedWeapon.transform.rotation);
+                    if (droppedWeapon.GetComponent<Firearm>())
+                    {
+                        spawnedPickup.GetComponent<Firearm>().ammoInMag = droppedWeapon.GetComponent<Firearm>().ammoInMag;
+                    }
                     Rigidbody pickupRigidbody = spawnedPickup.GetComponent<Rigidbody>();
                     if (pickupRigidbody != null)
                     {
@@ -151,6 +155,18 @@ public class PlayerInventory : MonoBehaviour
         }
 
         //sucks but as it is right now I gotta do if(thisgun)=>play noise OH ALSO if(thisgun) was unequipped, stop these things
+    }
+
+    public bool IsWeaponInInventory(GameObject weapon)
+    {
+        foreach (GameObject inventoryItem in inventorySlots)
+        {
+            if (inventoryItem && inventoryItem == weapon)
+            {
+                return true; // Weapon is already in the inventory
+            }
+        }
+        return false; // Weapon is not in the inventory
     }
 
     private GameObject GetPickupPrefab(GameObject weapon)

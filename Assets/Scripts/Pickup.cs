@@ -14,18 +14,10 @@ public class Pickup : MonoBehaviour
     private void Start()
     {
         playerInventory = FindObjectOfType<PlayerInventory>();
-        if (weaponName == "sword")
-        {
-            itemHolderWeapon = FindObjectOfType<Player>().sword;
-        }
-        else if(weaponName == "glock")
-        {
-            itemHolderWeapon = FindObjectOfType<Player>().glock.gameObject;
-        }
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && playerInventory.activeSlot != 2)
+        if (Input.GetKeyDown(KeyCode.E) && playerInventory.activeSlot != 2 && !playerInventory.inventorySlots[playerInventory.activeSlot])
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -33,10 +25,37 @@ public class Pickup : MonoBehaviour
             {
                 if (hit.collider.gameObject == gameObject)
                 {
+                    if (weaponName == "sword")
+                    {
+                        if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().sword))
+                        {
+                            itemHolderWeapon = FindObjectOfType<Player>().sword;
+                        }
+                        else
+                        {
+                            Debug.Log("Can't pick up duplicate weapon!");
+                            return; // Exit the method without destroying the duplicate weapon
+                        }
+                    }
+                    else if (weaponName == "glock")
+                    {
+                        if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().glock.gameObject))
+                        {
+                            itemHolderWeapon = FindObjectOfType<Player>().glock.gameObject;
+                            FindObjectOfType<Player>().glock.ammoInMag = this.GetComponent<Firearm>().ammoInMag;
+                        }
+                        else
+                        {
+                            Debug.Log("Can't pick up duplicate weapon!");
+                            return; // Exit the method without destroying the duplicate weapon
+                        }
+                    }
                     playerInventory.PickupWeapon(playerInventory.activeSlot, itemHolderWeapon);
                     Destroy(gameObject);
                 }
             }
         }
     }
+
+    
 }
