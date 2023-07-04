@@ -18530,7 +18530,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemHolderWeapon: {fileID: 0}
   weaponName: glock
-  pickupRange: 3
+  pickupRange: 2.5
 --- !u!114 &-5960943401282930084
 MonoBehaviour:
   m_ObjectHideFlags: 0

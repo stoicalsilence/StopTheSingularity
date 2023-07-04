@@ -128,9 +128,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf940e8e1f43fb34585248b99fc413f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponPrefab: {fileID: 0}
+  itemHolderWeapon: {fileID: 0}
   weaponName: sword
-  pickupRange: 3
+  pickupRange: 2.5
 --- !u!1 &6754407187652319329
 GameObject:
   m_ObjectHideFlags: 0

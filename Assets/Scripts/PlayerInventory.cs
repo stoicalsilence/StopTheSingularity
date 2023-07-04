@@ -99,6 +99,22 @@ public class PlayerInventory : MonoBehaviour
                     {
                         spawnedPickup.GetComponent<Firearm>().ammoInMag = droppedWeapon.GetComponent<Firearm>().ammoInMag;
                     }
+                    else if (droppedWeapon.GetComponent<AssaultRifle>())
+                    {
+                        spawnedPickup.GetComponent<AssaultRifle>().ammoInMag = droppedWeapon.GetComponent<AssaultRifle>().ammoInMag;
+                    }
+                    else if (droppedWeapon.GetComponent<Shotgun>())
+                    {
+                        spawnedPickup.GetComponent<Shotgun>().ammoInMag = droppedWeapon.GetComponent<Shotgun>().ammoInMag;
+                    }
+                    else if (droppedWeapon.GetComponent<Uzi>())
+                    {
+                        spawnedPickup.GetComponent<Uzi>().ammoInMag = droppedWeapon.GetComponent<Uzi>().ammoInMag;
+                    }
+                    else if (droppedWeapon.GetComponent<GrenadePistol>())
+                    {
+                        spawnedPickup.GetComponent<GrenadePistol>().ammoInMag = droppedWeapon.GetComponent<GrenadePistol>().ammoInMag;
+                    }
                     Rigidbody pickupRigidbody = spawnedPickup.GetComponent<Rigidbody>();
                     if (pickupRigidbody != null)
                     {
@@ -154,7 +170,59 @@ public class PlayerInventory : MonoBehaviour
             player.unequipGlock();
         }
 
-        //sucks but as it is right now I gotta do if(thisgun)=>play noise OH ALSO if(thisgun) was unequipped, stop these things
+        if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == assaultRifle.gameObject)
+        {
+            player.equipAR();
+        }
+        else
+        {
+            player.unequipAssaultRifle();
+        }
+
+        if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == shotgun.gameObject)
+        {
+            player.equipShotgun();
+        }
+        else
+        {
+            player.unequipShotgun();
+        }
+
+        if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == uzi.gameObject)
+        {
+            player.equipUzi();
+        }
+        else
+        {
+            player.unequipUzi();
+        }
+
+        if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == grenadePistol.gameObject)
+        {
+            player.equipGrenadePistol();
+        }
+        else
+        {
+            player.unequipGrenadePistol();
+        }
+
+        if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == redDotRifle.gameObject)
+        {
+            player.equipRedDotAR();
+        }
+        else
+        {
+            player.unequipRedDotRifle();
+        }
+
+        if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == singleShotRifle.gameObject)
+        {
+            player.equipScopeAR();
+        }
+        else
+        {
+            player.unequipSingleShotRifle();
+        }
     }
 
     public bool IsWeaponInInventory(GameObject weapon)

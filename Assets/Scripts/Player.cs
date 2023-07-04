@@ -98,6 +98,7 @@ public class Player : MonoBehaviour
     public GameObject windParticles;
 
     public PlayerInventory playerInventory;
+    public bool hasPlasmatana;
 
     // Start is called before the first frame update
     void Start()
@@ -118,7 +119,7 @@ public class Player : MonoBehaviour
         //    Invoke("stopSlowmotion", 2f);
         //}
 
-        if (Input.GetKeyDown(KeyCode.V) && plasmatanaReady)
+        if (Input.GetKeyDown(KeyCode.V) && plasmatanaReady && hasPlasmatana)
         {
             StartCoroutine(plasmatanaAttack());
         }
