@@ -97,9 +97,12 @@ public class Player : MonoBehaviour
     public AudioSource plamsatanasound;
     public GameObject windParticles;
 
+    public PlayerInventory playerInventory;
+
     // Start is called before the first frame update
     void Start()
     {
+        playerInventory = GetComponent<PlayerInventory>();
         plasmatanaAnimation = plasmatana.GetComponent<Animator>();
         hpSlider.maxValue = maxHP;
         vignette = postProcessProfile.GetSetting<Vignette>();
@@ -120,36 +123,36 @@ public class Player : MonoBehaviour
             StartCoroutine(plasmatanaAttack());
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            equipSword();
+        //if (Input.GetKeyDown(KeyCode.Alpha1))
+        //{
+        //    equipSword();
 
-            unequipGlock();
-            unequipGrapplingGun();
-            unequipIcePick();
-            unequipAssaultRifle();
-            unequipShotgun();
-            unequipUzi();
-            unequipGrenadePistol();
+        //    unequipGlock();
+        //    unequipGrapplingGun();
+        //    unequipIcePick();
+        //    unequipAssaultRifle();
+        //    unequipShotgun();
+        //    unequipUzi();
+        //    unequipGrenadePistol();
 
-            unequipRedDotRifle();
-            unequipSingleShotRifle();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            equipGlock();
+        //    unequipRedDotRifle();
+        //    unequipSingleShotRifle();
+        //}
+        //if (Input.GetKeyDown(KeyCode.Alpha2))
+        //{
+        //    equipGlock();
 
-            unequipSword();
-            unequipGrapplingGun();
-            unequipIcePick();
-            unequipAssaultRifle();
-            unequipShotgun();
-            unequipUzi();
-            unequipGrenadePistol();
+        //    unequipSword();
+        //    unequipGrapplingGun();
+        //    unequipIcePick();
+        //    unequipAssaultRifle();
+        //    unequipShotgun();
+        //    unequipUzi();
+        //    unequipGrenadePistol();
 
-            unequipRedDotRifle();
-            unequipSingleShotRifle();
-        }
+        //    unequipRedDotRifle();
+        //    unequipSingleShotRifle();
+        //}
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             equipGrapplingGun();
@@ -799,6 +802,7 @@ public class Player : MonoBehaviour
     {
         glockEquipped = true;
         glock.gameObject.SetActive(true);
+        glock.gameObject.GetComponent<Animator>().enabled = true;
         glock.playCockingNoise();
         glock.anim.Play("GlockIdle");
     }
@@ -858,6 +862,7 @@ public class Player : MonoBehaviour
     {
         glock.disableMuzzleSmoke();
         glock.muzzleLight.SetActive(false);
+        glock.gameObject.GetComponent<Animator>().enabled = false;
         glock.gameObject.SetActive(false);
         glockEquipped = false;
     }
