@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
 {
     public int HP = 100;
     public int maxHP = 100;
+    public bool dead;
+    public GameObject gameOverPanel;
     public Animator swordAnim;
     public bool slashOnCD;
     public bool isBlocking;
@@ -113,6 +115,19 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(HP < 1)
+        {
+            HP = 0;
+            dead = true;
+        }
+        if (dead && playerMovement)
+        {
+            gameObject.transform.localScale = new Vector3(1, playerMovement.crouchYScale);
+            gameOverPanel.gameObject.SetActive(true);
+            playerMovement.enabled = false;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
         //if(Input.GetKeyDown(KeyCode.V))
         //{
         //    startSlowmotion();
@@ -169,111 +184,111 @@ public class Player : MonoBehaviour
         //    unequipRedDotRifle();
         //    unequipSingleShotRifle();
         //}
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            equipIcePick();
+        //if (Input.GetKeyDown(KeyCode.Alpha4))
+        //{
+        //    equipIcePick();
 
-            unequipSword();
-            unequipGlock();
-            unequipGrapplingGun();
-            unequipAssaultRifle();
-            unequipShotgun();
-            unequipUzi();
-            unequipGrenadePistol();
+        //    unequipSword();
+        //    unequipGlock();
+        //    unequipGrapplingGun();
+        //    unequipAssaultRifle();
+        //    unequipShotgun();
+        //    unequipUzi();
+        //    unequipGrenadePistol();
 
-            unequipRedDotRifle();
-            unequipSingleShotRifle();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            equipAR();
+        //    unequipRedDotRifle();
+        //    unequipSingleShotRifle();
+        //}
+        //if (Input.GetKeyDown(KeyCode.Alpha5))
+        //{
+        //    equipAR();
 
-            unequipSword();
-            unequipGlock();
-            unequipGrapplingGun();
-            unequipIcePick();
-            unequipShotgun();
-            unequipUzi();
-            unequipGrenadePistol();
+        //    unequipSword();
+        //    unequipGlock();
+        //    unequipGrapplingGun();
+        //    unequipIcePick();
+        //    unequipShotgun();
+        //    unequipUzi();
+        //    unequipGrenadePistol();
 
-            unequipRedDotRifle();
-            unequipSingleShotRifle();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha6))
-        {
-            equipShotgun();
+        //    unequipRedDotRifle();
+        //    unequipSingleShotRifle();
+        //}
+        //if (Input.GetKeyDown(KeyCode.Alpha6))
+        //{
+        //    equipShotgun();
 
-            unequipSword();
-            unequipGlock();
-            unequipGrapplingGun();
-            unequipIcePick();
-            unequipAssaultRifle();
-            unequipUzi();
-            unequipGrenadePistol();
+        //    unequipSword();
+        //    unequipGlock();
+        //    unequipGrapplingGun();
+        //    unequipIcePick();
+        //    unequipAssaultRifle();
+        //    unequipUzi();
+        //    unequipGrenadePistol();
 
-            unequipRedDotRifle();
-            unequipSingleShotRifle();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha7))
-        {
-            equipUzi();
+        //    unequipRedDotRifle();
+        //    unequipSingleShotRifle();
+        //}
+        //if (Input.GetKeyDown(KeyCode.Alpha7))
+        //{
+        //    equipUzi();
 
-            unequipSword();
-            unequipGlock();
-            unequipGrapplingGun();
-            unequipIcePick();
-            unequipAssaultRifle();
-            unequipShotgun();
-            unequipGrenadePistol();
+        //    unequipSword();
+        //    unequipGlock();
+        //    unequipGrapplingGun();
+        //    unequipIcePick();
+        //    unequipAssaultRifle();
+        //    unequipShotgun();
+        //    unequipGrenadePistol();
 
-            unequipRedDotRifle();
-            unequipSingleShotRifle();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha8))
-        {
-            equipRedDotAR();
+        //    unequipRedDotRifle();
+        //    unequipSingleShotRifle();
+        //}
+        //if (Input.GetKeyDown(KeyCode.Alpha8))
+        //{
+        //    equipRedDotAR();
 
-            unequipSword();
-            unequipGlock();
-            unequipGrapplingGun();
-            unequipIcePick();
-            unequipShotgun();
-            unequipUzi();
-            unequipGrenadePistol();
+        //    unequipSword();
+        //    unequipGlock();
+        //    unequipGrapplingGun();
+        //    unequipIcePick();
+        //    unequipShotgun();
+        //    unequipUzi();
+        //    unequipGrenadePistol();
 
-            unequipAssaultRifle();
-            unequipSingleShotRifle();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha9))
-        {
-            equipScopeAR();
+        //    unequipAssaultRifle();
+        //    unequipSingleShotRifle();
+        //}
+        //if (Input.GetKeyDown(KeyCode.Alpha9))
+        //{
+        //    equipScopeAR();
 
-            unequipSword();
-            unequipGlock();
-            unequipGrapplingGun();
-            unequipIcePick();
-            unequipShotgun();
-            unequipUzi();
-            unequipGrenadePistol();
+        //    unequipSword();
+        //    unequipGlock();
+        //    unequipGrapplingGun();
+        //    unequipIcePick();
+        //    unequipShotgun();
+        //    unequipUzi();
+        //    unequipGrenadePistol();
 
-            unequipAssaultRifle();
-            unequipRedDotRifle();
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            equipGrenadePistol();
+        //    unequipAssaultRifle();
+        //    unequipRedDotRifle();
+        //}
+        //if (Input.GetKeyDown(KeyCode.Alpha0))
+        //{
+        //    equipGrenadePistol();
 
-            unequipSword();
-            unequipGlock();
-            unequipGrapplingGun();
-            unequipIcePick();
-            unequipShotgun();
-            unequipUzi();
+        //    unequipSword();
+        //    unequipGlock();
+        //    unequipGrapplingGun();
+        //    unequipIcePick();
+        //    unequipShotgun();
+        //    unequipUzi();
 
-            unequipSingleShotRifle();
-            unequipAssaultRifle();
-            unequipRedDotRifle();
-        }
+        //    unequipSingleShotRifle();
+        //    unequipAssaultRifle();
+        //    unequipRedDotRifle();
+        //}
 
         hpSlider.value = HP;
         hpText.text = HP.ToString() + " %";
@@ -544,7 +559,7 @@ public class Player : MonoBehaviour
             int randomIndex = Random.Range(0, strongLandingSounds.Length);
             AudioClip sound = strongLandingSounds[randomIndex];
             painAudio.PlayOneShot(sound);
-            ScreenShake.Shake(1f, 1f);
+            ScreenShake.SmoothShake(1f, 1f);
             spawnJumpParticles();
             wasFalling = false;
         }
@@ -555,7 +570,7 @@ public class Player : MonoBehaviour
             AudioClip sound = normalLandingSounds[randomIndex];
             painAudio.PlayOneShot(sound);
             spawnLargeDropParticles();
-            ScreenShake.Shake(0.25f, 0.010f);
+            ScreenShake.SmoothShake(0.25f, 0.010f);
             wasJumping = false;
         }
     }
@@ -711,7 +726,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void playerDamageSound(int dmg)
+    public void playerDamageSound(int dmg)
     {
         if (dmg < 24)
         {

@@ -145,7 +145,10 @@ public class Pickup : MonoBehaviour
                         FindObjectOfType<Player>().hasPlasmatana = true;
                     }
 
-                    playerInventory.PickupWeapon(playerInventory.activeSlot, itemHolderWeapon);
+                    if (itemHolderWeapon)
+                    {
+                        playerInventory.PickupWeapon(playerInventory.activeSlot, itemHolderWeapon);
+                    }
                     Destroy(gameObject);
                 }
             }
