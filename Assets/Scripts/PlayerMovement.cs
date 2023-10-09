@@ -155,23 +155,22 @@ public class PlayerMovement : MonoBehaviour
 
         if (rb.velocity.magnitude > 0.5f)
         {
-            if (isCrouching && !OnSlope())
+            if (isCrouching)
             {
-                Vector3 slideDirection = rb.velocity.normalized; // Slide in the direction of movement
-                slideDirection.y = 0;
-                rb.AddForce(slideDirection * slideSpeed);
-                if (slideSpeed > 0)
+                if (OnSlope() && GetSlopeMoveDirection().y == 0 || OnSlope() && GetSlopeMoveDirection().y < 0) // Check if the player is moving downward
                 {
-                    slideSpeed -= Time.deltaTime * 120;
+                    slideSpeed += (Time.deltaTime * 120) * 2; // Increase slideSpeed
                 }
-            }
-            else if(isCrouching && rb.velocity.y < 0 && OnSlope())
-            {
-                rb.AddForce(GetSlopeMoveDirection() * slideSpeed);
-                slideSpeed += (Time.deltaTime * 120) * 2;
-            }
-            else if(isCrouching)
-            {
+                Vector3 slideDirection = rb.velocity.normalized; // Slide in the direction of movement
+                if (OnSlope())
+                {
+                    slideDirection.y = -1;
+                }
+                else
+                {
+                    slideDirection.y = 0;
+                }
+                rb.AddForce(slideDirection * slideSpeed);
                 if (slideSpeed > 0)
                 {
                     slideSpeed -= Time.deltaTime * 120;
@@ -380,7 +379,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool OnSlope()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f))
         {
             float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
             return angle < maxSlopeAngle && angle != 0;
