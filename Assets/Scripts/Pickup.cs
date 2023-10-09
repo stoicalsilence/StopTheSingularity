@@ -17,139 +17,151 @@ public class Pickup : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && playerInventory.activeSlot != 2 && !playerInventory.inventorySlots[playerInventory.activeSlot])
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, pickupRange))
+            if (playerInventory.activeSlot != 2 && !playerInventory.inventorySlots[playerInventory.activeSlot])
             {
-                if (hit.collider.gameObject == gameObject)
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, pickupRange))
                 {
-                    if (weaponName == "sword")
+                    if (hit.collider.gameObject == gameObject)
                     {
-                        if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().sword))
+                        if (weaponName == "sword")
                         {
-                            itemHolderWeapon = FindObjectOfType<Player>().sword;
+                            if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().sword))
+                            {
+                                itemHolderWeapon = FindObjectOfType<Player>().sword;
+                            }
+                            else
+                            {
+                                Debug.Log("Can't pick up duplicate weapon!");
+                                FindObjectOfType<Tooltip>().getReportedTo("Can't pick up a duplicate weapon!");
+                                return; // Exit the method without destroying the duplicate weapon
+                            }
                         }
-                        else
+                        else if (weaponName == "glock")
                         {
-                            Debug.Log("Can't pick up duplicate weapon!");
-                            return; // Exit the method without destroying the duplicate weapon
+                            if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().glock.gameObject))
+                            {
+                                itemHolderWeapon = FindObjectOfType<Player>().glock.gameObject;
+                                FindObjectOfType<Player>().glock.ammoInMag = this.GetComponent<Firearm>().ammoInMag;
+                            }
+                            else
+                            {
+                                Debug.Log("Can't pick up duplicate weapon!");
+                                FindObjectOfType<Tooltip>().getReportedTo("Can't pick up a duplicate weapon!");
+                                return; // Exit the method without destroying the duplicate weapon
+                            }
                         }
-                    }
-                    else if (weaponName == "glock")
-                    {
-                        if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().glock.gameObject))
+                        else if (weaponName == "assaultRifle")
                         {
-                            itemHolderWeapon = FindObjectOfType<Player>().glock.gameObject;
-                            FindObjectOfType<Player>().glock.ammoInMag = this.GetComponent<Firearm>().ammoInMag;
+                            if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().assaultRifle.gameObject))
+                            {
+                                itemHolderWeapon = FindObjectOfType<Player>().assaultRifle.gameObject;
+                                FindObjectOfType<Player>().assaultRifle.ammoInMag = this.GetComponent<AssaultRifle>().ammoInMag;
+                            }
+                            else
+                            {
+                                Debug.Log("Can't pick up duplicate weapon!");
+                                FindObjectOfType<Tooltip>().getReportedTo("Can't pick up a duplicate weapon!");
+                                return; // Exit the method without destroying the duplicate weapon
+                            }
                         }
-                        else
+                        else if (weaponName == "shotgun")
                         {
-                            Debug.Log("Can't pick up duplicate weapon!");
-                            return; // Exit the method without destroying the duplicate weapon
+                            if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().shotgun.gameObject))
+                            {
+                                itemHolderWeapon = FindObjectOfType<Player>().shotgun.gameObject;
+                                FindObjectOfType<Player>().shotgun.ammoInMag = this.GetComponent<Shotgun>().ammoInMag;
+                            }
+                            else
+                            {
+                                Debug.Log("Can't pick up duplicate weapon!");
+                                FindObjectOfType<Tooltip>().getReportedTo("Can't pick up a duplicate weapon!");
+                                return; // Exit the method without destroying the duplicate weapon
+                            }
                         }
-                    }
-                    else if (weaponName == "assaultRifle")
-                    {
-                        if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().assaultRifle.gameObject))
+                        else if (weaponName == "uzi")
                         {
-                            itemHolderWeapon = FindObjectOfType<Player>().assaultRifle.gameObject;
-                            FindObjectOfType<Player>().assaultRifle.ammoInMag = this.GetComponent<AssaultRifle>().ammoInMag;
+                            if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().uzi.gameObject))
+                            {
+                                itemHolderWeapon = FindObjectOfType<Player>().uzi.gameObject;
+                                FindObjectOfType<Player>().uzi.ammoInMag = this.GetComponent<Uzi>().ammoInMag;
+                            }
+                            else
+                            {
+                                Debug.Log("Can't pick up duplicate weapon!");
+                                FindObjectOfType<Tooltip>().getReportedTo("Can't pick up a duplicate weapon!");
+                                return; // Exit the method without destroying the duplicate weapon
+                            }
                         }
-                        else
+                        else if (weaponName == "grenadePistol")
                         {
-                            Debug.Log("Can't pick up duplicate weapon!");
-                            return; // Exit the method without destroying the duplicate weapon
+                            if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().grenadePistol.gameObject))
+                            {
+                                itemHolderWeapon = FindObjectOfType<Player>().grenadePistol.gameObject;
+                                FindObjectOfType<Player>().grenadePistol.ammoInMag = this.GetComponent<GrenadePistol>().ammoInMag;
+                            }
+                            else
+                            {
+                                Debug.Log("Can't pick up duplicate weapon!");
+                                FindObjectOfType<Tooltip>().getReportedTo("Can't pick up a duplicate weapon!");
+                                return; // Exit the method without destroying the duplicate weapon
+                            }
                         }
-                    }
-                    else if (weaponName == "shotgun")
-                    {
-                        if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().shotgun.gameObject))
+                        else if (weaponName == "redDotRifle")
                         {
-                            itemHolderWeapon = FindObjectOfType<Player>().shotgun.gameObject;
-                            FindObjectOfType<Player>().shotgun.ammoInMag = this.GetComponent<Shotgun>().ammoInMag;
+                            if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().redDotRifle.gameObject))
+                            {
+                                itemHolderWeapon = FindObjectOfType<Player>().redDotRifle.gameObject;
+                                FindObjectOfType<Player>().redDotRifle.ammoInMag = this.GetComponent<AssaultRifle>().ammoInMag;
+                            }
+                            else
+                            {
+                                Debug.Log("Can't pick up duplicate weapon!");
+                                FindObjectOfType<Tooltip>().getReportedTo("Can't pick up a duplicate weapon!");
+                                return; // Exit the method without destroying the duplicate weapon
+                            }
                         }
-                        else
+                        else if (weaponName == "singleShotRifle")
                         {
-                            Debug.Log("Can't pick up duplicate weapon!");
-                            return; // Exit the method without destroying the duplicate weapon
+                            if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().singleShotRifle.gameObject))
+                            {
+                                itemHolderWeapon = FindObjectOfType<Player>().singleShotRifle.gameObject;
+                                FindObjectOfType<Player>().singleShotRifle.ammoInMag = this.GetComponent<AssaultRifle>().ammoInMag;
+                            }
+                            else
+                            {
+                                Debug.Log("Can't pick up duplicate weapon!");
+                                FindObjectOfType<Tooltip>().getReportedTo("Can't pick up a duplicate weapon!");
+                                return; // Exit the method without destroying the duplicate weapon
+                            }
                         }
-                    }
-                    else if (weaponName == "uzi")
-                    {
-                        if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().uzi.gameObject))
+                        else if (weaponName == "grapplingGun")
                         {
-                            itemHolderWeapon = FindObjectOfType<Player>().uzi.gameObject;
-                            FindObjectOfType<Player>().uzi.ammoInMag = this.GetComponent<Uzi>().ammoInMag;
+                            if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().grapplingGun))
+                            {
+                                itemHolderWeapon = FindObjectOfType<Player>().grapplingGun;
+                            }
+                            else
+                            {
+                                Debug.Log("Can't pick up duplicate weapon!");
+                                FindObjectOfType<Tooltip>().getReportedTo("Can't pick up a duplicate weapon!");
+                                return; // Exit the method without destroying the duplicate weapon
+                            }
                         }
-                        else
+                        else if (weaponName == "plasmatana")
                         {
-                            Debug.Log("Can't pick up duplicate weapon!");
-                            return; // Exit the method without destroying the duplicate weapon
+                            FindObjectOfType<Player>().hasPlasmatana = true;
                         }
-                    }
-                    else if (weaponName == "grenadePistol")
-                    {
-                        if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().grenadePistol.gameObject))
-                        {
-                            itemHolderWeapon = FindObjectOfType<Player>().grenadePistol.gameObject;
-                            FindObjectOfType<Player>().grenadePistol.ammoInMag = this.GetComponent<GrenadePistol>().ammoInMag;
-                        }
-                        else
-                        {
-                            Debug.Log("Can't pick up duplicate weapon!");
-                            return; // Exit the method without destroying the duplicate weapon
-                        }
-                    }
-                    else if (weaponName == "redDotRifle")
-                    {
-                        if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().redDotRifle.gameObject))
-                        {
-                            itemHolderWeapon = FindObjectOfType<Player>().redDotRifle.gameObject;
-                            FindObjectOfType<Player>().redDotRifle.ammoInMag = this.GetComponent<AssaultRifle>().ammoInMag;
-                        }
-                        else
-                        {
-                            Debug.Log("Can't pick up duplicate weapon!");
-                            return; // Exit the method without destroying the duplicate weapon
-                        }
-                    }
-                    else if (weaponName == "singleShotRifle")
-                    {
-                        if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().singleShotRifle.gameObject))
-                        {
-                            itemHolderWeapon = FindObjectOfType<Player>().singleShotRifle.gameObject;
-                            FindObjectOfType<Player>().singleShotRifle.ammoInMag = this.GetComponent<AssaultRifle>().ammoInMag;
-                        }
-                        else
-                        {
-                            Debug.Log("Can't pick up duplicate weapon!");
-                            return; // Exit the method without destroying the duplicate weapon
-                        }
-                    }
-                    else if(weaponName == "grapplingGun")
-                    {
-                        if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().grapplingGun))
-                        {
-                            itemHolderWeapon = FindObjectOfType<Player>().grapplingGun;
-                        }
-                        else
-                        {
-                            Debug.Log("Can't pick up duplicate weapon!");
-                            return; // Exit the method without destroying the duplicate weapon
-                        }
-                    }
-                    else if(weaponName == "plasmatana")
-                    {
-                        FindObjectOfType<Player>().hasPlasmatana = true;
-                    }
 
-                    if (itemHolderWeapon)
-                    {
-                        playerInventory.PickupWeapon(playerInventory.activeSlot, itemHolderWeapon);
+                        if (itemHolderWeapon)
+                        {
+                            playerInventory.PickupWeapon(playerInventory.activeSlot, itemHolderWeapon);
+                        }
+                        Destroy(gameObject);
                     }
-                    Destroy(gameObject);
                 }
             }
         }
