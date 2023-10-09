@@ -18,7 +18,7 @@ public class Tooltip : MonoBehaviour
 
     private IEnumerator AnimateFontSize()
     {
-        float targetFontSize = 72f;
+        float targetFontSize = 50f;
         float animationDuration = 0.25f;
 
         float elapsedTime = 0f;

@@ -148,7 +148,6 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         movePlayer();
-
         if (wallrunning && moveSpeed > 0.1f)
         {
             moveSpeed -= Time.deltaTime * 400;
@@ -166,9 +165,8 @@ public class PlayerMovement : MonoBehaviour
                     slideSpeed -= Time.deltaTime * 120;
                 }
             }
-            else if(isCrouching && rb.velocity.y < 0)
+            else if(isCrouching && rb.velocity.y < 0 && OnSlope())
             {
-                
                 rb.AddForce(GetSlopeMoveDirection() * slideSpeed);
                 slideSpeed += (Time.deltaTime * 120) * 2;
             }
@@ -179,18 +177,6 @@ public class PlayerMovement : MonoBehaviour
                     slideSpeed -= Time.deltaTime * 120;
                 }
             }
-            
-           // else
-
-           //if (isCrouching && !grounded && !readyToJump)
-           // {
-           //     rb.AddForce(orientation.transform.forward * slideSpeed); // So you don't zoom up or down when in the air
-           //     if (slideSpeed > 0)
-           //     {
-           //         slideSpeed -= Time.deltaTime * 120;
-           //     }
-           // }
-
         }
     }
 
@@ -247,13 +233,6 @@ public class PlayerMovement : MonoBehaviour
                 {
                     jump();
                 }
-            
-            //else if (readyToJump && grounded && state != MovementState.crouching)
-            //{
-            //    readyToJump = false;
-            //    jump();
-            //    Invoke(nameof(resetJump), jumpCooldown);
-            //}
         }
     }
 
