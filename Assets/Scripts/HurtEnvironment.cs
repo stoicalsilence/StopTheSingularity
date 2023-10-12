@@ -13,7 +13,7 @@ public class HurtEnvironment : MonoBehaviour
         {
             StartCoroutine(DamagePlayerOverTime());
         }
-        else
+        else if(other.CompareTag("Player") && instakill)
         {
             Player player = FindObjectOfType<Player>();
             if (!player.dead)
