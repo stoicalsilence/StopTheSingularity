@@ -129,7 +129,7 @@ public class Player : MonoBehaviour
             Cursor.visible = true;
         }
 
-        if (Input.GetKeyDown(KeyCode.V) && plasmatanaReady && hasPlasmatana)
+        if (Input.GetKeyDown(KeyCode.F) && plasmatanaReady && hasPlasmatana)
         {
             StartCoroutine(plasmatanaAttack());
         }

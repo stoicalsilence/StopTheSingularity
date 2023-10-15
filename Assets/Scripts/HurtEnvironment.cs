@@ -22,6 +22,15 @@ public class HurtEnvironment : MonoBehaviour
             }
             player.HP = 0;
         }
+        Eyenemy eye;
+        if (other.gameObject.TryGetComponent<Eyenemy>(out eye))
+        {
+            int amodmg = other.gameObject.GetComponent<Eyenemy>().health;
+            for (int i = 0; i < amodmg; i++)
+            {
+                eye.TakeDamage();
+            }
+        }
     }
 
     private void OnTriggerExit(Collider other)

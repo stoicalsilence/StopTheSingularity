@@ -4,12 +4,6 @@ using UnityEngine;
 
 public class VToSlash : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -18,7 +12,7 @@ public class VToSlash : MonoBehaviour
             int e = Random.Range(0, FindObjectOfType<Player>().plasmaSwings.Length);
             AudioClip d = FindObjectOfType<Player>().plasmaSwings[e];
             FindObjectOfType<Player>().plamsatanasound.PlayOneShot(d);
-            FindObjectOfType<Tooltip>().getReportedTo("Press V to slash with the Plasmatana®!");
+            FindObjectOfType<Tooltip>().getReportedTo("Press F to slash with the Plasmatana®!");
             Destroy(this.gameObject);
         }
     }
