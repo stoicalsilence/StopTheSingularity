@@ -16,6 +16,7 @@ public class PlayerInventory : MonoBehaviour
     public AssaultRifle redDotRifle;
     public AssaultRifle singleShotRifle;
     public Shotgun shotgun;
+    public DblBarrelShotgun dblBarrelShotgun;
     public Uzi uzi;
     public GrenadePistol grenadePistol;
 
@@ -28,6 +29,7 @@ public class PlayerInventory : MonoBehaviour
     public GameObject redDotRiflePickup;
     public GameObject singleShotRiflePickup;
     public GameObject shotgunPickup;
+    public GameObject dblBarrelShotgunPickup;
     public GameObject uziPickup;
     public GameObject grenadePistolPickup;
 
@@ -107,6 +109,10 @@ public class PlayerInventory : MonoBehaviour
                     {
                         spawnedPickup.GetComponent<Shotgun>().ammoInMag = droppedWeapon.GetComponent<Shotgun>().ammoInMag;
                     }
+                    else if (droppedWeapon.GetComponent<DblBarrelShotgun>())
+                    {
+                        spawnedPickup.GetComponent<DblBarrelShotgun>().ammoInMag = droppedWeapon.GetComponent<DblBarrelShotgun>().ammoInMag;
+                    }
                     else if (droppedWeapon.GetComponent<Uzi>())
                     {
                         spawnedPickup.GetComponent<Uzi>().ammoInMag = droppedWeapon.GetComponent<Uzi>().ammoInMag;
@@ -129,6 +135,7 @@ public class PlayerInventory : MonoBehaviour
                 player.unequipIcePick();
                 player.unequipAssaultRifle();
                 player.unequipShotgun();
+                player.unequipDblBarrelShotgun();
                 player.unequipUzi();
                 player.unequipGrenadePistol();
                 player.unequipGrapplingGun();
@@ -186,6 +193,15 @@ public class PlayerInventory : MonoBehaviour
         else
         {
             player.unequipShotgun();
+        }
+
+        if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == dblBarrelShotgun.gameObject)
+        {
+            player.equipDblBarrelShotgun();
+        }
+        else
+        {
+            player.unequipDblBarrelShotgun();
         }
 
         if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == uzi.gameObject)
@@ -270,6 +286,10 @@ public class PlayerInventory : MonoBehaviour
         else if (weapon == shotgun.gameObject)
         {
             return shotgunPickup;
+        }
+        else if(weapon == dblBarrelShotgun.gameObject)
+        {
+            return dblBarrelShotgunPickup;
         }
         else if (weapon == uzi.gameObject)
         {

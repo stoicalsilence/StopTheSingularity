@@ -82,6 +82,20 @@ public class Pickup : MonoBehaviour
                                 return; // Exit the method without destroying the duplicate weapon
                             }
                         }
+                        else if (weaponName == "DblBarrelShotgun")
+                        {
+                            if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().dblBarrelShotgun.gameObject))
+                            {
+                                itemHolderWeapon = FindObjectOfType<Player>().dblBarrelShotgun.gameObject;
+                                FindObjectOfType<Player>().dblBarrelShotgun.ammoInMag = this.GetComponent<DblBarrelShotgun>().ammoInMag;
+                            }
+                            else
+                            {
+                                Debug.Log("Can't pick up duplicate weapon!");
+                                FindObjectOfType<Tooltip>().getReportedTo("Can't pick up a duplicate weapon!");
+                                return; // Exit the method without destroying the duplicate weapon
+                            }
+                        }
                         else if (weaponName == "uzi")
                         {
                             if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().uzi.gameObject))

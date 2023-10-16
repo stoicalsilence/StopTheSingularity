@@ -98,12 +98,12 @@ public class DblBarrelShotgun : MonoBehaviour
 
 
                     Vector3 direction = (targetPoint - shootHole.position).normalized;
-                    direction = Quaternion.Euler(Random.Range(-5f, 5f), Random.Range(-5f, 5f), 0f) * direction;
+                    direction = Quaternion.Euler(Random.Range(-10f, 10f), Random.Range(-10f, 10f), 0f) * direction;
                     direction.Normalize();
                     recoilDirection = -direction;
                     Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
 
-                    float bulletSpeedWithInaccuracy = bulletSpeed * Random.Range(0.9f, 1.1f);
+                    float bulletSpeedWithInaccuracy = bulletSpeed * Random.Range(0.6f, 1.4f);
                     bulletRigidbody.AddForce(direction * bulletSpeedWithInaccuracy, ForceMode.VelocityChange);
                 }
                 FindObjectOfType<Player>().GetComponent<Rigidbody>().AddForce(recoilDirection * recoilForce, ForceMode.Impulse);
@@ -183,9 +183,8 @@ public class DblBarrelShotgun : MonoBehaviour
                 int randomIndex = Random.Range(0, bulletInserts.Length);
                 AudioClip sound = bulletInserts[randomIndex];
                 gunShotSound.PlayOneShot(sound);
-                ammoInMag++;
-
             yield return new WaitForSeconds(reloadOne.length);
+            ammoInMag = magCapacity;
         }
             if (ammoInMag == 0)
             {
@@ -194,8 +193,9 @@ public class DblBarrelShotgun : MonoBehaviour
                 int randomIndex3 = Random.Range(0, shotgunPumps.Length);
                 AudioClip sound3 = shotgunPumps[randomIndex3];
                 gunShotSound.PlayOneShot(sound3);
-                yield return new WaitForSeconds(reloadAll.length);
-            }
+            yield return new WaitForSeconds(reloadAll.length);
+            ammoInMag = magCapacity;
+        }
         reloading = false;
     }
 

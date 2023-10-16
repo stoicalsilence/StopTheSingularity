@@ -44,6 +44,7 @@ public class Player : MonoBehaviour
     public bool icePickEquipped;
     public bool assaultrifleEquipped;
     public bool shotgunEquipped;
+    public bool dblBarrelShotgunEquipped;
     public bool uziEquipped;
     public bool redDotRifleEquipped;
     public bool singleShotRifleEquipped;
@@ -57,6 +58,7 @@ public class Player : MonoBehaviour
     public AssaultRifle redDotRifle;
     public AssaultRifle singleShotRifle;
     public Shotgun shotgun;
+    public DblBarrelShotgun dblBarrelShotgun;
     public Uzi uzi;
     public GrenadePistol grenadePistol;
 
@@ -156,6 +158,10 @@ public class Player : MonoBehaviour
         else if (shotgunEquipped)
         {
             ammoText.text = "Shotgun\n" + shotgun.ammoInMag.ToString() + " / " + shotgun.magCapacity.ToString();
+        }
+        else if (dblBarrelShotgunEquipped)
+        {
+            ammoText.text = "Shotgun\n" + dblBarrelShotgun.ammoInMag.ToString() + " / " + dblBarrelShotgun.magCapacity.ToString();
         }
         else if (uziEquipped)
         {
@@ -304,6 +310,28 @@ public class Player : MonoBehaviour
                 if (shotgun.ammoInMag < shotgun.magCapacity && !shotgun.reloading)
                 {
                     StartCoroutine(shotgun.reload());
+                }
+            }
+        }
+
+        if (dblBarrelShotgunEquipped)
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0) && !dblBarrelShotgun.reloading)
+            {
+                dblBarrelShotgun.singleShot = true;
+                dblBarrelShotgun.Shoot();
+            }
+            if (Input.GetKeyDown(KeyCode.Mouse1) && !dblBarrelShotgun.reloading && dblBarrelShotgun.ammoInMag == 2)
+            {
+                dblBarrelShotgun.singleShot = false;
+                dblBarrelShotgun.Shoot();
+                dblBarrelShotgun.ammoInMag = 0;
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                if (dblBarrelShotgun.ammoInMag < dblBarrelShotgun.magCapacity && !dblBarrelShotgun.reloading)
+                {
+                    StartCoroutine(dblBarrelShotgun.reload());
                 }
             }
         }
@@ -700,6 +728,12 @@ public class Player : MonoBehaviour
         shotgun.gameObject.SetActive(true);
         shotgun.playCockingNoise();
     }
+    public void equipDblBarrelShotgun()
+    {
+        dblBarrelShotgunEquipped = true;
+        dblBarrelShotgun.gameObject.SetActive(true);
+        dblBarrelShotgun.playCockingNoise();
+    }
     public void equipUzi()
     {
         uziEquipped = true;
@@ -766,6 +800,14 @@ public class Player : MonoBehaviour
         shotgun.muzzleLight.SetActive(false);
         shotgun.gameObject.SetActive(false);
         shotgunEquipped = false;
+    }
+    public void unequipDblBarrelShotgun()
+    {
+        dblBarrelShotgun.disableMuzzleSmoke();
+        dblBarrelShotgun.StopAllCoroutines();
+        dblBarrelShotgun.muzzleLight.SetActive(false);
+        dblBarrelShotgun.gameObject.SetActive(false);
+        dblBarrelShotgunEquipped = false;
     }
     public void unequipUzi()
     {
