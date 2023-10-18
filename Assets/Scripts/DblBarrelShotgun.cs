@@ -42,6 +42,8 @@ public class DblBarrelShotgun : MonoBehaviour
     private Coroutine disableMuzzleSmokeCoroutine;
     public ParticleSystem muzzleSmoke;
     public ParticleSystem muzzleSmoke1;
+    public ParticleSystem reloadSmoke;
+    public ParticleSystem reloadSmoke1;
 
     void Update()
     {
@@ -154,6 +156,12 @@ public class DblBarrelShotgun : MonoBehaviour
         muzzleSmoke1.Stop();
         isMuzzleSmokeActive = false;
     }
+
+    public void disableReloadSmoke()
+    {
+        reloadSmoke.Stop();
+        reloadSmoke1.Stop();
+    }
     public IEnumerator shootAnimation()
     {
         gunShotSound.volume = 0.5f;
@@ -180,16 +188,21 @@ public class DblBarrelShotgun : MonoBehaviour
             if (ammoInMag == 1)
             {
                 anim.Play(reloadOne.name);
-                int randomIndex = Random.Range(0, bulletInserts.Length);
-                AudioClip sound = bulletInserts[randomIndex];
-                gunShotSound.PlayOneShot(sound);
+            reloadSmoke.Play();
+            Invoke("disableReloadSmoke", 1.5f);
+            int randomIndex3 = Random.Range(0, shotgunPumps.Length);
+            AudioClip sound3 = shotgunPumps[randomIndex3];
+            gunShotSound.PlayOneShot(sound3);
             yield return new WaitForSeconds(reloadOne.length);
             ammoInMag = magCapacity;
         }
             if (ammoInMag == 0)
             {
                 anim.Play(reloadAll.name);
-                gunShotSound.volume = 0.5f;
+            reloadSmoke1.Play();
+            reloadSmoke.Play();
+            Invoke("disableReloadSmoke", 1.5f);
+            gunShotSound.volume = 0.5f;
                 int randomIndex3 = Random.Range(0, shotgunPumps.Length);
                 AudioClip sound3 = shotgunPumps[randomIndex3];
                 gunShotSound.PlayOneShot(sound3);

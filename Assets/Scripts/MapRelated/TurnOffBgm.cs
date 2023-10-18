@@ -7,5 +7,6 @@ public class TurnOffBgm : MonoBehaviour
     void Start()
     {
         Destroy(GameObject.Find("BGM"));
+        Destroy(this.gameObject);
     }
 }

@@ -1083,7 +1083,6 @@ MonoBehaviour:
   minimumRange: 3
   movementSpeed: 5
   animator: {fileID: 0}
-  headTransform: {fileID: 0}
   muzzleFlare: {fileID: 0}
   orangeLight: {fileID: 0}
   bulletPrefab: {fileID: 0}
@@ -1106,6 +1105,7 @@ MonoBehaviour:
   footsteps: []
   rb: {fileID: 0}
   footstepParticles: {fileID: 0}
+  agent: {fileID: 0}
 --- !u!65 &3232923737273005415
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7866,13 +7866,12 @@ MonoBehaviour:
   minimumRange: 30
   movementSpeed: 3
   animator: {fileID: 0}
-  headTransform: {fileID: 2200676408525678649}
   muzzleFlare: {fileID: 5402249270608355580}
   orangeLight: {fileID: 5402249269715580744}
   bulletPrefab: {fileID: 3593518444365075395, guid: 927db56ce837cce43afd330a7f08499e, type: 3}
   shootInterval: 2
   bulletSpeed: 15
-  bulletInaccuracy: 10
+  bulletInaccuracy: 3
   audioSource: {fileID: 5402249271107120419}
   hitSounds: {fileID: 5402249271107120419}
   gunShots:
@@ -7906,6 +7905,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 90da824f45b787949ab0eae2448e097e, type: 3}
   rb: {fileID: 0}
   footstepParticles: {fileID: 2109270985870648393, guid: 094ff498976143d489e5a7306da5a0ef, type: 3}
+  agent: {fileID: 0}
 --- !u!54 &7092932961656906171
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -65,7 +65,7 @@ public class Killbot : MonoBehaviour
     {
         if (!triggered)
         {
-            if (Physics.Raycast(transform.position, player.position - transform.position, out hitInfo, detectionRange))
+            if (Physics.Raycast(transform.position + new Vector3(0, 0.5f, 0), player.position - transform.position, out hitInfo, detectionRange))
             {
                 if (hitInfo.collider.CompareTag("Player"))
                 {
@@ -308,10 +308,18 @@ public class Killbot : MonoBehaviour
     }
     private Vector3 ApplyBulletInaccuracy(Vector3 direction)
     {
-        // Calculate a random inaccuracy angle
-        float inaccuracyAngle = Random.Range(0.0f, bulletInaccuracy);
-        // Rotate the direction vector around the up axis by the inaccuracy angle
-        Quaternion rotation = Quaternion.AngleAxis(inaccuracyAngle, Vector3.up);
-        return rotation * direction;
+        // Calculate random inaccuracy angles for horizontal and vertical directions
+        float horizontalInaccuracyAngle = Random.Range(-bulletInaccuracy, bulletInaccuracy);
+        float verticalInaccuracyAngle = Random.Range(-bulletInaccuracy, bulletInaccuracy);
+
+        // Apply the horizontal inaccuracy by rotating the direction vector around the up axis
+        Quaternion horizontalRotation = Quaternion.AngleAxis(horizontalInaccuracyAngle, Vector3.up);
+        direction = horizontalRotation * direction;
+
+        // Apply the vertical inaccuracy by rotating the direction vector around the right axis
+        Quaternion verticalRotation = Quaternion.AngleAxis(verticalInaccuracyAngle, Vector3.right);
+        direction = verticalRotation * direction;
+
+        return direction;
     }
 }
