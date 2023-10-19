@@ -208,7 +208,8 @@ public class Killbot : MonoBehaviour
     public void takeDamage()
     {
         health--;
-        if(health < 1) { 
+        FindObjectOfType<HitmarkerEffect>().ShowHitmarker();
+        if (health < 1) { 
         ded = true;
         int randomIndex = Random.Range(0, dieSounds.Length);
         AudioClip hitSound = dieSounds[randomIndex];
