@@ -167,14 +167,14 @@ public class Eyenemy : MonoBehaviour
     {
         isKnockedBack = true;
 
-        Vector3 knockbackDirection = transform.position - hitPoint;
-        knockbackDirection.y = 0f;
-        knockbackDirection.Normalize();
+        //Vector3 knockbackDirection = transform.position - hitPoint;
+        //knockbackDirection.y = 0f;
+        //knockbackDirection.Normalize();
 
-        Vector3 knockbackForceVector = knockbackDirection * knockbackForce;
-        knockbackForceVector.y += knockbackHeight; // Apply additional upward force
+        //Vector3 knockbackForceVector = knockbackDirection * knockbackForce;
+        //knockbackForceVector.y += knockbackHeight; // Apply additional upward force
 
-        rb.AddForce(knockbackForceVector, ForceMode.Impulse);
+        //rb.AddForce(knockbackForceVector, ForceMode.Impulse);
 
         //Invoke("ResetRotation", 1f);
     }

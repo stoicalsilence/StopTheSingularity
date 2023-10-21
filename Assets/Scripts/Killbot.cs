@@ -14,7 +14,7 @@ public class Killbot : MonoBehaviour
     public float minimumRange = 3f;
     public float movementSpeed = 5f; // New speed variable
     public Animator animator;
-
+    public bool incover = false;
     public ParticleSystem muzzleFlare;
     public GameObject orangeLight, bulletPrefab;
 
@@ -65,7 +65,9 @@ public class Killbot : MonoBehaviour
     {
         if (!triggered)
         {
-            if (Physics.Raycast(transform.position + new Vector3(0, 0.5f, 0), player.position - transform.position, out hitInfo, detectionRange))
+            Vector3 coverbonus = new Vector3(0, 0.5f, 0);
+            if (incover) coverbonus = new Vector3(0, 1, 0f);
+            if (Physics.Raycast(transform.position + coverbonus, player.position - transform.position, out hitInfo, detectionRange))
             {
                 if (hitInfo.collider.CompareTag("Player"))
                 {
@@ -160,6 +162,7 @@ public class Killbot : MonoBehaviour
                 }
                 else
                 {
+                    rb.velocity = new Vector2(0, 0);
                     ded = true;
                     int randomIndex = Random.Range(0, dieSounds.Length);
                     AudioClip hitSound = dieSounds[randomIndex];
@@ -182,9 +185,11 @@ public class Killbot : MonoBehaviour
                     // Add rigidbody to each child GameObject and apply random torqued force
                     foreach (Transform child in transform)
                     {
+                        Rigidbody childRigidbody = child.gameObject.AddComponent<Rigidbody>();
+                        PhysicMaterial physicMaterial = new PhysicMaterial();
+                        physicMaterial.bounciness = 0.1f;
                         if (child.gameObject.activeInHierarchy)
                         {
-                            Rigidbody childRigidbody = child.gameObject.AddComponent<Rigidbody>();
                             Destroy(child.gameObject, 4f);
 
                             Vector3 randomForce = Random.onUnitSphere * Random.Range(2f, 5f);
@@ -196,6 +201,7 @@ public class Killbot : MonoBehaviour
                             BoxCollider boxCollider = child.gameObject.GetComponent<BoxCollider>();
                             if (boxCollider != null)
                             {
+                                boxCollider.material = physicMaterial;
                                 boxCollider.enabled = true;
                             }
                         }

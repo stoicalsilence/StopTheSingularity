@@ -7856,7 +7856,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 421b3b8688aa4a74b8087148f166bb17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 7
+  health: 5
   player: {fileID: 0}
   bullethole: {fileID: 5402249269985675446}
   damping: 5

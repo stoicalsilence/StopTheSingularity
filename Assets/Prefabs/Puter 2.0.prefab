@@ -2185,7 +2185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd09e555bc570554eb712574d4e1d0ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 5
+  health: 4
   knockbackForce: 10
   knockbackHeight: 2
   jumpInterval: 2

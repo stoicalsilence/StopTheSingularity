@@ -103,6 +103,7 @@ public class Player : MonoBehaviour
 
     public PlayerInventory playerInventory;
     public bool hasPlasmatana;
+    bool dedweponchecked = false;
 
     // Start is called before the first frame update
     void Start()
@@ -124,7 +125,11 @@ public class Player : MonoBehaviour
         }
         if (dead && playerMovement)
         {
-            playerInventory.DropWeapon(playerInventory.activeSlot);
+            if (!dedweponchecked)
+            {
+                dedweponchecked = true;
+                playerInventory.DropWeapon(playerInventory.activeSlot);
+            }
             gameObject.transform.localScale = new Vector3(1, playerMovement.crouchYScale);
             gameOverPanel.gameObject.SetActive(true);
             playerMovement.enabled = false;
