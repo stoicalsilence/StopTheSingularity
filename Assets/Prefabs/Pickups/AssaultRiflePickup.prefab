@@ -321,8 +321,8 @@ MonoBehaviour:
   reloading: 0
   reloadTime: 0
   reloadTimeOnEmpty: 0
-  magCapacity: 20
-  ammoInMag: 20
+  magCapacity: 30
+  ammoInMag: 30
   maxAmmo: 60
   shootHole: {fileID: 5878695640933700074}
   gunShotSound: {fileID: 5878695640895651598}
