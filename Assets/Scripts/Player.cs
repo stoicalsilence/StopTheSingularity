@@ -107,9 +107,18 @@ public class Player : MonoBehaviour
     public bool hasPlasmatana;
     bool dedweponchecked = false;
 
+    private bool isBurstFiring = false;
+    private int burstCount = 0;
+    private float burstCooldown = 0.075f;
+    private float lastBurstTime = 0f;
+
+    public GameObject menu;
+    bool paused;
+
     // Start is called before the first frame update
     void Start()
     {
+        paused = false;
         playerInventory = GetComponent<PlayerInventory>();
         plasmatanaAnimation = plasmatana.GetComponent<Animator>();
         hpSlider.maxValue = maxHP;
@@ -120,6 +129,24 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            paused = !paused;
+        }
+        if (!paused)
+        {
+            Time.timeScale = 1;
+            menu.SetActive(false);
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        else
+        {
+            menu.SetActive(true);
+            Time.timeScale = 0;
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.Confined;
+        }
         if(HP < 1)
         {
             HP = 0;
@@ -162,6 +189,10 @@ public class Player : MonoBehaviour
         else if (singleShotRifleEquipped)
         {
             ammoText.text = "Assault Rifle\n" + singleShotRifle.ammoInMag.ToString() + " / " + singleShotRifle.magCapacity.ToString();
+        }
+        else if (battleRifleEquipped)
+        {
+            ammoText.text = "Battle Rifle\n" + battleRifle.ammoInMag.ToString() + " / " + battleRifle.magCapacity.ToString();
         }
         else if (shotgunEquipped)
         {
@@ -270,11 +301,28 @@ public class Player : MonoBehaviour
         }
         if (battleRifleEquipped)
         {
-            if (Input.GetKeyDown(KeyCode.Mouse0) && !battleRifle.reloading)
+            if (Input.GetKey(KeyCode.Mouse0) && !battleRifle.reloading && !isBurstFiring && battleRifle.ammoInMag > 0 && battleRifle.cooldownTimer <= 0f)
             {
-                shootBattleRifle();
-                Invoke("shootBattleRifle", 0.1f);
-                Invoke("shootBattleRifle", 0.2f);
+                isBurstFiring = true;
+                burstCount = 0;
+                lastBurstTime = Time.time;
+
+                battleRifle.cooldownTimer = battleRifle.cooldownTime;
+            }
+
+            if (isBurstFiring)
+            {
+                while (burstCount < 3 && Time.time - lastBurstTime >= burstCooldown)
+                {
+                    shootBattleRifle();
+                    burstCount++;
+                    lastBurstTime = Time.time;
+                }
+
+                if (burstCount >= 3)
+                {
+                    isBurstFiring = false;
+                }
             }
             if (Input.GetKeyDown(KeyCode.R))
             {
@@ -603,8 +651,6 @@ public class Player : MonoBehaviour
     private void shootBattleRifle()
     {
         battleRifle.Shoot();
-
-        battleRifle.cooldownTimer = battleRifle.cooldownTime;
     }
     private IEnumerator ActivateInvincibility()
     {

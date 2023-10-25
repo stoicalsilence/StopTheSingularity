@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class BattleRifle : MonoBehaviour
@@ -44,6 +45,7 @@ public class BattleRifle : MonoBehaviour
     private float lastFireTime;
     public float minInnacurracy = 0f;
     public float maxInnacurracy = 0.025f;
+    public TextMeshPro ammoTextOnGun;
 
     void Update()
     {
@@ -51,10 +53,11 @@ public class BattleRifle : MonoBehaviour
         {
             cooldownTimer -= Time.deltaTime;
         }
+        ammoTextOnGun.text = ammoInMag.ToString();
     }
     public void Shoot()
     {
-        if (cooldownTimer <= 0f && !reloading)
+        if (!reloading)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
