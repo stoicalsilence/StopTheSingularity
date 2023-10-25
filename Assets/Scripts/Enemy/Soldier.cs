@@ -22,6 +22,7 @@ public class Soldier : MonoBehaviour
     public GameObject bulletPrefab;
     public AudioSource audioSource;
     public GameObject m4Pickup;
+    public List<Soldier> squad;
 
     public AudioClip[] gunShots;
 
@@ -39,17 +40,22 @@ public class Soldier : MonoBehaviour
     public AnimationClip walk;
     public AnimationClip die1;
     public AnimationClip die2;
+    public AnimationClip handWave;
+    public AnimationClip pointFinger;
+    public AnimationClip reload;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         player = FindObjectOfType<Player>().transform;
-        //animator = GetComponent<Animator>();
         animator.SetBool("Idle", true);
         agent = GetComponent<NavMeshAgent>();
         agent.speed = movementSpeedWalking;
-
+        animator.enabled = true;
         animator.Play(idle.name);
+
+        if(squad.Count > 0)
+        InvokeRepeating("CheckSquadTriggered", 5, 2);
     }
 
     private void Update()
@@ -76,33 +82,45 @@ public class Soldier : MonoBehaviour
                         animator.SetBool("Attacking", true);
                     }
                 }
-                else
+            }
+            else
+            {
+                Vector3 directionToPlayer = player.position - transform.position;
+                directionToPlayer.y = 0;
+
+                Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer, Vector3.up);
+                targetRotation *= Quaternion.Euler(0f, 0, 0f);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * damping);
+
+                float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+                if (agent.enabled)
                 {
-                    Vector3 directionToPlayer = player.position - transform.position;
-                    directionToPlayer.y = 0;
-
-                    Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer, Vector3.up);
-                    targetRotation *= Quaternion.Euler(0f, 0, 0f);
-                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * damping);
-
-                    float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-                    if (agent.enabled)
-                    {
-                        agent.SetDestination(player.position);
-                    }
-
-                    if (distanceToPlayer < minimumRange)
-                    {
-                        if (shootTimer >= shootInterval)
-                        {
-                            //muzzleFlare.Play();
-                            ShootBullet();
-                            shootTimer = 0.0f;
-                        }
-                    }
-
+                    agent.SetDestination(player.position);
                 }
+
+                if (distanceToPlayer < minimumRange)
+                {
+                    if (shootTimer >= shootInterval)
+                    {
+                        //muzzleFlare.Play();
+                        ShootBullet();
+                        shootTimer = 0.0f;
+                    }
+                }
+
+            }
+            }
+        
+    }
+
+    public void CheckSquadTriggered()
+    {
+        foreach(Soldier soldier in squad)
+        {
+            if (soldier.triggered)
+            {
+                triggered = true;
             }
         }
     }
@@ -139,7 +157,7 @@ public class Soldier : MonoBehaviour
                 chosenAnim = die2;
             }
 
-            animator.Play(chosenAnim.name);
+            //animator.Play(chosenAnim.name);
         }
     }
 

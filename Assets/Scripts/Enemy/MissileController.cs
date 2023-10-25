@@ -13,7 +13,15 @@ public class MissileController : MonoBehaviour
     public float explosionRadius;
     public float explosionForce;
     public GameObject particles;
+    public GameObject explosionSound;
 
+    public GameObject missile;
+    public float selfexplodetimer;
+
+    private void Start()
+    {
+        Invoke("explode", selfexplodetimer);
+    }
     private void Update()
     {
         if (target == null)
@@ -23,7 +31,7 @@ public class MissileController : MonoBehaviour
         }
         else
         {
-            // Calculate the direction to the target
+            /// Calculate the direction to the target
             Vector3 targetDirection = target.position - transform.position;
 
             // Rotate the missile to face the target
@@ -36,6 +44,11 @@ public class MissileController : MonoBehaviour
     }
 
     private void OnCollisionEnter(Collision collision)
+    {
+        explode();
+    }
+
+    public void explode()
     {
         var surroundingObjects = Physics.OverlapSphere(transform.position, explosionRadius);
 
@@ -62,6 +75,8 @@ public class MissileController : MonoBehaviour
 
         GameObject part = Instantiate(particles, transform.position, Quaternion.identity);
         Destroy(part, 5f);
+        GameObject explosionsound = Instantiate(explosionSound, transform.position, Quaternion.identity);
+        Destroy(explosionsound, 5f);
         Destroy(gameObject);
     }
 }

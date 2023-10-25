@@ -19,6 +19,7 @@ public class PlayerInventory : MonoBehaviour
     public DblBarrelShotgun dblBarrelShotgun;
     public Uzi uzi;
     public GrenadePistol grenadePistol;
+    public BattleRifle battleRifle;
 
     [Header("Pickup References")]
     public GameObject swordPickup;
@@ -32,6 +33,7 @@ public class PlayerInventory : MonoBehaviour
     public GameObject dblBarrelShotgunPickup;
     public GameObject uziPickup;
     public GameObject grenadePistolPickup;
+    public GameObject battleRiflePickup;
 
     [Header("Slots")]
     public int activeSlot;
@@ -105,6 +107,10 @@ public class PlayerInventory : MonoBehaviour
                     {
                         spawnedPickup.GetComponent<AssaultRifle>().ammoInMag = droppedWeapon.GetComponent<AssaultRifle>().ammoInMag;
                     }
+                    else if (droppedWeapon.GetComponent<BattleRifle>())
+                    {
+                        spawnedPickup.GetComponent<BattleRifle>().ammoInMag = droppedWeapon.GetComponent<BattleRifle>().ammoInMag;
+                    }
                     else if (droppedWeapon.GetComponent<Shotgun>())
                     {
                         spawnedPickup.GetComponent<Shotgun>().ammoInMag = droppedWeapon.GetComponent<Shotgun>().ammoInMag;
@@ -141,6 +147,7 @@ public class PlayerInventory : MonoBehaviour
                 player.unequipGrapplingGun();
                 player.unequipRedDotRifle();
                 player.unequipSingleShotRifle();
+                player.unequipBattleRifle();
                 droppedWeapon.gameObject.SetActive(false);
             }
         }
@@ -184,6 +191,15 @@ public class PlayerInventory : MonoBehaviour
         else
         {
             player.unequipAssaultRifle();
+        }
+
+        if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == battleRifle.gameObject)
+        {
+            player.equipBattleRifle();
+        }
+        else
+        {
+            player.unequipBattleRifle();
         }
 
         if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == shotgun.gameObject)
@@ -282,6 +298,10 @@ public class PlayerInventory : MonoBehaviour
         else if (weapon == singleShotRifle.gameObject)
         {
             return singleShotRiflePickup;
+        }
+        else if (weapon == battleRifle.gameObject)
+        {
+            return battleRiflePickup;
         }
         else if (weapon == shotgun.gameObject)
         {

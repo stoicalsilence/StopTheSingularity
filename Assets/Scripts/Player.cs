@@ -49,6 +49,7 @@ public class Player : MonoBehaviour
     public bool redDotRifleEquipped;
     public bool singleShotRifleEquipped;
     public bool grenadePistolEquipped;
+    public bool battleRifleEquipped;
     public GameObject grapplingGun;
     public GameObject sword;
     public Firearm glock;
@@ -61,6 +62,7 @@ public class Player : MonoBehaviour
     public DblBarrelShotgun dblBarrelShotgun;
     public Uzi uzi;
     public GrenadePistol grenadePistol;
+    public BattleRifle battleRifle;
 
     public AudioClip swordUnsheath;
     public AudioClip icePickUnStick;
@@ -263,6 +265,26 @@ public class Player : MonoBehaviour
                 else if (assaultRifle.ammoInMag == 0 && !assaultRifle.reloading && assaultRifle.ammoInMag < assaultRifle.magCapacity && assaultRifle.maxAmmo > 0)
                 {
                     StartCoroutine(assaultRifle.reloadOnEmpty());
+                }
+            }
+        }
+        if (battleRifleEquipped)
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0) && !battleRifle.reloading)
+            {
+                shootBattleRifle();
+                Invoke("shootBattleRifle", 0.1f);
+                Invoke("shootBattleRifle", 0.2f);
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                if (battleRifle.ammoInMag > 0 && !battleRifle.reloading && battleRifle.ammoInMag < battleRifle.magCapacity)
+                {
+                    StartCoroutine(battleRifle.reload());
+                }
+                else if (battleRifle.ammoInMag == 0 && !battleRifle.reloading && battleRifle.ammoInMag < battleRifle.magCapacity)
+                {
+                    StartCoroutine(battleRifle.reloadOnEmpty());
                 }
             }
         }
@@ -578,6 +600,12 @@ public class Player : MonoBehaviour
         TimeManager.undoSlowmotion();
     }
 
+    private void shootBattleRifle()
+    {
+        battleRifle.Shoot();
+
+        battleRifle.cooldownTimer = battleRifle.cooldownTime;
+    }
     private IEnumerator ActivateInvincibility()
     {
         isInvincible = true;
@@ -728,6 +756,12 @@ public class Player : MonoBehaviour
         singleShotRifle.gameObject.SetActive(true);
         singleShotRifle.playCockingNoise();
     }
+    public void equipBattleRifle()
+    {
+        battleRifleEquipped = true;
+        battleRifle.gameObject.SetActive(true);
+        battleRifle.playCockingNoise();
+    }
     public void equipShotgun()
     {
         shotgunEquipped = true;
@@ -798,6 +832,13 @@ public class Player : MonoBehaviour
         singleShotRifle.muzzleLight.SetActive(false);
         singleShotRifle.gameObject.SetActive(false);
         singleShotRifleEquipped = false;
+    }
+    public void unequipBattleRifle()
+    {
+        battleRifle.disableMuzzleSmoke();
+        battleRifle.muzzleLight.SetActive(false);
+        battleRifle.gameObject.SetActive(false);
+        battleRifleEquipped = false;
     }
     public void unequipShotgun()
     {

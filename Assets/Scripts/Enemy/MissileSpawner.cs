@@ -6,6 +6,7 @@ public class MissileSpawner : MonoBehaviour
 {
     public GameObject missilePrefab;
     public Transform spawnPosition, targetTransform;
+    public float selfexplodetimer;
     
     void Start()
     {
@@ -16,5 +17,6 @@ public class MissileSpawner : MonoBehaviour
     {
         GameObject missile = Instantiate(missilePrefab, spawnPosition.position, Quaternion.identity);
         missile.GetComponent<MissileController>().target = targetTransform;
+        missile.GetComponent<MissileController>().selfexplodetimer = this.selfexplodetimer;
     }
 }
