@@ -71,14 +71,7 @@ public class Killbot : MonoBehaviour
             {
                 if (hitInfo.collider.CompareTag("Player"))
                 {
-                    audioSource.PlayOneShot(targetedSound);
-                    if (Random.value < 0.25f)
-                    {
-                        audioSource.PlayOneShot(letsGetItOn);
-                    }
-                    triggered = true;
-                    animator.SetBool("Idle", false);
-                    animator.SetBool("Attacking", true);
+                    getTriggered();
                     
                 }
             }
@@ -147,10 +140,7 @@ public class Killbot : MonoBehaviour
                 {
                     if (!triggered && animator)
                     {
-                        audioSource.PlayOneShot(targetedSound);
-                        triggered = true;
-                        animator.SetBool("Idle", false);
-                        animator.SetBool("Attacking", true);
+                        getTriggered();
                     }
                     int randomIndex = Random.Range(0, damageSounds.Length);
                     AudioClip hitSound2 = damageSounds[randomIndex];
@@ -285,6 +275,17 @@ public class Killbot : MonoBehaviour
         Invoke("turnOnNavMeshAgent", duration);
     }
 
+    public void getTriggered()
+    {
+        audioSource.PlayOneShot(targetedSound);
+        if (Random.value < 0.25f)
+        {
+            audioSource.PlayOneShot(letsGetItOn);
+        }
+        triggered = true;
+        animator.SetBool("Idle", false);
+        animator.SetBool("Attacking", true);
+    }
     public void takeCritDamage()
     {
         Debug.Log("headhit");

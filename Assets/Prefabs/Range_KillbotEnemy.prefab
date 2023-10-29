@@ -1083,6 +1083,7 @@ MonoBehaviour:
   minimumRange: 3
   movementSpeed: 5
   animator: {fileID: 0}
+  incover: 0
   muzzleFlare: {fileID: 0}
   orangeLight: {fileID: 0}
   bulletPrefab: {fileID: 0}
@@ -7862,10 +7863,11 @@ MonoBehaviour:
   damping: 5
   yRotationOffset: 90
   triggered: 0
-  detectionRange: 20
+  detectionRange: 40
   minimumRange: 30
   movementSpeed: 3
   animator: {fileID: 0}
+  incover: 0
   muzzleFlare: {fileID: 5402249270608355580}
   orangeLight: {fileID: 5402249269715580744}
   bulletPrefab: {fileID: 3593518444365075395, guid: 927db56ce837cce43afd330a7f08499e, type: 3}

@@ -43,7 +43,7 @@ public class Shotgun : MonoBehaviour
     private Coroutine disableMuzzleSmokeCoroutine;
     public ParticleSystem muzzleSmoke;
     public ParticleSystem muzzleSmoke1;
-
+    public float maxInnacurracy, minInnacurracy;
     void Update()
     {
         if (cooldownTimer > 0)
@@ -84,16 +84,22 @@ public class Shotgun : MonoBehaviour
                 for (int i = 0; i < 6; i++)
                 {
                     GameObject bullet = Instantiate(bulletPrefab, shootHole.position, transform.rotation);
-                    
-                    
-                    Vector3 direction = (targetPoint - shootHole.position).normalized;
-                    direction = Quaternion.Euler(Random.Range(-5f, 5f), Random.Range(-5f, 5f), 0f) * direction;
-                    direction.Normalize();
-                    recoilDirection = -direction;
-                    Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
 
-                    float bulletSpeedWithInaccuracy = bulletSpeed * Random.Range(0.9f, 1.1f);
-                    bulletRigidbody.AddForce(direction * bulletSpeedWithInaccuracy, ForceMode.VelocityChange);
+
+                    Vector3 direction = (targetPoint - shootHole.position).normalized;
+
+                    Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
+                    float inaccuraccy = Random.Range(minInnacurracy, maxInnacurracy);
+
+                    // Apply random recoil to the direction vector
+                    Vector3 recoilVector = Random.onUnitSphere * inaccuraccy;
+                    direction += recoilVector;
+
+                    // Normalize the modified direction
+                    direction.Normalize();
+
+                    // Apply force to the bullet with modified direction and bulletSpeed
+                    bulletRigidbody.AddForce(direction * bulletSpeed, ForceMode.VelocityChange);
                 }
                 FindObjectOfType<Player>().GetComponent<Rigidbody>().AddForce(recoilDirection * recoilForce, ForceMode.Impulse);
 

@@ -48,7 +48,7 @@ public class Eyenemy : MonoBehaviour
 
     public GameObject orangeLight;
     public float detectionRange;
-    bool isTriggered;
+    public bool isTriggered;
     bool startedAttacking;
     private void Start()
     {

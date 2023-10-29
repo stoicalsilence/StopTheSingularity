@@ -20,7 +20,7 @@ public class FlyingPuter : MonoBehaviour
     private Vector3 currentDirection; // Current movement direction
     public int health;
     private Rigidbody rb;
-    private bool isTriggered;
+    public bool isTriggered;
     private bool isShooting;
     private float shootTimer;
     public bool wandering;
