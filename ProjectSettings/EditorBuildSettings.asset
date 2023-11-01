@@ -5,13 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: b61a73d8462a9f14f85c8697c26076bd
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Level2.unity
     guid: 3d458291fb26cc947838da4bf6792b2e
   - enabled: 1
@@ -47,4 +47,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Sandbox.unity
     guid: f147de8466ab1f7469927dee7d2dffd3
+  - enabled: 1
+    path: Assets/Scenes/Level13.unity
+    guid: 21dce7e1703b53147a07303f04ab93f7
   m_configObjects: {}

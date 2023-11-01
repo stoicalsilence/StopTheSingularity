@@ -53,7 +53,7 @@ public class Killbot : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         InvokeRepeating("PlayPassiveSounds", 0.1f, 5);
         player = FindObjectOfType<Player>().transform;
-        animator = GetComponent<Animator>(); // Assign the animator to the animation object
+        animator = GetComponent<Animator>();
         animator.SetBool("Idle", true);
 
         agent = GetComponent<NavMeshAgent>();
@@ -72,7 +72,6 @@ public class Killbot : MonoBehaviour
                 if (hitInfo.collider.CompareTag("Player"))
                 {
                     getTriggered();
-                    
                 }
             }
         }
@@ -81,51 +80,87 @@ public class Killbot : MonoBehaviour
             Vector3 directionToPlayer = player.position - transform.position;
             directionToPlayer.y = 0;
 
-            Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer, Vector3.up);
-            targetRotation *= Quaternion.Euler(0f, yRotationOffset, 0f);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * damping);
-
-            float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-            if (distanceToPlayer < minimumRange)
+            // Check if there is a line of sight to the player
+            if (CheckLineOfSightToPlayer())
             {
-                if(agent.enabled)
-                agent.isStopped = true;
-                animator.SetBool("AttackingStanding", true);
-                animator.SetBool("Attacking", false);
-                shootTimer += Time.deltaTime;
-                if (shootTimer >= shootInterval)
-                {
-                    muzzleFlare.Play();
-                    ShootBullet();
-                    shootTimer = 0.0f; // Reset the timer
-                }
-                // Stop moving towards the player
-                // Add any additional behavior you want when the player is within the minimum range
+                // If there's line of sight, attack or run towards the player as needed
+                AttackOrRunTowardsPlayer();
             }
             else
             {
-                if(agent.enabled)
-                agent.isStopped = false;
-                animator.SetBool("AttackingStanding", false);
-                animator.SetBool("Attacking", true);
-                // Move towards the player with a specific speed
-                if (agent.enabled)
-                {
-                    agent.SetDestination(player.position);
-                }
-                float footstepInterval = 0.1f / rb.velocity.magnitude;  // Inversely proportional interval
-                float timeSinceLastFootstep = Time.time - lastFootstepTime;
-
-                if (timeSinceLastFootstep >= footstepInterval)
-                {
-                    AudioClip footstepSound = footsteps[Random.Range(0, footsteps.Length)];
-                    footstepFX.PlayOneShot(footstepSound);
-                    GameObject step = Instantiate(footstepParticles, footstepFX.transform.position, Quaternion.identity);
-                    Destroy(step, 3f);
-                    lastFootstepTime = Time.time;  // Update the last footstep time
-                }
+                // If there's no line of sight, continue running towards the player
+                RunTowardsPlayer();
             }
+        }
+    }
+
+    private bool CheckLineOfSightToPlayer()
+    {
+        RaycastHit lineOfSightHit;
+        Vector3 playerDirection = player.position - transform.position;
+        if (Physics.Raycast(transform.position, playerDirection, out lineOfSightHit, Mathf.Infinity))
+        {
+            if (lineOfSightHit.collider.CompareTag("Player"))
+            {
+                // There is a line of sight to the player
+                return true;
+            }
+        }
+        // No line of sight to the player
+        return false;
+    }
+
+    private void AttackOrRunTowardsPlayer()
+    {
+        Vector3 directionToPlayer = player.position - transform.position;
+        directionToPlayer.y = 0;
+
+        Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer, Vector3.up);
+        targetRotation *= Quaternion.Euler(0f, yRotationOffset, 0f);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * damping);
+
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        if (distanceToPlayer < minimumRange)
+        {
+            if (agent.enabled)
+                agent.isStopped = true;
+            animator.SetBool("AttackingStanding", true);
+            animator.SetBool("Attacking", false);
+            shootTimer += Time.deltaTime;
+            if (shootTimer >= shootInterval)
+            {
+                muzzleFlare.Play();
+                ShootBullet();
+                shootTimer = 0.0f;
+            }
+        }
+        else
+        {
+            RunTowardsPlayer();
+        }
+    }
+
+    private void RunTowardsPlayer()
+    {
+        if (agent.enabled)
+            agent.isStopped = false;
+        animator.SetBool("AttackingStanding", false);
+        animator.SetBool("Attacking", true);
+        if (agent.enabled)
+        {
+            agent.SetDestination(player.position);
+        }
+        float footstepInterval = 0.1f / rb.velocity.magnitude;
+        float timeSinceLastFootstep = Time.time - lastFootstepTime;
+
+        if (timeSinceLastFootstep >= footstepInterval)
+        {
+            AudioClip footstepSound = footsteps[Random.Range(0, footsteps.Length)];
+            footstepFX.PlayOneShot(footstepSound);
+            GameObject step = Instantiate(footstepParticles, footstepFX.transform.position, Quaternion.identity);
+            Destroy(step, 3f);
+            lastFootstepTime = Time.time;
         }
     }
 
