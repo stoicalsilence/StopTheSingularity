@@ -443,26 +443,25 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (playerMovement.horizontalInput != 0 || playerMovement.verticalInput != 0)
-        {
-            swordAnim.SetBool("isRunning", true);
-        }
-        else
-        {
-            swordAnim.SetBool("isRunning", false);
-        }
-
-        if (playerMovement.state == PlayerMovement.MovementState.air)
-        {
-            swordAnim.SetBool("isJumping", true);
-        }
-        else
-        {
-            swordAnim.SetBool("isJumping", false);
-        }
-
         if (swordEquipped)
         {
+            if (playerMovement.horizontalInput != 0 || playerMovement.verticalInput != 0)
+            {
+                swordAnim.SetBool("isRunning", true);
+            }
+            else
+            {
+                swordAnim.SetBool("isRunning", false);
+            }
+
+            if (playerMovement.state == PlayerMovement.MovementState.air)
+            {
+                swordAnim.SetBool("isJumping", true);
+            }
+            else
+            {
+                swordAnim.SetBool("isJumping", false);
+            }
             if (Input.GetKey(KeyCode.Mouse1) && !slashOnCD)
             {
                 isBlocking = true;

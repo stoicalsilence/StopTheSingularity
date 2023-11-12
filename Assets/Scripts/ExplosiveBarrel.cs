@@ -66,7 +66,7 @@ public class ExplosiveBarrel : MonoBehaviour
             if (dest != null) { dest.spawnDestroyParticles(); dest.explode(); }
 
             var barrel = obj.GetComponent<ExplosiveBarrel>();
-            if (barrel != null) { barrel.explode(); }
+            if (barrel != null && barrel != this) { barrel.explode(); }
 
             var trgt = obj.GetComponent<Target>();
             if (trgt != null) { trgt.explode(); }
