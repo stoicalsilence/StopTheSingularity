@@ -113,7 +113,7 @@ public class Player : MonoBehaviour
     private float lastBurstTime = 0f;
 
     public GameObject menu;
-    bool paused;
+    public bool paused;
 
     // Start is called before the first frame update
     void Start()

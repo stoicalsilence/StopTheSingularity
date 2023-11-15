@@ -19,5 +19,6 @@ public class SensitivitySlider : MonoBehaviour
 	{
 		sensitivityText.text = "Sensitivity ("+slider.value.ToString()+")";
 		FindObjectOfType<PlayerCam>().sensitivity = slider.value;
+		PlayerPrefs.SetFloat("Sensitivity", FindObjectOfType<PlayerCam>().sensitivity);
 	}
 }

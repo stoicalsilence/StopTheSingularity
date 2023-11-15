@@ -18,18 +18,23 @@ public class PlayerCam : MonoBehaviour
         playerMovement = FindObjectOfType<PlayerMovement>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        sensitivity = PlayerPrefs.GetFloat("Sensitivity", 300);
     }
 
     // Update is called once per frame
     void Update()
     {
-        float mouseX = Input.GetAxisRaw("Mouse X") * Time.fixedDeltaTime * sensitivity;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * Time.fixedDeltaTime * sensitivity;
+        if (!FindObjectOfType<Player>().menu.activeInHierarchy)
+        {
+            float mouseX = Input.GetAxisRaw("Mouse X") * Time.fixedDeltaTime * sensitivity;
+            float mouseY = Input.GetAxisRaw("Mouse Y") * Time.fixedDeltaTime * sensitivity;
 
-        yRotation += mouseX;
-        xRotation -= mouseY;
+            yRotation += mouseX;
+            xRotation -= mouseY;
+        }
 
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
         if (playerMovement.isCrouching && playerMovement.slideSpeed > 0)
         {
             cameraHolder.rotation = Quaternion.Euler(xRotation, yRotation, tiltAngle);
