@@ -8,6 +8,7 @@ public class ButtonTriggersEnemies : MonoBehaviour
     public List<Eyenemy> puters;
     public List<FlyingPuter> flyingPuters;
     public List<RollingEnemy> rollers;
+    public PuteyBoss puteyBoss;
     bool started;
     public OpenDoorButton button;
     public float delay;
@@ -35,8 +36,9 @@ public class ButtonTriggersEnemies : MonoBehaviour
                 bot.isTriggered = true;
             }
             foreach (RollingEnemy roller in rollers)
-        {
+            {
             roller.getTriggered();
-        }
+            }
+        puteyBoss.triggered = true;
     }
 }

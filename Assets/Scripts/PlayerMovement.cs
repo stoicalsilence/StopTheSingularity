@@ -240,14 +240,14 @@ public class PlayerMovement : MonoBehaviour
         
 
         // Mode - Sprinting
-        if (grounded && Input.GetKey(sprintKey) && !isCrouching)
-        {
-            state = MovementState.sprinting;
-            moveSpeed = sprintSpeed;
-        }
+        //if (grounded && Input.GetKey(sprintKey) && !isCrouching)
+        //{
+        //    state = MovementState.sprinting;
+        //    moveSpeed = sprintSpeed;
+        //}
 
         // Mode - Walking
-        else if (grounded && !isCrouching)
+        if (grounded && !isCrouching)
         {
             state = MovementState.walking;
             if (moveSpeed < 6.9f)
