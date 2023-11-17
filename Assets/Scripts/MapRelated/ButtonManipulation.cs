@@ -7,10 +7,11 @@ public class ButtonManipulation : MonoBehaviour
     public OpenDoorButton openDoorButton;
     public GameObject objectToMove;
     public Transform targetPos;
+    public Vector3 startPos;
     public float moveSpeed;
     void Start()
     {
-        
+        startPos = transform.position;
     }
 
     // Update is called once per frame
@@ -19,6 +20,10 @@ public class ButtonManipulation : MonoBehaviour
         if (openDoorButton.isPressed)
         {
             MoveDoor(objectToMove, targetPos.position);
+        }
+        else
+        {
+            MoveDoor(objectToMove, startPos);
         }
     }
 

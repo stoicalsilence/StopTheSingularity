@@ -17,6 +17,7 @@ public class MissileController : MonoBehaviour
 
     public GameObject missile;
     public float selfexplodetimer;
+    public bool shouldHurtPlayer;
 
     private void Start()
     {
@@ -69,6 +70,7 @@ public class MissileController : MonoBehaviour
             if (dest != null) { dest.spawnDestroyParticles(); dest.explode(); }
             var trgt = obj.GetComponent<Target>();
             if (trgt != null) { trgt.explode(); }
+            if(shouldHurtPlayer) { var player = obj.GetComponent<Player>(); if(player != null) player.takeDamage(10);  }
 
             rb.AddExplosionForce(explosionForce, transform.position, explosionRadius);
         }

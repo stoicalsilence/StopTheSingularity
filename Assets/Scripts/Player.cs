@@ -638,6 +638,18 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void takeDamage(int amount)
+    {
+        HP -= amount;
+        playerDamageSound(amount);
+        StartCoroutine(ActivateInvincibility());
+        // Activate vignette briefly
+        vignette.enabled.value = true;
+        vignette.intensity.value = 0.5f;
+
+        // Coroutine to fade out vignette intensity
+        StartCoroutine(FadeOutVignette());
+    }
     public void startSlowmotion()
     {
         TimeManager.doSlowmotion();

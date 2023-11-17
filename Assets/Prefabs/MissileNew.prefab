@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ece82545405224e41bcdac2f6362b14e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  missileSpeed: 10
+  missileSpeed: 8
   rotationSpeed: 5
   target: {fileID: 0}
   explosionRadius: 5
@@ -54,6 +54,8 @@ MonoBehaviour:
   particles: {fileID: 6000327445556052479, guid: ccff985880c78de4cba4cc514b57ff0e, type: 3}
   explosionSound: {fileID: 8613984900193576361, guid: f783f08fbbceefd46a52f4f52a2277fc, type: 3}
   missile: {fileID: 5211677063106777236}
+  selfexplodetimer: 15
+  shouldHurtPlayer: 0
 --- !u!54 &7029008387542014582
 Rigidbody:
   m_ObjectHideFlags: 0
