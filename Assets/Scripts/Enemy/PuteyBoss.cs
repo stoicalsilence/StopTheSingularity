@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class PuteyBoss : MonoBehaviour
 {
@@ -15,11 +16,19 @@ public class PuteyBoss : MonoBehaviour
     public bool playerVeryClose;
     public bool stunned;
     public bool attacking;
-    public GameObject seekingMissile, missileShotParticles, stunParticles, RedFace, BlueFace, footstepParticles;
+    public GameObject seekingMissile, missileShotParticles, stunParticles, RedFace, BlueFace, footstepParticles, bulletPrefab, orangeLight;
     public AudioSource audioSource;
-    public AudioClip missileShot, stun1, stun2, stomp;
+    public AudioClip missileShot, stun1, stun2, electricity, stomp, attackTelegraph, minigunShot, hurt, defeated, block;
     public Animator animator;
-    public Transform footstepFXPos;
+    public Transform footstepFXPos, minigunMuzzle;
+    public float bulletSpeed, bulletInaccuracy;
+    public ParticleSystem muzzleFlare, muzzleSmoke;
+    public bool shootingMinigun;
+    public Slider hpSlider;
+    public int maxHP, HP;
+    public float shootInterval;
+    bool invincible;
+    private float shootTimer = 0.0f;
 
     void Start()
     {
@@ -30,8 +39,11 @@ public class PuteyBoss : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.speed = speed;
         agent.updateRotation = false;
-        InvokeRepeating("attackPlayer", 5, 10);
+        InvokeRepeating("attackPlayer", 5, 8);
         audioSource = GetComponent<AudioSource>();
+        hpSlider.maxValue = maxHP;
+        hpSlider.gameObject.SetActive(false);
+        RedFace.gameObject.SetActive(false);
     }
    
     void Update()
@@ -41,6 +53,17 @@ public class PuteyBoss : MonoBehaviour
             if (!playerVeryClose && !stunned && !attacking)
             {
                 RunAndTurnTowardsPlayer();
+            }
+
+            if (shootingMinigun)
+            {
+                shootTimer += Time.deltaTime;
+                if (shootTimer >= shootInterval)
+                {
+                    muzzleFlare.Play();
+                    ShootBullet();
+                    shootTimer = 0.0f;
+                }
             }
         }
     }
@@ -81,6 +104,19 @@ public class PuteyBoss : MonoBehaviour
         }
     }
 
+    public void startBossFight()
+    {
+        animator.Play("StartAnimation");
+        Invoke("activateRedFace", 1.40f);
+        Invoke("triggeredtrue", 3);
+        hpSlider.gameObject.SetActive(true);
+    }
+
+    void triggeredtrue()
+    {
+        triggered = true;
+    }
+
     void resetPlayerVeryClose()
     {
         playerVeryClose = false;
@@ -100,24 +136,43 @@ public class PuteyBoss : MonoBehaviour
         if (random < 50)
         {
             animator.Play("ShootMissile");
+            audioSource.PlayOneShot(attackTelegraph);
             Invoke("spawnMissile", 0.35f);
             Invoke("stopAttacking", 1.50f);
         }
         else
-        {//replace with minigun attack
-            animator.Play("ShootMissile");
-            Invoke("spawnMissile", 0.35f);
-            Invoke("stopAttacking", 1.50f);
+        {
+            attacking = false;
+            agent.enabled = true;
+            agent.speed = 0;
+            animator.Play("ShootMinigun");
+            audioSource.PlayOneShot(attackTelegraph);
+            Invoke("startShootingMinigun", 0.30f);
+            Invoke("stopShootingMinigun", 2.20f);
+            Invoke("stopAttacking", 3.50f);
         }
     }
 
+    void startShootingMinigun()
+    {
+        shootingMinigun = true;
+    }
+    void stopShootingMinigun()
+    {
+        shootingMinigun = false;
+        muzzleSmoke.Play();
+    }
     void stopAttacking()
     {
         animator.SetBool("Walking", true);
         attacking = false;
         agent.enabled = true;
+        agent.speed = speed;
     }
-
+    void cancelInvincibility()
+    {
+        invincible = false;
+    }
     void spawnMissile()
     {
         GameObject missile = Instantiate(seekingMissile, missileShotParticles.transform.position, Quaternion.identity);
@@ -141,14 +196,43 @@ public class PuteyBoss : MonoBehaviour
             animator.SetBool("Stunned", true);
             animator.SetBool("Walking", false);
             animator.SetBool("Idle", false);
-
+            this.gameObject.tag = "Untagged";
+            
+            hpSlider.fillRect.GetComponent<Image>().color = Color.yellow;
             audioSource.PlayOneShot(stun1);
             audioSource.PlayOneShot(stun2);
+            audioSource.PlayOneShot(electricity);
             stunned = true;
             stunParticles.SetActive(true);
             RedFace.SetActive(false);
             BlueFace.SetActive(true);
             Invoke("removeStun", 5);
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.tag == "PlayerAttack")
+        {
+            if (stunned && HP > 0 && !invincible)
+            {
+                HP--;
+                invincible = true;
+                Invoke("cancelInvincibility", 0.1f);
+                hpSlider.value = HP;
+                audioSource.PlayOneShot(hurt);
+            }
+            else if ( stunned && HP <= 0)
+            {
+                HP--;
+                hpSlider.value = HP;
+                audioSource.PlayOneShot(defeated);
+                hpSlider.gameObject.SetActive(false);
+            }
+            else if (!stunned)
+            {
+                audioSource.PlayOneShot(block);
+            }
         }
     }
 
@@ -160,5 +244,43 @@ public class PuteyBoss : MonoBehaviour
         BlueFace.SetActive(false);
         animator.SetBool("Stunned", false);
         animator.SetBool("Walking", true);
+        this.gameObject.tag = "EnemyBody";
+        hpSlider.fillRect.GetComponent<Image>().color = Color.red;
+    }
+
+    void activateRedFace()
+    {
+        RedFace.SetActive(true);
+    }
+    private void ShootBullet()
+    {
+        muzzleFlare.Play();
+        StartCoroutine(bulletLight());
+        audioSource.PlayOneShot(minigunShot);
+        Vector3 directionToPlayer = player.position - minigunMuzzle.position;
+        directionToPlayer = ApplyBulletInaccuracy(directionToPlayer);
+
+        GameObject bulletObject = Instantiate(bulletPrefab, minigunMuzzle.position, Quaternion.identity);
+        Destroy(bulletObject, 3f);
+        Rigidbody bulletRigidbody = bulletObject.GetComponent<Rigidbody>();
+        bulletRigidbody.velocity = directionToPlayer.normalized * bulletSpeed;
+    }
+
+    public IEnumerator bulletLight()
+    {
+        orangeLight.SetActive(true);
+        yield return new WaitForSeconds(0.16f);
+        orangeLight.SetActive(false);
+    }
+    private Vector3 ApplyBulletInaccuracy(Vector3 direction)
+    {
+        float horizontalInaccuracyAngle = Random.Range(-bulletInaccuracy, bulletInaccuracy);
+        float verticalInaccuracyAngle = Random.Range(-bulletInaccuracy, bulletInaccuracy);
+        Quaternion horizontalRotation = Quaternion.AngleAxis(horizontalInaccuracyAngle, Vector3.up);
+        direction = horizontalRotation * direction;
+        Quaternion verticalRotation = Quaternion.AngleAxis(verticalInaccuracyAngle, Vector3.right);
+        direction = verticalRotation * direction;
+
+        return direction;
     }
 }

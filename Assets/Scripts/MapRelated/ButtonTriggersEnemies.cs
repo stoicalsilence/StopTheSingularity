@@ -39,6 +39,6 @@ public class ButtonTriggersEnemies : MonoBehaviour
             {
             roller.getTriggered();
             }
-        puteyBoss.triggered = true;
+        puteyBoss.startBossFight();
     }
 }

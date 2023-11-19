@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   missileSpeed: 8
-  rotationSpeed: 5
+  rotationSpeed: 4
   target: {fileID: 0}
   explosionRadius: 5
   explosionForce: 500
