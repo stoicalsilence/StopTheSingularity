@@ -10,6 +10,7 @@ public class PuteyBossPillars : MonoBehaviour
         {
             GetComponent<MeshDestroy>().DestroyMesh();
             Destroy(GetComponent<MeshDestroy>());
+            collision.gameObject.GetComponent<MissileController>().shouldHurtPlayer = false;
             Destroy(this);
         }
     }
