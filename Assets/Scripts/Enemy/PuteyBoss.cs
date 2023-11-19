@@ -16,11 +16,11 @@ public class PuteyBoss : MonoBehaviour
     public bool playerVeryClose;
     public bool stunned;
     public bool attacking;
-    public GameObject seekingMissile, missileShotParticles, stunParticles, RedFace, BlueFace, footstepParticles, bulletPrefab, orangeLight, defeatExplosion;
+    public GameObject seekingMissile, missileShotParticles, stunParticles, RedFace, BlueFace, footstepParticles, bulletPrefab, orangeLight, defeatExplosion, defeatExplosion2;
     public AudioSource audioSource;
     public AudioClip missileShot, stun1, stun2, electricity, stomp, attackTelegraph, minigunShot, hurt, defeated, block;
     public Animator animator;
-    public Transform footstepFXPos, minigunMuzzle;
+    public Transform footstepFXPos, minigunMuzzle, explosionSpawnPos;
     public float bulletSpeed, bulletInaccuracy;
     public ParticleSystem muzzleFlare, muzzleSmoke;
     public bool shootingMinigun;
@@ -226,12 +226,14 @@ public class PuteyBoss : MonoBehaviour
             {
                 HP--;
                 hpSlider.value = HP;
+                audioSource.Stop();
                 audioSource.PlayOneShot(defeated);
                 hpSlider.gameObject.SetActive(false);
                 triggered = false;
                 animator.Play("Defeated");
                 RedFace.SetActive(false);
                 BlueFace.SetActive(true);
+                Destroy(stunParticles);
                 Invoke("explode", 1.90f);
             }
             else if (!stunned)
@@ -243,7 +245,8 @@ public class PuteyBoss : MonoBehaviour
 
     void explode()
     {
-        Instantiate(defeatExplosion, transform.position, Quaternion.identity);
+        Instantiate(defeatExplosion, explosionSpawnPos.position, Quaternion.identity);
+        Instantiate(defeatExplosion2, explosionSpawnPos.position, Quaternion.identity);
         Destroy(this.gameObject);
     }
     void removeStun()
