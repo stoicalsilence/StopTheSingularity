@@ -16,7 +16,7 @@ public class PuteyBoss : MonoBehaviour
     public bool playerVeryClose;
     public bool stunned;
     public bool attacking;
-    public GameObject seekingMissile, missileShotParticles, stunParticles, RedFace, BlueFace, footstepParticles, bulletPrefab, orangeLight, defeatExplosion, defeatExplosion2;
+    public GameObject seekingMissile, missileShotParticles, stunParticles, RedFace, BlueFace, footstepParticles, bulletPrefab, orangeLight, defeatExplosion, defeatExplosion2, hitSparkles;
     public AudioSource audioSource;
     public AudioClip missileShot, stun1, stun2, electricity, stomp, attackTelegraph, minigunShot, hurt, defeated, block;
     public Animator animator;
@@ -39,7 +39,7 @@ public class PuteyBoss : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.speed = speed;
         agent.updateRotation = false;
-        InvokeRepeating("attackPlayer", 5, 8);
+        InvokeRepeating("attackPlayer", 5, 6);
         audioSource = GetComponent<AudioSource>();
         hpSlider.maxValue = maxHP;
         hpSlider.gameObject.SetActive(false);
@@ -220,7 +220,11 @@ public class PuteyBoss : MonoBehaviour
                 invincible = true;
                 Invoke("cancelInvincibility", 0.1f);
                 hpSlider.value = HP;
-                audioSource.PlayOneShot(hurt);
+                audioSource.PlayOneShot(hurt); 
+                Vector3 collisionPoint = collision.GetContact(0).point;
+                GameObject spark = Instantiate(hitSparkles, collisionPoint, Quaternion.identity);
+                Destroy(spark, 3f);
+                FindObjectOfType<HitmarkerEffect>().ShowHitmarker();
             }
             else if ( stunned && HP <= 0)
             {
@@ -235,6 +239,11 @@ public class PuteyBoss : MonoBehaviour
                 BlueFace.SetActive(true);
                 Destroy(stunParticles);
                 Invoke("explode", 1.90f);
+                Vector3 collisionPoint = collision.GetContact(0).point;
+                GameObject spark = Instantiate(hitSparkles, collisionPoint, Quaternion.identity);
+                Destroy(spark, 3f);
+                FindObjectOfType<HitmarkerEffect>().ShowHitmarker();
+                FindObjectOfType<KillText>().getReportedTo();
             }
             else if (!stunned)
             {
@@ -264,7 +273,9 @@ public class PuteyBoss : MonoBehaviour
     void activateRedFace()
     {
         RedFace.SetActive(true);
+        audioSource.PlayOneShot(defeated);
     }
+
     private void ShootBullet()
     {
         muzzleFlare.Play();
