@@ -40,7 +40,15 @@ public class ExplosiveBullet : MonoBehaviour
             if(dest != null) { dest.spawnDestroyParticles(); dest.explode(); }
             var trgt = obj.GetComponent<Target>();
             if(trgt != null) { trgt.explode(); }
-
+            var en5 = obj.GetComponent<RollingEnemy>();
+            if (en5 != null)
+            {
+                int amodmg = en5.health;
+                for (int i = 0; i < amodmg; i++)
+                {
+                    en5.TakeDamage();
+                }
+            }
             rb.AddExplosionForce(explosionForce, transform.position, explosionRadius);
         }
 

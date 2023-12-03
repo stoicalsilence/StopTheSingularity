@@ -74,7 +74,7 @@ public class RollingEnemy : MonoBehaviour
         audiosource.PlayOneShot(c2);
     }
 
-    void TakeDamage()
+   public void TakeDamage()
     {
         if (!target)
         {

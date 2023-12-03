@@ -50,6 +50,7 @@ public class Player : MonoBehaviour
     public bool singleShotRifleEquipped;
     public bool grenadePistolEquipped;
     public bool battleRifleEquipped;
+    public bool grenadeEquipped;
     public GameObject grapplingGun;
     public GameObject sword;
     public Firearm glock;
@@ -63,6 +64,7 @@ public class Player : MonoBehaviour
     public Uzi uzi;
     public GrenadePistol grenadePistol;
     public BattleRifle battleRifle;
+    public GrenadeWeapon grenade;
 
     public AudioClip swordUnsheath;
     public AudioClip icePickUnStick;
@@ -209,6 +211,10 @@ public class Player : MonoBehaviour
         else if (grenadePistolEquipped)
         {
             ammoText.text = "Grenade Pistol\n" + grenadePistol.ammoInMag.ToString() + " / " + grenadePistol.magCapacity.ToString();
+        }
+        else if (grenadeEquipped)
+        {
+            ammoText.text = "Grenade";
         }
         else
         {
@@ -440,6 +446,20 @@ public class Player : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.R) && !grenadePistol.reloading && grenadePistol.ammoInMag < grenadePistol.magCapacity && grenadePistol.maxAmmo > 0)
             {
                 StartCoroutine(grenadePistol.reload());
+            }
+        }
+
+        if (grenadeEquipped)
+        {
+            if(Input.GetKeyDown(KeyCode.Mouse0) && !grenade.pulledPin)
+            {
+                grenade.throwForce = 15;
+                grenade.Shoot();
+            }
+            if (Input.GetKeyDown(KeyCode.Mouse1) && !grenade.pulledPin)
+            {
+                grenade.throwForce = 5;
+                grenade.Shoot();
             }
         }
 
@@ -843,6 +863,12 @@ public class Player : MonoBehaviour
         grenadePistol.gameObject.SetActive(true);
         grenadePistol.playCockingNoise();
     }
+    public void equipGrenade()
+    {
+        grenadeEquipped = true;
+        grenade.gameObject.SetActive(true);
+        grenade.playCockingNoise();
+    }
 
     public void unequipSword()
     {
@@ -927,5 +953,11 @@ public class Player : MonoBehaviour
         grenadePistol.StopAllCoroutines();
         grenadePistol.gameObject.SetActive(false);
         grenadePistolEquipped = false;
+    }
+    public void unequipGrenade()
+    {
+        grenade.StopAllCoroutines();
+        grenade.gameObject.SetActive(false);
+        grenadeEquipped = false;
     }
 }

@@ -138,6 +138,20 @@ public class Pickup : MonoBehaviour
                                 return; // Exit the method without destroying the duplicate weapon
                             }
                         }
+                        else if (weaponName == "grenade")
+                        {
+                            if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().grenade.gameObject))
+                            {
+                                itemHolderWeapon = FindObjectOfType<Player>().grenade.gameObject;
+                                FindObjectOfType<Player>().grenade.pulledPin = this.GetComponent<GrenadeWeapon>().pulledPin;
+                            }
+                            else
+                            {
+                                Debug.Log("Can't pick up duplicate weapon!");
+                                FindObjectOfType<Tooltip>().getReportedTo("Can't pick up a duplicate weapon!");
+                                return; // Exit the method without destroying the duplicate weapon
+                            }
+                        }
                         else if (weaponName == "redDotRifle")
                         {
                             if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().redDotRifle.gameObject))

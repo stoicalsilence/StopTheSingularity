@@ -20,6 +20,7 @@ public class PlayerInventory : MonoBehaviour
     public Uzi uzi;
     public GrenadePistol grenadePistol;
     public BattleRifle battleRifle;
+    public GrenadeWeapon grenade;
 
     [Header("Pickup References")]
     public GameObject swordPickup;
@@ -34,12 +35,14 @@ public class PlayerInventory : MonoBehaviour
     public GameObject uziPickup;
     public GameObject grenadePistolPickup;
     public GameObject battleRiflePickup;
+    public GameObject grenadePickup;
 
     [Header("Slots")]
     public int activeSlot;
     public int totalInventorySlots = 3;
     public GameObject[] inventorySlots;
 
+    public bool weaponSwitchBlocked;
     void Start()
     {
         // Initialize the inventory slots array
@@ -50,30 +53,33 @@ public class PlayerInventory : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (!weaponSwitchBlocked)
         {
-            int current = activeSlot;
-            activeSlot = 0;
-            SwitchWeapon(current, activeSlot);
-        }
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                int current = activeSlot;
+                activeSlot = 0;
+                SwitchWeapon(current, activeSlot);
+            }
 
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            int current = activeSlot;
-            activeSlot = 1;
-            SwitchWeapon(current, activeSlot);
-        }
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                int current = activeSlot;
+                activeSlot = 1;
+                SwitchWeapon(current, activeSlot);
+            }
 
-        if (Input.GetKeyDown(KeyCode.Alpha3)) //Hands, Holstered
-        {
-            int current = activeSlot;
-            activeSlot = 2;
-            SwitchWeapon(current, activeSlot);
-        }
+            if (Input.GetKeyDown(KeyCode.Alpha3)) //Hands, Holstered
+            {
+                int current = activeSlot;
+                activeSlot = 2;
+                SwitchWeapon(current, activeSlot);
+            }
 
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            DropWeapon(activeSlot);
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                DropWeapon(activeSlot);
+            }
         }
     }
 
@@ -148,6 +154,7 @@ public class PlayerInventory : MonoBehaviour
                 player.unequipRedDotRifle();
                 player.unequipSingleShotRifle();
                 player.unequipBattleRifle();
+                player.unequipGrenade();
                 droppedWeapon.gameObject.SetActive(false);
             }
         }
@@ -255,7 +262,16 @@ public class PlayerInventory : MonoBehaviour
         {
             player.unequipSingleShotRifle();
         }
-    }
+
+        if(inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == grenade.gameObject)
+        {
+            player.equipGrenade();
+        }
+        else
+        {
+            player.unequipGrenade();
+        }
+    } 
 
     public bool IsWeaponInInventory(GameObject weapon)
     {
@@ -318,6 +334,10 @@ public class PlayerInventory : MonoBehaviour
         else if (weapon == grenadePistol.gameObject)
         {
             return grenadePistolPickup;
+        }
+        else if (weapon == grenade.gameObject)
+        {
+            return grenadePickup;
         }
 
         return null;
