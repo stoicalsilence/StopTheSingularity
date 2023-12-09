@@ -15,6 +15,10 @@ public class Soldier : MonoBehaviour
     public float bulletSpeed = 25f;
     public float bulletInaccuracy = 5f;
     public bool inCover = false;
+    public Vector3 coverbonus;
+    public int maxAmmo = 20;
+    public int ammo = 20;
+    public float sidestepInterval= 2f;
 
     [Header("Necessary References")]
     public Transform bullethole;
@@ -23,12 +27,13 @@ public class Soldier : MonoBehaviour
     public AudioSource audioSource;
     public GameObject m4Pickup;
     public List<Soldier> squad;
-
+    public ParticleSystem muzzleFlare;
     public AudioClip[] gunShots;
 
     public bool triggered;
     private RaycastHit hitInfo;
     private float shootTimer = 0f;
+    private float sidestepTimer = 0f;
     private bool isDead;
     private Rigidbody rb;
     private Transform player;
@@ -38,11 +43,16 @@ public class Soldier : MonoBehaviour
     [Header("Animations")]
     public AnimationClip idle;
     public AnimationClip walk;
-    public AnimationClip die1;
-    public AnimationClip die2;
     public AnimationClip handWave;
     public AnimationClip pointFinger;
     public AnimationClip reload;
+
+    public bool blockAnims;
+    public bool rotateTowardsPlayer;
+    public Vector3 retreatSpot;
+    public Vector3 previousPosition;
+    public Vector3 sidestepPos;
+    int retryAmount = 8;
 
     private void Start()
     {
@@ -52,79 +62,243 @@ public class Soldier : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.speed = movementSpeedWalking;
         animator.enabled = true;
-        animator.Play(idle.name);
-
-        if(squad.Count > 0)
-        InvokeRepeating("CheckSquadTriggered", 5, 2);
+        previousPosition = transform.position.normalized;
+        agent.updateRotation = false;
     }
 
     private void Update()
     {
+        if (rotateTowardsPlayer)
+        {
+            Vector3 directionToPlayer = player.position - transform.position;
+            directionToPlayer.y = 0;
+
+            Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer, Vector3.up);
+            targetRotation *= Quaternion.Euler(0f, 180, 0f);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * damping);
+        }
+
         if (!isDead)
         {
-            if (player == null)
-            {
-                animator.SetBool("Attacking", false);
-                animator.SetBool("Idle", true);
-                animator.Play(idle.name);
-                return;
-            }
             if (!triggered)
             {
-                Vector3 coverbonus = new Vector3(0, 0.5f, 0);
-                if (inCover) coverbonus = new Vector3(0, 1, 0f);
-                if (Physics.Raycast(transform.position + coverbonus, player.position - transform.position, out hitInfo, detectionRange))
+                Vector3 raycastOrigin = transform.position;
+                if (inCover) { raycastOrigin = transform.position + coverbonus; }
+
+                if (Physics.Raycast(raycastOrigin, player.position - transform.position, out hitInfo, detectionRange))
                 {
                     if (hitInfo.collider.CompareTag("Player"))
                     {
+                        TurnOffAnimations();
+                        if (!CheckIfAnyInSquadTriggered())
+                        {
+                            AlertSquad();
+                        }
+                        rotateTowardsPlayer = true;
                         triggered = true;
-                        animator.SetBool("Idle", false);
-                        animator.SetBool("Attacking", true);
                     }
                 }
             }
-            else
+
+            if (triggered && !blockAnims)
             {
-                Vector3 directionToPlayer = player.position - transform.position;
-                directionToPlayer.y = 0;
+                Vector3 currentPosition = transform.position.normalized;
+                Vector3 movementDirection = (currentPosition - previousPosition).normalized;
+                Vector3 rightDir = transform.right;
+                Vector3 forwardDir = transform.forward;
 
-                Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer, Vector3.up);
-                targetRotation *= Quaternion.Euler(0f, 0, 0f);
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * damping);
-
+                float rightDot = Vector3.Dot(movementDirection, rightDir);
+                float forwardDot = Vector3.Dot(movementDirection, forwardDir);
+                Debug.Log("rightDot: " + rightDot + " " + "fwdDot: " + forwardDot);
                 float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-                if (agent.enabled)
+                if (agent.velocity.magnitude < 0.1f)
                 {
-                    agent.SetDestination(player.position);
+                    animator.SetBool("Combat_Aiming", true);
+                }
+
+                if (agent.velocity.magnitude > 0.1f)
+                {
+                    if (Mathf.Abs(forwardDot) > Mathf.Abs(rightDot))
+                    {
+                        // Moving forward or backward
+                        if (forwardDot > 0)
+                        {
+                            // Moving forward
+                            TurnOffAnimations();
+                            animator.SetBool("MovingForward", true);
+                        }
+                        else if (forwardDot < 0)
+                        {
+                            // Moving backward
+                            TurnOffAnimations();
+                            animator.SetBool("MovingBackwards", true);
+                        }
+                    }
+                    else
+                    {
+                        // Moving left or right
+                        if (rightDot > 0)
+                        {
+                            // Moving right
+                            TurnOffAnimations();
+                            animator.SetBool("MovingRight", true);
+                        }
+                        else if (rightDot < 0)
+                        {
+                            // Moving left
+                            TurnOffAnimations();
+                            animator.SetBool("MovingLeft", true);
+                        }
+                    }
                 }
 
                 if (distanceToPlayer < minimumRange)
                 {
-                    if (shootTimer >= shootInterval)
+                    if (ammo > 0)
                     {
-                        //muzzleFlare.Play();
-                        ShootBullet();
-                        shootTimer = 0.0f;
+                        shootTimer += Time.deltaTime;
+                        if (shootTimer >= shootInterval)
+                        {
+                            muzzleFlare.Play();
+                            ShootBullet();
+                            shootTimer = Random.Range(0.05f, shootInterval);
+                        }
+                        sidestepTimer+= Time.deltaTime;
+                        if(sidestepTimer >= sidestepInterval)
+                        {
+                            sidestepPos = SidestepCalc();
+                            TurnOffAnimations();
+                            animator.SetBool("Combat_Aiming", true);
+                            agent.SetDestination(sidestepPos);
+                            sidestepTimer = 0;
+                        }
+                        if(transform.position == sidestepPos)
+                        {
+                            sidestepPos = new Vector3();
+                            agent.ResetPath();
+                        }
+                    }
+                    else
+                    {
+                        if (!blockAnims) FindSpotToReload();
+                        agent.SetDestination(retreatSpot);
+                        float vicinityThreshold = 1;
+                        Debug.Log(Vector3.Distance(transform.position, retreatSpot));
+                        if (Vector3.Distance(transform.position, retreatSpot) <= vicinityThreshold) { Reload(); }
                     }
                 }
+                else if(!Physics.Raycast(transform.position, player.position - transform.position, out hitInfo, detectionRange-6))
+                {
+                    agent.SetDestination(player.position);
+                }
+                else
+                {
+                    agent.ResetPath();
+                }
+
+                previousPosition = currentPosition.normalized;
 
             }
-            }
-        
+
+        }
     }
 
-    public void CheckSquadTriggered()
+    public void FindSpotToReload()
     {
-        foreach(Soldier soldier in squad)
+        Vector3 potentialRetreatSpot = GetRandomPointOnNavMesh();
+
+        // Check if the random point is outside the player's line of sight
+        Vector3 directionToPlayer = player.position - retreatSpot;
+        if (!Physics.Raycast(retreatSpot, directionToPlayer, out RaycastHit obstacle, detectionRange) || !obstacle.collider.CompareTag("Player"))
         {
-            if (soldier.triggered)
+            // The random point is suitable for reloading
+            retreatSpot = potentialRetreatSpot;
+            retryAmount = 8;
+        }
+        else if (retryAmount > 0)
+        {
+            retryAmount--;
+            // Retry finding a spot if the random point is not suitable
+            FindSpotToReload();
+            return;
+        }
+        else
+        {
+            retryAmount = 8;
+            retreatSpot = transform.position;
+        }
+    }
+
+    public void Reload()
+    {
+        blockAnims = true;
+        TurnOffAnimations();
+        animator.Play(reload.name);
+        ammo = maxAmmo;
+        Invoke("resumeAiming", reload.length);
+        Invoke("removeDestination", reload.length);
+    }
+
+    public void resumeAiming()
+    {
+        animator.SetBool("Combat_Aiming", true);
+        blockAnims = false;
+    }
+
+    public void removeDestination()
+    {
+        agent.ResetPath();
+    }
+
+    public void stopBlockingAnims()
+    {
+        blockAnims = false;
+    }
+
+    public void TurnOffAnimations()
+    {
+        animator.SetBool("Combat_Aiming", false);
+        animator.SetBool("Idle", false);
+        animator.SetBool("MovingBackwards", false);
+        animator.SetBool("MovingForward", false);
+        animator.SetBool("MovingRight", false);
+        animator.SetBool("MovingLeft", false);
+        animator.SetBool("Combat_Run", false);
+    }
+
+    public void TriggerSquad()
+    {
+        if (squad.Count > 0)
+        {
+            foreach (Soldier soldier in squad)
             {
-                triggered = true;
+                if (soldier.triggered)
+                {
+                    triggered = true;
+                }
             }
         }
     }
 
+    public bool CheckIfAnyInSquadTriggered()
+    {
+        bool toreturn = false;
+        foreach (Soldier sol in squad)
+        {
+            if (sol.triggered) toreturn = true;
+        }
+        return toreturn;
+    }
+
+    public void AlertSquad()
+    {
+        blockAnims = true;
+        animator.Play(pointFinger.name);
+        Invoke("stopBlockingAnims", pointFinger.length);
+        Invoke("TriggerSquad", pointFinger.length);
+        Invoke("resumeAiming", pointFinger.length);
+    }
     private void OnCollisionEnter(Collision collision)
     {
         if (!isDead)
@@ -146,23 +320,21 @@ public class Soldier : MonoBehaviour
             isDead = true;
             FindObjectOfType<KillText>().getReportedTo();
             Destroy(this.gameObject, 4.2f);
-            float random = Random.Range(0, 100);
-            AnimationClip chosenAnim;
-            if(random < 49)
-            {
-                chosenAnim = die1;
-            }
-            else
-            {
-                chosenAnim = die2;
-            }
-
-            //animator.Play(chosenAnim.name);
         }
+    }
+
+    private Vector3 GetRandomPointOnNavMesh()
+    {
+        Vector3 randomDirection = Random.insideUnitSphere * detectionRange;
+        randomDirection += transform.position;
+        NavMeshHit hit;
+        NavMesh.SamplePosition(randomDirection, out hit, detectionRange, NavMesh.AllAreas);
+        return hit.position;
     }
 
     private void ShootBullet()
     {
+        ammo--;
         int randomIndex = Random.Range(0, gunShots.Length);
         AudioClip sound = gunShots[randomIndex];
         audioSource.PlayOneShot(sound);
@@ -188,5 +360,37 @@ public class Soldier : MonoBehaviour
         direction = verticalRotation * direction;
 
         return direction;
+    }
+
+    public Vector3 SidestepCalc()
+    {
+        int random = Random.Range(0, 4);
+
+        Vector3 chosenPos = transform.position;
+
+        float distance = Random.Range(1.0f, 4.0f);
+
+        if (random == 0)
+        {
+            // Move forward
+            chosenPos += transform.forward * distance;
+        }
+        else if (random == 1)
+        {
+            // Move left
+            chosenPos -= transform.right * distance;
+        }
+        else if (random == 2)
+        {
+            // Move right
+            chosenPos += transform.right * distance;
+        }
+        else if (random == 3)
+        {
+            // Move backward
+            chosenPos -= transform.forward * distance;
+        }
+
+        return chosenPos;
     }
 }
