@@ -5,25 +5,56 @@ using UnityEngine;
 public class AfterPuteyBossCutscene : MonoBehaviour
 {
     public bool cutsceneStarted;
-    public GameObject player, elevator, putey, gun;
-    public Vector3 playerTarget, elevatorTarget, puteyTarget, gunTarget;
+    public GameObject player, elevator, putey, itemholder;
+    public Vector3 playerTarget, elevatorTarget, puteyTarget;
+    bool started;
 
     public AudioSource audioS;
-    public AudioClip machineSound, dialogue;
+    public AudioClip machineSound;
+    public TriggeredSound triggeredSound;
+    public OpenElevatorTimed elevatorTimed;
    
     void Update()
     {
         if (cutsceneStarted)
         {
-            player.transform.position = Vector3.MoveTowards(player.transform.position, playerTarget, 5 * Time.deltaTime);
+            //player.transform.position = Vector3.MoveTowards(player.transform.position, playerTarget, 5 * Time.deltaTime);
             elevator.transform.position = Vector3.MoveTowards(elevator.transform.position, elevatorTarget, 5 * Time.deltaTime);
             putey.transform.position = Vector3.MoveTowards(putey.transform.position, puteyTarget, 5 * Time.deltaTime);
-            gun.transform.position = Vector3.MoveTowards(gun.transform.position, gunTarget, 5 * Time.deltaTime);
         }
     }
 
     public void StartCutscene()
     {
+        if (!started)
+        {
+            started = true;
+            Invoke("settottrue", 5);
+            Invoke("startDialogue", 6.5f);
+            Invoke("openelevator", 22);
+        }
+    }
+    private void settottrue()
+    {
         cutsceneStarted = true;
+        playMachineSound();
+        //itemholder.gameObject.SetActive(false);
+        //FindObjectOfType<PlayerMovement>().walkSpeed = 0;
+        //FindObjectOfType<PlayerMovement>().crouchSpeed = 0;
+    }
+
+    public void playMachineSound()
+    {
+        audioS.PlayOneShot(machineSound);
+    }
+
+    public void startDialogue()
+    {
+        triggeredSound.GetTriggered();
+    }
+
+    public void openelevator()
+    {
+        elevatorTimed.openElevator();
     }
 }

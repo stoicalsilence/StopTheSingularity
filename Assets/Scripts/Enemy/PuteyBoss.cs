@@ -29,6 +29,8 @@ public class PuteyBoss : MonoBehaviour
     public float shootInterval;
     bool invincible;
     private float shootTimer = 0.0f;
+    public AudioSource BGM;
+    public AudioClip defeatReverb;
 
     void Start()
     {
@@ -115,6 +117,7 @@ public class PuteyBoss : MonoBehaviour
     void triggeredtrue()
     {
         triggered = true;
+        BGM.Play();
     }
 
     void resetPlayerVeryClose()
@@ -244,6 +247,10 @@ public class PuteyBoss : MonoBehaviour
                 Destroy(spark, 3f);
                 FindObjectOfType<HitmarkerEffect>().ShowHitmarker();
                 FindObjectOfType<KillText>().getReportedTo();
+                FindObjectOfType<AfterPuteyBossCutscene>().StartCutscene();
+                BGM.Stop();
+                BGM.volume = 66;
+                BGM.PlayOneShot(defeatReverb);
             }
             else if (!stunned)
             {

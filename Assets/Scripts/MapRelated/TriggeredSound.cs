@@ -18,15 +18,19 @@ public class TriggeredSound : MonoBehaviour
     {
         if (other.CompareTag("Player") && !hasTriggered)
         {
-            hasTriggered = true;
-            trigger.enabled = false;
-            audioSource.PlayOneShot(clip);
+            GetTriggered();
+    }
+    }
 
-            if (showSubtitles)
-            {
-                subtitles.gameObject.SetActive(true);
-                subtitles.startSubtitles();
-            }
+    public void GetTriggered()
+    {
+        hasTriggered = true;
+        audioSource.PlayOneShot(clip);
+
+        if (showSubtitles)
+        {
+            subtitles.gameObject.SetActive(true);
+            subtitles.startSubtitles();
         }
     }
 }
