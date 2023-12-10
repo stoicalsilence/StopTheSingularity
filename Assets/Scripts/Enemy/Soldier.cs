@@ -55,6 +55,7 @@ public class Soldier : MonoBehaviour
     [Header("AudioClips")]
     public AudioClip magRelease;
     public AudioClip magInsert;
+    public AudioClip radioBeep;
     public AudioClip[] enemySpotted;
     public AudioClip[] deathSounds;
 
@@ -350,6 +351,7 @@ public class Soldier : MonoBehaviour
     {
         blockAnims = true;
         animator.Play(pointFinger.name);
+        StartCoroutine(TransmitVoice(enemySpotted[Random.Range(0, enemySpotted.Length)]));
         Invoke("stopBlockingAnims", pointFinger.length);
         Invoke("TriggerSquad", pointFinger.length);
         Invoke("resumeAiming", pointFinger.length);
@@ -471,5 +473,19 @@ public class Soldier : MonoBehaviour
     void playMagInsert()
     {
         audioSource.PlayOneShot(magInsert);
+    }
+
+    public IEnumerator TransmitVoice(AudioClip voiceClip)
+    {
+        PlayRadioBeep();
+        yield return new WaitForSeconds(radioBeep.length);
+        audioSource.PlayOneShot(voiceClip);
+        yield return new WaitForSeconds(voiceClip.length);
+        PlayRadioBeep();
+    }
+
+    void PlayRadioBeep()
+    {
+        audioSource.PlayOneShot(radioBeep);
     }
 }
