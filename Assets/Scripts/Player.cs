@@ -621,6 +621,27 @@ public class Player : MonoBehaviour
             Physics.IgnoreCollision(GetComponent<Collider>(), collision.collider);
         }
 
+        if (collision.gameObject.CompareTag("EnemyLightAttack"))
+        {
+            if (!isBlocking)
+            {
+                int dmg = Random.Range(2, 5);
+                HP -= dmg;
+                playerDamageSound(dmg);
+                StartCoroutine(ActivateInvincibility());
+                // Activate vignette briefly
+                vignette.enabled.value = true;
+                vignette.intensity.value = 0.5f;
+
+                // Coroutine to fade out vignette intensity
+                StartCoroutine(FadeOutVignette());
+            }
+            else
+            {
+                playBlockSound();
+            }
+        }
+
         if (collision.gameObject.CompareTag("EnemyBody"))
         {
             Rigidbody playerRigidbody = GetComponent<Rigidbody>();

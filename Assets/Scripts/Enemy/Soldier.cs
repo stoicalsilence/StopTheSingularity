@@ -29,11 +29,16 @@ public class Soldier : MonoBehaviour
     public List<Soldier> squad;
     public ParticleSystem muzzleFlare;
     public AudioClip[] gunShots;
+    public GameObject magazineObject;
+    public Transform magDropPos;
+    public GameObject orangeLight;
 
     public bool triggered;
     private RaycastHit hitInfo;
+    private RaycastHit losInfo;
     private float shootTimer = 0f;
     private float sidestepTimer = 0f;
+    public float followTimer = 0f;
     private bool isDead;
     private Rigidbody rb;
     private Transform player;
@@ -47,12 +52,23 @@ public class Soldier : MonoBehaviour
     public AnimationClip pointFinger;
     public AnimationClip reload;
 
+    [Header("AudioClips")]
+    public AudioClip magRelease;
+    public AudioClip magInsert;
+    public AudioClip[] enemySpotted;
+    public AudioClip[] deathSounds;
+
     public bool blockAnims;
     public bool rotateTowardsPlayer;
     public Vector3 retreatSpot;
-    public Vector3 previousPosition;
-    public Vector3 sidestepPos;
+    private Vector3 previousPosition;
+    private Vector3 sidestepPos;
+    private Vector3 lastSeenPlayerPos;
+    public GameObject[] safeSpots;
+
+    public Transform target;
     int retryAmount = 8;
+    bool running;
 
     private void Start()
     {
@@ -64,6 +80,7 @@ public class Soldier : MonoBehaviour
         animator.enabled = true;
         previousPosition = transform.position.normalized;
         agent.updateRotation = false;
+        safeSpots = GameObject.FindGameObjectsWithTag("SafeSpot");
     }
 
     private void Update()
@@ -109,7 +126,7 @@ public class Soldier : MonoBehaviour
 
                 float rightDot = Vector3.Dot(movementDirection, rightDir);
                 float forwardDot = Vector3.Dot(movementDirection, forwardDir);
-                Debug.Log("rightDot: " + rightDot + " " + "fwdDot: " + forwardDot);
+
                 float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
                 if (agent.velocity.magnitude < 0.1f)
@@ -117,7 +134,7 @@ public class Soldier : MonoBehaviour
                     animator.SetBool("Combat_Aiming", true);
                 }
 
-                if (agent.velocity.magnitude > 0.1f)
+                if (agent.velocity.magnitude > 0.1f && (Mathf.Abs(agent.velocity.x) > 0.1f || Mathf.Abs(agent.velocity.z) > 0.1f) && !running)
                 {
                     if (Mathf.Abs(forwardDot) > Mathf.Abs(rightDot))
                     {
@@ -152,45 +169,33 @@ public class Soldier : MonoBehaviour
                         }
                     }
                 }
+                Physics.Raycast(transform.position, player.position - transform.position, out losInfo, detectionRange - 6);
 
-                if (distanceToPlayer < minimumRange)
+
+                if (distanceToPlayer < minimumRange && losInfo.collider.CompareTag("Player"))
                 {
-                    if (ammo > 0)
-                    {
-                        shootTimer += Time.deltaTime;
-                        if (shootTimer >= shootInterval)
-                        {
-                            muzzleFlare.Play();
-                            ShootBullet();
-                            shootTimer = Random.Range(0.05f, shootInterval);
-                        }
-                        sidestepTimer+= Time.deltaTime;
-                        if(sidestepTimer >= sidestepInterval)
-                        {
-                            sidestepPos = SidestepCalc();
-                            TurnOffAnimations();
-                            animator.SetBool("Combat_Aiming", true);
-                            agent.SetDestination(sidestepPos);
-                            sidestepTimer = 0;
-                        }
-                        if(transform.position == sidestepPos)
-                        {
-                            sidestepPos = new Vector3();
-                            agent.ResetPath();
-                        }
-                    }
-                    else
-                    {
-                        if (!blockAnims) FindSpotToReload();
-                        agent.SetDestination(retreatSpot);
-                        float vicinityThreshold = 1;
-                        Debug.Log(Vector3.Distance(transform.position, retreatSpot));
-                        if (Vector3.Distance(transform.position, retreatSpot) <= vicinityThreshold) { Reload(); }
-                    }
+                    followTimer = 0;
+                    lastSeenPlayerPos = losInfo.point;
+                    AttackPlayer();
                 }
-                else if(!Physics.Raycast(transform.position, player.position - transform.position, out hitInfo, detectionRange-6))
+                else if(!losInfo.collider.CompareTag("Player"))
                 {
-                    agent.SetDestination(player.position);
+                    followTimer += Time.deltaTime;
+                    if (followTimer < 3)
+                    {
+                        AttackPlayer();
+                    }
+                    else if(followTimer > 6 && followTimer < 19)
+                    {
+                        agent.SetDestination(lastSeenPlayerPos);
+                    }
+                    else if(followTimer > 20)
+                    {
+                        rotateTowardsPlayer = false;
+                        triggered = false;
+                        TurnOffAnimations();
+                        animator.SetBool("Idle", true);
+                    }
                 }
                 else
                 {
@@ -206,27 +211,71 @@ public class Soldier : MonoBehaviour
 
     public void FindSpotToReload()
     {
-        Vector3 potentialRetreatSpot = GetRandomPointOnNavMesh();
+        List<GameObject> validSafeSpots = new List<GameObject>();
 
-        // Check if the random point is outside the player's line of sight
-        Vector3 directionToPlayer = player.position - retreatSpot;
-        if (!Physics.Raycast(retreatSpot, directionToPlayer, out RaycastHit obstacle, detectionRange) || !obstacle.collider.CompareTag("Player"))
+        foreach (GameObject safeSpot in safeSpots)
         {
-            // The random point is suitable for reloading
-            retreatSpot = potentialRetreatSpot;
-            retryAmount = 8;
+            float distanceToSafeSpot = Vector3.Distance(transform.position, safeSpot.transform.position);
+
+            if (distanceToSafeSpot <= detectionRange)
+            {
+                validSafeSpots.Add(safeSpot);
+            }
         }
-        else if (retryAmount > 0)
+        Debug.Log(validSafeSpots.Count);
+        if (validSafeSpots.Count > 0 && Random.Range(0,100) < 75)
         {
-            retryAmount--;
-            // Retry finding a spot if the random point is not suitable
-            FindSpotToReload();
-            return;
+            Debug.Log("Wo");
+            int randomIndex = Random.Range(0, validSafeSpots.Count);
+            retreatSpot = validSafeSpots[randomIndex].transform.position;
+            TurnOffAnimations();
+            running = true;
+            rotateTowardsPlayer = false;
+            agent.updateRotation = true;
+            animator.SetBool("Combat_Run", true);
         }
         else
         {
-            retryAmount = 8;
             retreatSpot = transform.position;
+        }
+    }
+
+    private void AttackPlayer()
+    {
+        if (ammo > 0)
+        {
+            shootTimer += Time.deltaTime;
+            if (shootTimer >= shootInterval)
+            {
+                muzzleFlare.Play();
+                ShootBullet();
+                shootTimer = Random.Range(0.05f, shootInterval);
+            }
+            sidestepTimer += Time.deltaTime;
+            if (sidestepTimer >= sidestepInterval)
+            {
+                sidestepPos = SidestepCalc();
+                TurnOffAnimations();
+                animator.SetBool("Combat_Aiming", true);
+                agent.SetDestination(sidestepPos);
+                sidestepTimer = 0;
+            }
+            if (transform.position == sidestepPos)
+            {
+                sidestepPos = new Vector3();
+                agent.ResetPath();
+            }
+        }
+        else
+        {
+            if (!blockAnims)
+            {
+                FindSpotToReload();
+                agent.SetDestination(retreatSpot);
+                float vicinityThreshold = 1;
+
+                if (Vector3.Distance(transform.position, retreatSpot) <= vicinityThreshold-0.9f) { Reload(); }
+            }
         }
     }
 
@@ -236,6 +285,9 @@ public class Soldier : MonoBehaviour
         TurnOffAnimations();
         animator.Play(reload.name);
         ammo = maxAmmo;
+        Invoke("playMagRelease", 0.35f);
+        Invoke("playMagInsert", 1.50f);
+        Invoke("DropMagazine", 0.40f);
         Invoke("resumeAiming", reload.length);
         Invoke("removeDestination", reload.length);
     }
@@ -243,6 +295,9 @@ public class Soldier : MonoBehaviour
     public void resumeAiming()
     {
         animator.SetBool("Combat_Aiming", true);
+        running = false;
+        rotateTowardsPlayer = true;
+        agent.updateRotation = false;
         blockAnims = false;
     }
 
@@ -316,7 +371,8 @@ public class Soldier : MonoBehaviour
         FindObjectOfType<HitmarkerEffect>().ShowHitmarker();
         if (health < 1)
         {
-            Instantiate(m4Pickup, transform.position, Quaternion.identity);
+            GameObject m4 = Instantiate(m4Pickup, transform.position, Quaternion.identity);
+            m4.GetComponent<AssaultRifle>().ammoInMag = ammo;
             isDead = true;
             FindObjectOfType<KillText>().getReportedTo();
             Destroy(this.gameObject, 4.2f);
@@ -332,8 +388,15 @@ public class Soldier : MonoBehaviour
         return hit.position;
     }
 
+    public void DropMagazine()
+    {
+        GameObject mag = Instantiate(magazineObject, magDropPos.position, Quaternion.identity * Quaternion.EulerAngles(0,90,0));
+        Destroy(mag, 6f);
+    }
+
     private void ShootBullet()
     {
+        StartCoroutine(bulletLight());
         ammo--;
         int randomIndex = Random.Range(0, gunShots.Length);
         AudioClip sound = gunShots[randomIndex];
@@ -346,6 +409,13 @@ public class Soldier : MonoBehaviour
         Rigidbody bulletRigidbody = bulletObject.GetComponent<Rigidbody>();
 
         bulletRigidbody.velocity = directionToPlayer.normalized * bulletSpeed;
+    }
+
+    public IEnumerator bulletLight()
+    {
+        orangeLight.SetActive(true);
+        yield return new WaitForSeconds(0.16f);
+        orangeLight.SetActive(false);
     }
 
     private Vector3 ApplyBulletInaccuracy(Vector3 direction)
@@ -392,5 +462,14 @@ public class Soldier : MonoBehaviour
         }
 
         return chosenPos;
+    }
+
+    void playMagRelease()
+    {
+        audioSource.PlayOneShot(magRelease);    
+    }
+    void playMagInsert()
+    {
+        audioSource.PlayOneShot(magInsert);
     }
 }
