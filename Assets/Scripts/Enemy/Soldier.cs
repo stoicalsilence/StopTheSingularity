@@ -19,6 +19,7 @@ public class Soldier : MonoBehaviour
     public int maxAmmo = 20;
     public int ammo = 20;
     public float sidestepInterval= 2f;
+    public float chanceToRetreatForReload;
 
     [Header("Necessary References")]
     public Transform bullethole;
@@ -57,6 +58,8 @@ public class Soldier : MonoBehaviour
     public AudioClip magInsert;
     public AudioClip radioBeep;
     public AudioClip[] enemySpotted;
+    public AudioClip[] enemyReaquired;
+    public AudioClip[] acknowledged;
     public AudioClip[] deathSounds;
 
     public bool blockAnims;
@@ -70,6 +73,7 @@ public class Soldier : MonoBehaviour
     public Transform target;
     int retryAmount = 8;
     bool running;
+    bool runningToReload;
 
     private void Start()
     {
@@ -86,6 +90,12 @@ public class Soldier : MonoBehaviour
 
     private void Update()
     {
+        if (player.gameObject.GetComponent<Player>().dead && triggered)
+        {
+            //say enemy is history
+            Untrigger();
+        }
+
         if (rotateTowardsPlayer)
         {
             Vector3 directionToPlayer = player.position - transform.position;
@@ -96,6 +106,8 @@ public class Soldier : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * damping);
         }
 
+
+
         if (!isDead)
         {
             if (!triggered)
@@ -103,23 +115,38 @@ public class Soldier : MonoBehaviour
                 Vector3 raycastOrigin = transform.position;
                 if (inCover) { raycastOrigin = transform.position + coverbonus; }
 
-                if (Physics.Raycast(raycastOrigin, player.position - transform.position, out hitInfo, detectionRange))
+                Vector3 playerDirection = player.position - transform.position;
+                float angleToPlayer = Vector3.Angle(transform.forward, playerDirection);
+                if (angleToPlayer <= 90f) 
                 {
-                    if (hitInfo.collider.CompareTag("Player"))
+                    if (Physics.Raycast(raycastOrigin, playerDirection, out hitInfo, detectionRange))
                     {
-                        TurnOffAnimations();
-                        if (!CheckIfAnyInSquadTriggered())
+                        if (hitInfo.collider.CompareTag("Player"))
                         {
-                            AlertSquad();
+                            if (!CheckIfAnyInSquadTriggered())
+                            {
+                                AlertSquad();
+                            }
+                            GetTriggered();
                         }
-                        rotateTowardsPlayer = true;
-                        triggered = true;
                     }
                 }
             }
 
             if (triggered && !blockAnims)
             {
+                if (running)
+                {
+                    agent.speed = movementSpeedRunning;
+                    TurnOffAnimations();
+                    animator.SetBool("Combat_Run", true);
+                }
+                if (!running)
+                {
+                    agent.speed = movementSpeedWalking;
+                    animator.SetBool("Combat_Run", false);
+                }
+
                 Vector3 currentPosition = transform.position.normalized;
                 Vector3 movementDirection = (currentPosition - previousPosition).normalized;
                 Vector3 rightDir = transform.right;
@@ -130,8 +157,9 @@ public class Soldier : MonoBehaviour
 
                 float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-                if (agent.velocity.magnitude < 0.1f)
+                if (agent.velocity.magnitude < 0.1f && !running)
                 {
+                    TurnOffAnimations();
                     animator.SetBool("Combat_Aiming", true);
                 }
 
@@ -170,37 +198,51 @@ public class Soldier : MonoBehaviour
                         }
                     }
                 }
-                Physics.Raycast(transform.position, player.position - transform.position, out losInfo, detectionRange - 6);
+                Physics.Raycast(transform.position, player.position - transform.position, out losInfo, detectionRange);
 
-
-                if (distanceToPlayer < minimumRange && losInfo.collider.CompareTag("Player"))
+                if (distanceToPlayer < minimumRange && losInfo.collider != null && losInfo.collider.CompareTag("Player"))
                 {
+                    if(followTimer > 4)
+                    {
+                        int r = Random.Range(0, 100);
+                        if (r < 75)
+                        {
+                            StartCoroutine(TransmitVoice(enemyReaquired[Random.Range(0, enemyReaquired.Length)]));
+                        }
+                    }
                     followTimer = 0;
                     lastSeenPlayerPos = losInfo.point;
                     AttackPlayer();
-                }
-                else if(!losInfo.collider.CompareTag("Player"))
-                {
-                    followTimer += Time.deltaTime;
-                    if (followTimer < 3)
-                    {
-                        AttackPlayer();
-                    }
-                    else if(followTimer > 6 && followTimer < 19)
-                    {
-                        agent.SetDestination(lastSeenPlayerPos);
-                    }
-                    else if(followTimer > 20)
-                    {
-                        rotateTowardsPlayer = false;
-                        triggered = false;
-                        TurnOffAnimations();
-                        animator.SetBool("Idle", true);
-                    }
+                    RallySquadToFight();
                 }
                 else
                 {
-                    agent.ResetPath();
+                    if (!runningToReload)
+                    followTimer += Time.deltaTime;
+                    if (followTimer < 1)
+                    {
+                        AttackPlayer();
+                        running = false;
+                    }
+                    else if(followTimer > 3 && followTimer < 15)
+                    {
+                        agent.SetDestination(lastSeenPlayerPos);
+                        int r = Random.Range(0, 100);
+                        if (r < 25)
+                        {
+                            running = true;
+                        }
+                        if(Vector3.Distance(transform.position, lastSeenPlayerPos) <= 1f)
+                        {
+                            running = false;
+                            TurnOffAnimations();
+                            animator.SetBool("Combat_Aiming", true);
+                        }
+                    }
+                    else if(followTimer > 15)
+                    {
+                        Untrigger();//"LOST THE TARGET"
+                    }
                 }
 
                 previousPosition = currentPosition.normalized;
@@ -223,10 +265,11 @@ public class Soldier : MonoBehaviour
                 validSafeSpots.Add(safeSpot);
             }
         }
-        Debug.Log(validSafeSpots.Count);
-        if (validSafeSpots.Count > 0 && Random.Range(0,100) < 75)
+        int r = Random.Range(0, 100);
+        Debug.Log(r);
+        if (validSafeSpots.Count > 0 && r < chanceToRetreatForReload)
         {
-            Debug.Log("Wo");
+            runningToReload = true;
             int randomIndex = Random.Range(0, validSafeSpots.Count);
             retreatSpot = validSafeSpots[randomIndex].transform.position;
             TurnOffAnimations();
@@ -269,19 +312,28 @@ public class Soldier : MonoBehaviour
         }
         else
         {
-            if (!blockAnims)
+            if (!blockAnims && !runningToReload)
             {
                 FindSpotToReload();
+                running = true;
                 agent.SetDestination(retreatSpot);
-                float vicinityThreshold = 1;
-
-                if (Vector3.Distance(transform.position, retreatSpot) <= vicinityThreshold-0.9f) { Reload(); }
+                if (Vector3.Distance(transform.position, retreatSpot) <= 2) { Reload(); }
+            }
+            if (runningToReload)
+            {
+                if (Vector3.Distance(transform.position, retreatSpot) <= 2)
+                {
+                    Reload();
+                }
             }
         }
     }
 
     public void Reload()
     {
+        followTimer = 1.2f;
+        runningToReload = false;
+        running = false;
         blockAnims = true;
         TurnOffAnimations();
         animator.Play(reload.name);
@@ -329,9 +381,14 @@ public class Soldier : MonoBehaviour
         {
             foreach (Soldier soldier in squad)
             {
-                if (soldier.triggered)
+                if (!soldier.triggered)
                 {
-                    triggered = true;
+                    soldier.GetTriggered();
+                    int r = Random.Range(0, 100);
+                    if (r < 50)
+                    {
+                        soldier.StartCoroutine(soldier.TransmitVoice(soldier.acknowledged[Random.Range(0, soldier.acknowledged.Length)]));
+                    }
                 }
             }
         }
@@ -347,6 +404,13 @@ public class Soldier : MonoBehaviour
         return toreturn;
     }
 
+    public void GetTriggered()
+    {
+        TurnOffAnimations();
+        triggered = true;
+        rotateTowardsPlayer = true;
+    }
+
     public void AlertSquad()
     {
         blockAnims = true;
@@ -355,6 +419,19 @@ public class Soldier : MonoBehaviour
         Invoke("stopBlockingAnims", pointFinger.length);
         Invoke("TriggerSquad", pointFinger.length);
         Invoke("resumeAiming", pointFinger.length);
+    }
+
+    public void RallySquadToFight()
+    {
+        foreach(Soldier sol in squad)
+        {
+            if (sol.followTimer > 6)
+            {
+                sol.GetTriggered();
+                sol.followTimer = 1.2f;
+                sol.lastSeenPlayerPos = player.position;
+            }
+        }
     }
     private void OnCollisionEnter(Collision collision)
     {
@@ -478,14 +555,22 @@ public class Soldier : MonoBehaviour
     public IEnumerator TransmitVoice(AudioClip voiceClip)
     {
         PlayRadioBeep();
-        yield return new WaitForSeconds(radioBeep.length);
+        yield return new WaitForSeconds(radioBeep.length -0.1f);
         audioSource.PlayOneShot(voiceClip);
-        yield return new WaitForSeconds(voiceClip.length);
+        yield return new WaitForSeconds(voiceClip.length - 0.1f);
         PlayRadioBeep();
     }
 
     void PlayRadioBeep()
     {
         audioSource.PlayOneShot(radioBeep);
+    }
+
+    public void Untrigger()
+    {
+        rotateTowardsPlayer = false;
+        triggered = false;
+        TurnOffAnimations();
+        animator.SetBool("Idle", true);
     }
 }
