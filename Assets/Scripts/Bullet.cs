@@ -64,6 +64,7 @@ public class Bullet : MonoBehaviour
             int randomIndex = Random.Range(0, impacts.Length);
             AudioClip sound = impacts[randomIndex];
             impactSound.gameObject.transform.SetParent(null);
+            impactSound.volume = 0.50f;
             impactSound.PlayOneShot(sound);
         Destroy(impactSound.gameObject, 5f);
             GameObject parts = Instantiate(bulletHitFx, transform.position, Quaternion.identity);

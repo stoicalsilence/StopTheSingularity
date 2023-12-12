@@ -5,6 +5,11 @@ using UnityEngine.AI;
 
 public class Soldier : MonoBehaviour
 {
+    [Header("Type of Soldier")]
+    public bool isM4Soldier;
+    public bool isUziSoldier;
+    public bool isShieldSoldier;
+
     [Header("Balance Values")]
     public int health = 7;
     public float detectionRange = 25f;
@@ -27,6 +32,8 @@ public class Soldier : MonoBehaviour
     public GameObject bulletPrefab;
     public AudioSource audioSource;
     public GameObject m4Pickup;
+    public GameObject uziPickup;
+    public GameObject glockPickup;
     public List<Soldier> squad;
     public ParticleSystem muzzleFlare;
     public AudioClip[] gunShots;
@@ -450,8 +457,21 @@ public class Soldier : MonoBehaviour
         FindObjectOfType<HitmarkerEffect>().ShowHitmarker();
         if (health < 1)
         {
-            GameObject m4 = Instantiate(m4Pickup, transform.position, Quaternion.identity);
-            m4.GetComponent<AssaultRifle>().ammoInMag = ammo;
+            if (isM4Soldier)
+            {
+                GameObject m4 = Instantiate(m4Pickup, transform.position, Quaternion.identity);
+                m4.GetComponent<AssaultRifle>().ammoInMag = ammo;
+            }
+            if (isUziSoldier)
+            {
+                GameObject uzi = Instantiate(uziPickup, transform.position, Quaternion.identity);
+                uzi.GetComponent<Uzi>().ammoInMag = ammo;
+            }
+            if (isShieldSoldier)
+            {
+                GameObject glock = Instantiate(glockPickup, transform.position, Quaternion.identity);
+                glock.GetComponent<Firearm>().ammoInMag = ammo;
+            }
             isDead = true;
             FindObjectOfType<KillText>().getReportedTo();
             Destroy(this.gameObject, 4.2f);
