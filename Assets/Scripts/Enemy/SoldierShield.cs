@@ -9,18 +9,6 @@ public class SoldierShield : MonoBehaviour
     public AudioSource audioS;
     public AudioClip hit, broken;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "PlayerAttack")
@@ -33,7 +21,7 @@ public class SoldierShield : MonoBehaviour
                 Destroy(part, 4);
                 audioS.PlayOneShot(hit);
 
-                if(health <4)
+                if(health <3)
                 {
                     cracks.gameObject.SetActive(true);
                 }

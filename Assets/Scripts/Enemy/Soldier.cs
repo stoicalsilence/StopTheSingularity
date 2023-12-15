@@ -273,7 +273,6 @@ public class Soldier : MonoBehaviour
             }
         }
         int r = Random.Range(0, 100);
-        Debug.Log(r);
         if (validSafeSpots.Count > 0 && r < chanceToRetreatForReload)
         {
             runningToReload = true;
@@ -338,6 +337,7 @@ public class Soldier : MonoBehaviour
 
     public void Reload()
     {
+        rotateTowardsPlayer = false;
         followTimer = 1.2f;
         runningToReload = false;
         running = false;
