@@ -81,6 +81,7 @@ public class Soldier : MonoBehaviour
     int retryAmount = 8;
     bool running;
     bool runningToReload;
+    public bool crouching;
 
     private void Start()
     {
@@ -112,8 +113,6 @@ public class Soldier : MonoBehaviour
             targetRotation *= Quaternion.Euler(0f, 180, 0f);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * damping);
         }
-
-
 
         if (!isDead)
         {
@@ -152,6 +151,18 @@ public class Soldier : MonoBehaviour
                 {
                     agent.speed = movementSpeedWalking;
                     animator.SetBool("Combat_Run", false);
+                }
+
+                if (!isShieldSoldier)
+                {
+                    if (crouching)
+                    {
+                        animator.SetBool("Combat_Crouching", true);
+                    }
+                    else
+                    {
+                        animator.SetBool("Combat_Crouching", false);
+                    }
                 }
 
                 Vector3 currentPosition = transform.position.normalized;
@@ -222,6 +233,19 @@ public class Soldier : MonoBehaviour
                     AttackPlayer();
                     RallySquadToFight();
                 }
+                else if (losInfo.collider.gameObject.transform.root.GetComponent<Soldier>())
+                {
+                    Soldier sol = losInfo.collider.gameObject.transform.root.GetComponent<Soldier>();
+                    if (sol != null)
+                    {
+                        if (!sol.crouching)
+                        {
+
+                            Debug.Log("yarg");
+                            sol.Crouch();
+                        }
+                    }
+                }
                 else
                 {
                     if (!runningToReload)
@@ -257,6 +281,7 @@ public class Soldier : MonoBehaviour
             }
 
         }
+
     }
 
     public void FindSpotToReload()
@@ -301,19 +326,22 @@ public class Soldier : MonoBehaviour
                 ShootBullet();
                 shootTimer = Random.Range(0.05f, shootInterval);
             }
-            sidestepTimer += Time.deltaTime;
-            if (sidestepTimer >= sidestepInterval)
+            if (!crouching)
             {
-                sidestepPos = SidestepCalc();
-                TurnOffAnimations();
-                animator.SetBool("Combat_Aiming", true);
-                agent.SetDestination(sidestepPos);
-                sidestepTimer = 0;
-            }
-            if (transform.position == sidestepPos)
-            {
-                sidestepPos = new Vector3();
-                agent.ResetPath();
+                sidestepTimer += Time.deltaTime;
+                if (sidestepTimer >= sidestepInterval)
+                {
+                    sidestepPos = SidestepCalc();
+                    TurnOffAnimations();
+                    animator.SetBool("Combat_Aiming", true);
+                    agent.SetDestination(sidestepPos);
+                    sidestepTimer = 0;
+                }
+                if (transform.position == sidestepPos)
+                {
+                    sidestepPos = new Vector3();
+                    agent.ResetPath();
+                }
             }
         }
         else
@@ -329,6 +357,7 @@ public class Soldier : MonoBehaviour
             {
                 if (Vector3.Distance(transform.position, retreatSpot) <= 2)
                 {
+                    running = true;
                     Reload();
                 }
             }
@@ -439,6 +468,17 @@ public class Soldier : MonoBehaviour
                 sol.lastSeenPlayerPos = player.position;
             }
         }
+    }
+
+    public void Crouch()
+    {
+        crouching = true;
+        Invoke("StopCrouching", 3.9f);
+    }
+
+    void StopCrouching()
+    {
+        crouching = false;
     }
     private void OnCollisionEnter(Collision collision)
     {
