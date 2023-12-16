@@ -82,6 +82,8 @@ public class Soldier : MonoBehaviour
     bool running;
     bool runningToReload;
     public bool crouching;
+    Vector3 colliderStandingScale;
+    float colliderStandingHeight;
 
     private void Start()
     {
@@ -94,6 +96,9 @@ public class Soldier : MonoBehaviour
         previousPosition = transform.position.normalized;
         agent.updateRotation = false;
         safeSpots = GameObject.FindGameObjectsWithTag("SafeSpot");
+
+        colliderStandingScale = transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center;
+        colliderStandingHeight = transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().height;
     }
 
     private void Update()
@@ -143,6 +148,10 @@ public class Soldier : MonoBehaviour
             {
                 if (running)
                 {
+                    if (!isShieldSoldier) { 
+                    crouching = false;
+                    animator.SetBool("Combat_Crouching", false);
+                    }
                     agent.speed = movementSpeedRunning;
                     TurnOffAnimations();
                     animator.SetBool("Combat_Run", true);
@@ -158,10 +167,14 @@ public class Soldier : MonoBehaviour
                     if (crouching)
                     {
                         animator.SetBool("Combat_Crouching", true);
+                        transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center = new Vector3(transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center.x, 0.60f, transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center.z);
+                        transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().height = 1.3f;
                     }
                     else
                     {
                         animator.SetBool("Combat_Crouching", false);
+                        transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center = colliderStandingScale;
+                        transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().height = colliderStandingHeight;
                     }
                 }
 
@@ -238,10 +251,8 @@ public class Soldier : MonoBehaviour
                     Soldier sol = losInfo.collider.gameObject.transform.root.GetComponent<Soldier>();
                     if (sol != null)
                     {
-                        if (!sol.crouching)
+                        if (!sol.crouching && !sol.running && sol != this)
                         {
-
-                            Debug.Log("yarg");
                             sol.Crouch();
                         }
                     }
@@ -286,6 +297,7 @@ public class Soldier : MonoBehaviour
 
     public void FindSpotToReload()
     {
+        crouching = false;
         List<GameObject> validSafeSpots = new List<GameObject>();
 
         foreach (GameObject safeSpot in safeSpots)

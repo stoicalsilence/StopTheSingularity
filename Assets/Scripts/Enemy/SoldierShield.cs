@@ -28,9 +28,10 @@ public class SoldierShield : MonoBehaviour
             }
             else
             {
+                audioS.clip = broken;
                 audioS.gameObject.transform.SetParent(null);
-                audioS.PlayOneShot(broken);
-                Destroy(audioS, 5f);
+                audioS.Play();
+                Destroy(audioS.gameObject, 5f);
                 GameObject part = Instantiate(explosionParticles, transform.position, Quaternion.identity);
                 Destroy(part, 4);
                 Destroy(this.gameObject);
