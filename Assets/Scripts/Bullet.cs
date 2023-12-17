@@ -10,6 +10,7 @@ public class Bullet : MonoBehaviour
     public AudioSource impactSound;
     public string ignoreTag;
     public AudioClip[] impacts;
+    public AudioClip[] bloodImpacts;
     // Start is called before the first frame update
     private void Start()
     {
@@ -25,20 +26,20 @@ public class Bullet : MonoBehaviour
     private void OnCollisionEnter(Collision other)
     {
 
-        if (this.gameObject.tag == "EnemyBody" && other.gameObject.tag == "PlayerAttack")
-        {
-            Mesh m1 = Instantiate(dblMesh, transform.position, Quaternion.identity);
-            Mesh m2 = Instantiate(dblMesh, transform.position, Quaternion.identity);
-            GameObject ffx = Instantiate(bulletHitFx, transform.position, Quaternion.identity);
+        //if (this.gameObject.tag == "EnemyBody" && other.gameObject.tag == "PlayerAttack")
+        //{
+        //    Mesh m1 = Instantiate(dblMesh, transform.position, Quaternion.identity);
+        //    Mesh m2 = Instantiate(dblMesh, transform.position, Quaternion.identity);
+        //    GameObject ffx = Instantiate(bulletHitFx, transform.position, Quaternion.identity);
 
-            //play dosh sound
-            Debug.Log("DOSH");
+        //    //play dosh sound
+        //    Debug.Log("DOSH");
 
-            Destroy(m1, 2f);
-            Destroy(m2, 2f);
-            Destroy(ffx, 2f);
-            Destroy(this.gameObject);
-        }
+        //    Destroy(m1, 2f);
+        //    Destroy(m2, 2f);
+        //    Destroy(ffx, 2f);
+        //    Destroy(this.gameObject);
+        //}
 
         if (other.gameObject.tag == "EnemyBody")
         {
@@ -46,6 +47,7 @@ public class Bullet : MonoBehaviour
             AudioClip sound = impacts[randomIndex];
             impactSound.gameObject.transform.SetParent(null);
             impactSound.PlayOneShot(sound);
+
             Destroy(impactSound.gameObject, 5f);
             GameObject parts = Instantiate(bulletHitFx, transform.position, Quaternion.identity);
             Destroy(parts, 5f);
@@ -53,22 +55,33 @@ public class Bullet : MonoBehaviour
         }
         if (other.gameObject.CompareTag(ignoreTag))
         {
-            Physics.IgnoreCollision(GetComponent<Collider>(), other.collider);
+            Physics.IgnoreCollision(GetComponent<Collider>(), other.collider, true);
         }
         if (other.gameObject.CompareTag("PlayerAttack"))
         {
-            Physics.IgnoreCollision(GetComponent<Collider>(), other.collider);
+            Physics.IgnoreCollision(GetComponent<Collider>(), other.collider, true);
         }
         else
         {
-            int randomIndex = Random.Range(0, impacts.Length);
-            AudioClip sound = impacts[randomIndex];
-            impactSound.gameObject.transform.SetParent(null);
-            impactSound.volume = 0.50f;
-            impactSound.PlayOneShot(sound);
-        Destroy(impactSound.gameObject, 5f);
-            GameObject parts = Instantiate(bulletHitFx, transform.position, Quaternion.identity);
-            Destroy(parts, 5f);
+            if (!other.gameObject.transform.root.GetComponent<Soldier>() || other.gameObject.GetComponent<Player>())
+            {
+                int randomIndex = Random.Range(0, impacts.Length);
+                AudioClip sound = impacts[randomIndex];
+                impactSound.gameObject.transform.SetParent(null);
+                impactSound.volume = 0.50f;
+                impactSound.PlayOneShot(sound);
+                Destroy(impactSound.gameObject, 5f);
+                GameObject parts = Instantiate(bulletHitFx, transform.position, Quaternion.identity);
+                Destroy(parts, 5f);
+            }
+            else
+            {
+                int randomIndex = Random.Range(0, bloodImpacts.Length);
+                AudioClip sound = bloodImpacts[randomIndex];
+                impactSound.gameObject.transform.SetParent(null);
+                //impactSound.volume = 0.50f;
+                impactSound.PlayOneShot(sound);
+            }
             DestroySelf();
         }
 

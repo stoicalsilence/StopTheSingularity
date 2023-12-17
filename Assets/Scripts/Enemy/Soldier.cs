@@ -40,6 +40,7 @@ public class Soldier : MonoBehaviour
     public GameObject magazineObject;
     public Transform magDropPos;
     public GameObject orangeLight;
+    public GameObject bloodParticles;
 
     public bool triggered;
     private RaycastHit hitInfo;
@@ -496,13 +497,28 @@ public class Soldier : MonoBehaviour
     {
         if (!isDead)
         {
+            Vector3 collisionPoint = collision.GetContact(0).point;
             if (collision.gameObject.CompareTag("PlayerAttack"))
             {
                 takeDamage();
+                GameObject blood = Instantiate(bloodParticles, collisionPoint, Quaternion.identity);
+                StartCoroutine(DisableBlood(blood, 0.39f));
+                Destroy(blood, 4f);
             }
+        }
+
+        if (collision.gameObject.CompareTag("EnemyLightAttack"))
+        {
+            Physics.IgnoreCollision(transform.GetChild(0).GetComponent<Collider>(), collision.collider, true);
         }
     }
 
+    IEnumerator DisableBlood(GameObject ps, float time)
+    {
+        yield return new WaitForSeconds(time);
+        ps.GetComponent<ParticleSystem>().Stop();
+        ps.transform.GetChild(0).GetComponent<ParticleSystem>().Stop();
+    }
     public void takeDamage()
     {
         health--;

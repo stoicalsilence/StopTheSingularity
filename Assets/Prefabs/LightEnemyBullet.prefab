@@ -150,6 +150,14 @@ MonoBehaviour:
   ignoreTag: EnemyLightAttack
   impacts:
   - {fileID: 8300000, guid: 5f7ae5f8ed3389a4b9a61896cdf58900, type: 3}
+  bloodImpacts:
+  - {fileID: 8300000, guid: 031a7be66f8213949bfd4674972304c4, type: 3}
+  - {fileID: 8300000, guid: 66efc2fdd85970743a236add20f6205c, type: 3}
+  - {fileID: 8300000, guid: 49728ebea077d7c4887ee270609f5c76, type: 3}
+  - {fileID: 8300000, guid: 9ab181ea287997d40bdec5b15663a526, type: 3}
+  - {fileID: 8300000, guid: 9b7615fed7dff4f4babccdf4462c54b9, type: 3}
+  - {fileID: 8300000, guid: 7dde59532b2caaa42862f6ef28c84db1, type: 3}
+  - {fileID: 8300000, guid: f288e46dfbb39544595fcd15222d74ff, type: 3}
 --- !u!65 &2640423787358631325
 BoxCollider:
   m_ObjectHideFlags: 0
