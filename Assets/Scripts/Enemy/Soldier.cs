@@ -9,9 +9,10 @@ public class Soldier : MonoBehaviour
     public bool isM4Soldier;
     public bool isUziSoldier;
     public bool isShieldSoldier;
+    public bool isShotgunSoldier;
 
     [Header("Balance Values")]
-    public int health = 7;
+    public int health = 6;
     public float detectionRange = 25f;
     public float minimumRange = 16f;
     public float movementSpeedWalking = 5f;
@@ -34,6 +35,7 @@ public class Soldier : MonoBehaviour
     public GameObject m4Pickup;
     public GameObject uziPickup;
     public GameObject glockPickup;
+    public GameObject shotgunPickup;
     public List<Soldier> squad;
     public ParticleSystem muzzleFlare;
     public AudioClip[] gunShots;
@@ -60,15 +62,20 @@ public class Soldier : MonoBehaviour
     public AnimationClip handWave;
     public AnimationClip pointFinger;
     public AnimationClip reload;
+    public AnimationClip dieCrouching1;
 
+    public AnimationClip[] standingDeaths;
     [Header("AudioClips")]
     public AudioClip magRelease;
     public AudioClip magInsert;
     public AudioClip radioBeep;
+    public AudioClip shotgunPump;
     public AudioClip[] enemySpotted;
     public AudioClip[] enemyReaquired;
     public AudioClip[] acknowledged;
     public AudioClip[] deathSounds;
+    public AudioClip[] alertThroughHit;
+    public AudioClip[] painSounds;
 
     public bool blockAnims;
     public bool rotateTowardsPlayer;
@@ -294,6 +301,11 @@ public class Soldier : MonoBehaviour
 
         }
 
+        if (isDead)
+        {
+            rotateTowardsPlayer = false;
+            agent.ResetPath();
+        }
     }
 
     public void FindSpotToReload()
@@ -470,6 +482,16 @@ public class Soldier : MonoBehaviour
         Invoke("resumeAiming", pointFinger.length);
     }
 
+    public void AlertSquadByGettingShot()
+    {
+        blockAnims = true;
+        animator.Play(pointFinger.name);
+        //StartCoroutine(TransmitVoice(alertThroughHit[Random.Range(0, alertThroughHit.Length)]));
+        Invoke("stopBlockingAnims", pointFinger.length);
+        Invoke("TriggerSquad", pointFinger.length);
+        Invoke("resumeAiming", pointFinger.length);
+    }
+
     public void RallySquadToFight()
     {
         foreach(Soldier sol in squad)
@@ -521,6 +543,22 @@ public class Soldier : MonoBehaviour
     }
     public void takeDamage()
     {
+        bool ambush = false;
+        if (!triggered)
+        {
+            ambush = true;
+            if (!CheckIfAnyInSquadTriggered())
+            {
+                AlertSquadByGettingShot();
+            }
+            GetTriggered();
+        }
+            if (Random.Range(0, 100) < 25 && !ambush)
+            {
+                AudioClip clip = painSounds[Random.Range(0, painSounds.Length)];
+                audioSource.PlayOneShot(clip);
+            }
+        
         health--;
         FindObjectOfType<HitmarkerEffect>().ShowHitmarker();
         if (health < 1)
@@ -540,7 +578,39 @@ public class Soldier : MonoBehaviour
                 GameObject glock = Instantiate(glockPickup, transform.position, Quaternion.identity);
                 glock.GetComponent<Firearm>().ammoInMag = ammo;
             }
-            isDead = true;
+            if (isShotgunSoldier)
+            {
+                GameObject shotgun = Instantiate(shotgunPickup, transform.position, Quaternion.identity);
+                shotgun.GetComponent<Shotgun>().ammoInMag = ammo;
+            }
+
+            //TurnOffAnimations();
+            if (!isDead)
+            {
+                audioSource.Stop();
+                isDead = true;
+                rotateTowardsPlayer = false;
+                audioSource.PlayOneShot(deathSounds[Random.Range(0, deathSounds.Length)]);
+                if (!crouching || isShieldSoldier)
+                {
+                    AnimationClip clip = standingDeaths[Random.Range(0, standingDeaths.Length)];
+                    animator.Play(clip.name);
+                }
+                else
+                {
+                    animator.Play(dieCrouching1.name);
+                }
+            }
+
+            GameObject blood1 = Instantiate(bloodParticles, transform.position + new Vector3(0.1f, 0.5f, 0), Quaternion.identity);
+            GameObject blood2 = Instantiate(bloodParticles, transform.position + new Vector3(0.1f,1.2f,0), Quaternion.identity);
+            GameObject blood3 = Instantiate(bloodParticles, transform.position + new Vector3(-0.1f,1.0f,0), Quaternion.identity);
+            StartCoroutine(DisableBlood(blood1, 0.39f));
+            StartCoroutine(DisableBlood(blood2, 0.39f));
+            StartCoroutine(DisableBlood(blood3, 0.39f));
+            Destroy(blood1, 2f);
+            Destroy(blood2, 2f);
+            Destroy(blood3, 2f);
             FindObjectOfType<KillText>().getReportedTo();
             Destroy(this.gameObject, 4.2f);
         }
@@ -576,8 +646,40 @@ public class Soldier : MonoBehaviour
         Rigidbody bulletRigidbody = bulletObject.GetComponent<Rigidbody>();
 
         bulletRigidbody.velocity = directionToPlayer.normalized * bulletSpeed;
+
+
+        if (isShotgunSoldier)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                ammo++;
+                Invoke("shotGunShot", 0.06f);
+            }
+
+            Invoke("pumpShotgunSound", 0.2f);
+        }
     }
 
+    void shotGunShot()
+    {
+        StartCoroutine(bulletLight());
+        ammo--;
+        int randomIndex = Random.Range(0, gunShots.Length);
+        AudioClip sound = gunShots[randomIndex];
+        audioSource.PlayOneShot(sound);
+        Vector3 directionToPlayer = player.position - bullethole.position;
+        directionToPlayer = ApplyBulletInaccuracy(directionToPlayer);
+
+        GameObject bulletObject = Instantiate(bulletPrefab, bullethole.position, Quaternion.identity);
+        Destroy(bulletObject, 3f);
+        Rigidbody bulletRigidbody = bulletObject.GetComponent<Rigidbody>();
+
+        bulletRigidbody.velocity = directionToPlayer.normalized * bulletSpeed;
+    }
+    void pumpShotgunSound()
+    {
+        audioSource.PlayOneShot(shotgunPump);
+    }
     public IEnumerator bulletLight()
     {
         orangeLight.SetActive(true);

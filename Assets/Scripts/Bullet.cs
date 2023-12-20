@@ -61,6 +61,10 @@ public class Bullet : MonoBehaviour
         {
             Physics.IgnoreCollision(GetComponent<Collider>(), other.collider, true);
         }
+        //if (other.gameObject.CompareTag("EnemyLightAttack"))
+        //{
+        //    Physics.IgnoreCollision(GetComponent<Collider>(), other.collider, true);
+        //}
         else
         {
             if (!other.gameObject.transform.root.GetComponent<Soldier>() || other.gameObject.GetComponent<Player>())
