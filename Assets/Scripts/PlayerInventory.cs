@@ -21,6 +21,7 @@ public class PlayerInventory : MonoBehaviour
     public GrenadePistol grenadePistol;
     public BattleRifle battleRifle;
     public GrenadeWeapon grenade;
+    public Firearm m9suppressed;
 
     [Header("Pickup References")]
     public GameObject swordPickup;
@@ -36,6 +37,7 @@ public class PlayerInventory : MonoBehaviour
     public GameObject grenadePistolPickup;
     public GameObject battleRiflePickup;
     public GameObject grenadePickup;
+    public GameObject m9suppressedPickup;
 
     [Header("Slots")]
     public int activeSlot;
@@ -155,6 +157,7 @@ public class PlayerInventory : MonoBehaviour
                 player.unequipSingleShotRifle();
                 player.unequipBattleRifle();
                 player.unequipGrenade();
+                player.unequipM9Suppressed();
                 droppedWeapon.gameObject.SetActive(false);
             }
         }
@@ -182,7 +185,7 @@ public class PlayerInventory : MonoBehaviour
             player.unequipSword();
         }
 
-        if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject.GetComponent<Firearm>())
+        if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == glock.gameObject)
         {
             player.equipGlock();
         }
@@ -271,6 +274,15 @@ public class PlayerInventory : MonoBehaviour
         {
             player.unequipGrenade();
         }
+
+        if (inventorySlots[activeSlot] && inventorySlots[activeSlot].gameObject == m9suppressed.gameObject)
+        {
+            player.equipM9Suppressed();
+        }
+        else
+        {
+            player.unequipM9Suppressed();
+        }
     } 
 
     public bool IsWeaponInInventory(GameObject weapon)
@@ -338,6 +350,10 @@ public class PlayerInventory : MonoBehaviour
         else if (weapon == grenade.gameObject)
         {
             return grenadePickup;
+        }
+        else if(weapon == m9suppressed.gameObject)
+        {
+            return m9suppressedPickup;
         }
 
         return null;

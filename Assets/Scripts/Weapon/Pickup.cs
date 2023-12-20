@@ -152,6 +152,20 @@ public class Pickup : MonoBehaviour
                                 return; // Exit the method without destroying the duplicate weapon
                             }
                         }
+                        else if(weaponName == "m9suppressed")
+                        {
+                            if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().m9suppressed.gameObject))
+                            {
+                                itemHolderWeapon = FindObjectOfType<Player>().m9suppressed.gameObject;
+                                FindObjectOfType<Player>().m9suppressed.ammoInMag = this.GetComponent<Firearm>().ammoInMag;
+                            }
+                            else
+                            {
+                                Debug.Log("Can't pick up duplicate weapon!");
+                                FindObjectOfType<Tooltip>().getReportedTo("Can't pick up a duplicate weapon!");
+                                return; // Exit the method without destroying the duplicate weapon
+                            }
+                        }
                         else if (weaponName == "redDotRifle")
                         {
                             if (!playerInventory.IsWeaponInInventory(FindObjectOfType<Player>().redDotRifle.gameObject))

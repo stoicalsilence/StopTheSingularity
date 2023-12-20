@@ -51,6 +51,7 @@ public class Player : MonoBehaviour
     public bool grenadePistolEquipped;
     public bool battleRifleEquipped;
     public bool grenadeEquipped;
+    public bool m9suppressedEquipped;
     public GameObject grapplingGun;
     public GameObject sword;
     public Firearm glock;
@@ -65,6 +66,7 @@ public class Player : MonoBehaviour
     public GrenadePistol grenadePistol;
     public BattleRifle battleRifle;
     public GrenadeWeapon grenade;
+    public Firearm m9suppressed;
 
     public AudioClip swordUnsheath;
     public AudioClip icePickUnStick;
@@ -215,6 +217,10 @@ public class Player : MonoBehaviour
         else if (grenadeEquipped)
         {
             ammoText.text = "Grenade";
+        }
+        else if (m9suppressedEquipped)
+        {
+            ammoText.text = "M9 Suppressed\n" + m9suppressed.ammoInMag.ToString() + " / " + m9suppressed.magCapacity.ToString();
         }
         else
         {
@@ -460,6 +466,25 @@ public class Player : MonoBehaviour
             {
                 grenade.throwForce = 5;
                 grenade.Shoot();
+            }
+        }
+
+        if (m9suppressedEquipped)
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0) && !m9suppressed.reloading)
+            {
+                m9suppressed.Shoot();
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                if (m9suppressed.ammoInMag > 0 && !m9suppressed.reloading && m9suppressed.ammoInMag < m9suppressed.magCapacity && m9suppressed.maxAmmo > 0)
+                {
+                    StartCoroutine(m9suppressed.reload());
+                }
+                else if (m9suppressed.ammoInMag == 0 && !m9suppressed.reloading && m9suppressed.ammoInMag < m9suppressed.magCapacity && m9suppressed.maxAmmo > 0)
+                {
+                    StartCoroutine(m9suppressed.reloadOnEmpty());
+                }
             }
         }
 
@@ -890,6 +915,12 @@ public class Player : MonoBehaviour
         grenade.gameObject.SetActive(true);
         grenade.playCockingNoise();
     }
+    public void equipM9Suppressed()
+    {
+        m9suppressedEquipped = true;
+        m9suppressed.gameObject.SetActive(true);
+        m9suppressed.playCockingNoise();
+    }
 
     public void unequipSword()
     {
@@ -980,5 +1011,11 @@ public class Player : MonoBehaviour
         grenade.StopAllCoroutines();
         grenade.gameObject.SetActive(false);
         grenadeEquipped = false;
+    }
+    public void unequipM9Suppressed()
+    {
+        m9suppressed.StopAllCoroutines();
+        m9suppressed.gameObject.SetActive(false);
+        m9suppressedEquipped = false;
     }
 }
