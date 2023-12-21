@@ -76,6 +76,7 @@ public class Soldier : MonoBehaviour
     public AudioClip[] deathSounds;
     public AudioClip[] alertThroughHit;
     public AudioClip[] painSounds;
+    public AudioClip[] footsteps;
 
     public bool blockAnims;
     public bool rotateTowardsPlayer;
@@ -92,6 +93,7 @@ public class Soldier : MonoBehaviour
     public bool crouching;
     Vector3 colliderStandingScale;
     float colliderStandingHeight;
+    private float lastFootstepTime;
 
     private void Start()
     {
@@ -129,6 +131,16 @@ public class Soldier : MonoBehaviour
 
         if (!isDead)
         {
+            float footstepInterval = 1.5f / agent.velocity.magnitude;
+            float timeSinceLastFootstep = Time.time - lastFootstepTime;
+
+            if (timeSinceLastFootstep >= footstepInterval)
+            {
+                AudioClip footstepSound = footsteps[Random.Range(0, footsteps.Length)];
+                audioSource.PlayOneShot(footstepSound);
+                lastFootstepTime = Time.time;
+            }
+
             if (!triggered)
             {
                 Vector3 raycastOrigin = transform.position;
