@@ -44,6 +44,8 @@ public class Soldier : MonoBehaviour
     public Transform magDropPos;
     public GameObject orangeLight;
     public GameObject bloodParticles;
+    public List<Transform> possibleTargets = new List<Transform>();
+    public List<Transform> seenTargets = new List<Transform>();
 
     public bool triggered;
     private RaycastHit hitInfo;
@@ -111,7 +113,6 @@ public class Soldier : MonoBehaviour
     public float idleSpoutInterval;
     public float wanderInterval;
 
-
     public bool shouldIdleChatter;
     public bool shouldCombatChatter;
     bool isPlayerAlive;
@@ -133,6 +134,8 @@ public class Soldier : MonoBehaviour
         lastIdleSpoutTime = Random.Range(0.5f, idleSpoutInterval);
         lastCombatSpoutTime = Random.Range(0.5f, combatSpoutInterval);
         lastWanderTime = Random.Range(2, wanderInterval);
+        possibleTargets.Add(FindObjectOfType<Player>().transform);
+
     }
 
     private void Update()
@@ -147,7 +150,7 @@ public class Soldier : MonoBehaviour
         {
             if (rotateTowardsPlayer)
             {
-                Vector3 directionToPlayer = player.position - transform.position;
+                Vector3 directionToPlayer = ReturnFirstValidTarget().position - transform.position;
                 directionToPlayer.y = 0;
 
                 Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer, Vector3.up);
@@ -169,26 +172,43 @@ public class Soldier : MonoBehaviour
 
                 if (!triggered)
                 {
-                    Vector3 raycastOrigin = transform.position;
-                    if (inCover) { raycastOrigin = transform.position + coverbonus; }
-
-                    Vector3 playerDirection = player.position - transform.position;
-                    float angleToPlayer = Vector3.Angle(transform.forward, playerDirection);
-                    if (angleToPlayer <= 90f)
+                    foreach (Transform target in possibleTargets)
                     {
-                        if (Physics.Raycast(raycastOrigin, playerDirection, out hitInfo, detectionRange))
+                        if (target.gameObject != null)
                         {
-                            if (hitInfo.collider.CompareTag("Player"))
+                            Vector3 raycastOrigin = transform.position;
+                            if (inCover) { raycastOrigin = transform.position + coverbonus; }
+
+                            Vector3 playerDirection = target.position - transform.position;
+                            float angleToPlayer = Vector3.Angle(transform.forward, playerDirection);
+                            if (angleToPlayer <= 90f)
                             {
-                                if (!CheckIfAnyInSquadTriggered())
+                                if (Physics.Raycast(raycastOrigin, playerDirection, out hitInfo, detectionRange))
                                 {
-                                    AlertSquad();
+                                    if (hitInfo.collider.CompareTag("Player"))
+                                    {
+                                        if (!CheckIfAnyInSquadTriggered())
+                                        {
+                                            AlertSquad();
+                                            Debug.Log(hitInfo.transform);
+                                            seenTargets.Add(hitInfo.transform);
+                                        }
+                                        GetTriggered();
+                                    }
+
+                                    if (hitInfo.collider.CompareTag("EnemyBody"))
+                                    {
+                                        if (!CheckIfAnyInSquadTriggered())
+                                        {
+                                            AlertSquad();
+                                            seenTargets.Add(hitInfo.transform);
+                                        }
+                                        GetTriggered();
+                                    }
                                 }
-                                GetTriggered();
                             }
                         }
                     }
-
                     if (intermittendIdleSpouts.Length > 0)
                     {
                         HandleIntermittendIdleSpouts();
@@ -259,9 +279,9 @@ public class Soldier : MonoBehaviour
                     float rightDot = Vector3.Dot(movementDirection, rightDir);
                     float forwardDot = Vector3.Dot(movementDirection, forwardDir);
                     float distanceToPlayer = 0;
-                    if (player.position != null)
+                    if (ReturnFirstValidTarget().position != null)
                     {
-                        distanceToPlayer = Vector3.Distance(transform.position, player.position);
+                        distanceToPlayer = Vector3.Distance(transform.position, ReturnFirstValidTarget().position);
                     }
 
                     if (agent.velocity.magnitude < 0.1f && !running)
@@ -305,12 +325,12 @@ public class Soldier : MonoBehaviour
                             }
                         }
                     }
-                    Physics.Raycast(transform.position, player.position - transform.position, out losInfo, detectionRange);
+                    Physics.Raycast(transform.position, ReturnFirstValidTarget().position - transform.position, out losInfo, detectionRange);
                     if (!meleeAttacking && distanceToPlayer < 2)
                     {
                         StartCoroutine(MeleeAttack());
                     }
-                    if (distanceToPlayer < minimumRange && losInfo.collider != null && losInfo.collider.CompareTag("Player"))
+                    if (distanceToPlayer < minimumRange && losInfo.collider != null && (losInfo.collider.CompareTag("Player") || losInfo.collider.CompareTag("EnemyBody")))
                     {
                         if (followTimer > 4)
                         {
@@ -629,7 +649,7 @@ public class Soldier : MonoBehaviour
             {
                 sol.GetTriggered();
                 sol.followTimer = 1.2f;
-                sol.lastSeenPlayerPos = player.position;
+                sol.lastSeenPlayerPos = ReturnFirstValidTarget().position;
             }
         }
     }
@@ -776,7 +796,7 @@ public class Soldier : MonoBehaviour
         int randomIndex = Random.Range(0, gunShots.Length);
         AudioClip sound = gunShots[randomIndex];
         audioSource.PlayOneShot(sound);
-        Vector3 directionToPlayer = player.position - bullethole.position;
+        Vector3 directionToPlayer = ReturnFirstValidTarget().position - bullethole.position;
         directionToPlayer = ApplyBulletInaccuracy(directionToPlayer);
 
         GameObject bulletObject = Instantiate(bulletPrefab, bullethole.position, Quaternion.identity);
@@ -805,7 +825,7 @@ public class Soldier : MonoBehaviour
         int randomIndex = Random.Range(0, gunShots.Length);
         AudioClip sound = gunShots[randomIndex];
         audioSource.PlayOneShot(sound);
-        Vector3 directionToPlayer = player.position - bullethole.position;
+        Vector3 directionToPlayer = ReturnFirstValidTarget().position - bullethole.position;
         directionToPlayer = ApplyBulletInaccuracy(directionToPlayer);
 
         GameObject bulletObject = Instantiate(bulletPrefab, bullethole.position, Quaternion.identity);
@@ -956,7 +976,7 @@ public class Soldier : MonoBehaviour
             audioSource.PlayOneShot(meleeAttackSounds[Random.Range(0, meleeAttackSounds.Length)]);
             yield return new WaitForSeconds(meleeAttackAnim.length / 2);
             player.gameObject.GetComponent<Player>().takeDamage(5);
-            Vector3 awayDirection = (player.transform.position - transform.position).normalized;
+            Vector3 awayDirection = (ReturnFirstValidTarget().transform.position - transform.position).normalized;
             player.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
             player.GetComponent<Rigidbody>().AddForce(awayDirection * 5, ForceMode.Impulse);
             yield return new WaitForSeconds(meleeAttackAnim.length / 2);
@@ -988,5 +1008,22 @@ public class Soldier : MonoBehaviour
                 }
             }
         }
+    }
+
+    public Transform ReturnFirstValidTarget()
+    {
+        foreach(Transform g in possibleTargets)
+        {
+            if(g.gameObject != null)
+            {
+                return g;
+            }
+            if(g.gameObject == null)
+            {
+                possibleTargets.Remove(g);
+            }
+        }
+        Untrigger();
+        return null;
     }
 }
