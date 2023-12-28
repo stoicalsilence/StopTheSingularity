@@ -315,41 +315,38 @@ public class PlayerMovement : MonoBehaviour
         if(!wallrunning) rb.useGravity = !OnSlope();
     }
 
-    private void speedControl()
+   private void speedControl()
+{
+
+    float currentSpeed = rb.velocity.magnitude;
+
+    if (OnSlope() && !exitingSlope)
     {
-        if (OnSlope() && !exitingSlope)
+        if (currentSpeed > moveSpeed)
         {
-            if (rb.velocity.magnitude > moveSpeed)
-            {
-                rb.velocity = rb.velocity.normalized * moveSpeed;
-            }
+            rb.velocity = rb.velocity.normalized * moveSpeed;
         }
-        else
-        {
-            Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+    }
+    else
+    {
+        Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
-            if (flatVel.magnitude > moveSpeed && state == MovementState.air || flatVel.magnitude > moveSpeed && state == MovementState.crouching)
-            {
-                Vector3 limitedVel = flatVel.normalized * moveSpeed;
-                rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
-            }
+        if ((flatVel.magnitude > moveSpeed) && (state == MovementState.air || state == MovementState.crouching))
+        {
+            Vector3 limitedVel = Vector3.Lerp(flatVel.normalized * moveSpeed, flatVel, Time.deltaTime * 2.5f);
+            rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
         }
+    }
 
-        if (!isCrouching && state != MovementState.sprinting)
-        {
-            if (moveSpeed < walkSpeed)
-            {
-                moveSpeed = Mathf.Lerp(moveSpeed, walkSpeed, Time.deltaTime * 2.5f);
-            }
-            else if (moveSpeed > walkSpeed)
-            {
-                moveSpeed = walkSpeed;
-            }
-        }
-    if(rb.velocity.magnitude > 8 && wallrunning)
-        {
-            rb.velocity = rb.velocity.normalized * 8;
-        } 
+    if (!isCrouching && state != MovementState.sprinting)
+    {
+        moveSpeed = Mathf.Lerp(moveSpeed, walkSpeed, Time.deltaTime * 2.5f);
+    }
+
+    if (rb.velocity.magnitude > 8 && wallrunning)
+    {
+        rb.velocity = Vector3.Lerp(rb.velocity.normalized * 8, rb.velocity, Time.deltaTime * 2.5f);
+    }
 }
 
     private void jump()

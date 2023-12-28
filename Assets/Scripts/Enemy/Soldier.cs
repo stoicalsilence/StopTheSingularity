@@ -26,6 +26,7 @@ public class Soldier : MonoBehaviour
     public int ammo = 20;
     public float sidestepInterval= 2f;
     public float chanceToRetreatForReload;
+    public bool isIdleWanderer;
 
     [Header("Necessary References")]
     public Transform bullethole;
@@ -63,19 +64,27 @@ public class Soldier : MonoBehaviour
     public AnimationClip pointFinger;
     public AnimationClip reload;
     public AnimationClip dieCrouching1;
+    public AnimationClip meleeAttackVsStanding;
+    public AnimationClip meleeAttackVsCrouching;
 
     public AnimationClip[] standingDeaths;
+
     [Header("AudioClips")]
     public AudioClip magRelease;
     public AudioClip magInsert;
     public AudioClip radioBeep;
     public AudioClip shotgunPump;
+    public AudioClip[] meleeAttackSounds;
     public AudioClip[] enemySpotted;
     public AudioClip[] enemyReaquired;
     public AudioClip[] acknowledged;
     public AudioClip[] deathSounds;
     public AudioClip[] alertThroughHit;
+    public AudioClip[] lostTheEnemy;
+    public AudioClip[] reactToSquadDeath;
     public AudioClip[] painSounds;
+    public AudioClip[] intermittendCombatSpouts;
+    public AudioClip[] intermittendIdleSpouts;
     public AudioClip[] footsteps;
 
     public bool blockAnims;
@@ -91,9 +100,21 @@ public class Soldier : MonoBehaviour
     bool running;
     bool runningToReload;
     public bool crouching;
+    public bool meleeAttacking;
     Vector3 colliderStandingScale;
     float colliderStandingHeight;
     private float lastFootstepTime;
+    private float lastCombatSpoutTime;
+    public float combatSpoutInterval;
+    private float lastIdleSpoutTime;
+    private float lastWanderTime;
+    public float idleSpoutInterval;
+    public float wanderInterval;
+
+
+    public bool shouldIdleChatter;
+    public bool shouldCombatChatter;
+    bool isPlayerAlive;
 
     private void Start()
     {
@@ -109,214 +130,310 @@ public class Soldier : MonoBehaviour
 
         colliderStandingScale = transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center;
         colliderStandingHeight = transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().height;
+        lastIdleSpoutTime = Random.Range(0.5f, idleSpoutInterval);
+        lastCombatSpoutTime = Random.Range(0.5f, combatSpoutInterval);
+        lastWanderTime = Random.Range(2, wanderInterval);
     }
 
     private void Update()
     {
+        isPlayerAlive = !player.gameObject.GetComponent<Player>().dead;
         if (player.gameObject.GetComponent<Player>().dead && triggered)
         {
             //say enemy is history
             Untrigger();
         }
-
-        if (rotateTowardsPlayer)
+        if (isPlayerAlive)
         {
-            Vector3 directionToPlayer = player.position - transform.position;
-            directionToPlayer.y = 0;
-
-            Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer, Vector3.up);
-            targetRotation *= Quaternion.Euler(0f, 180, 0f);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * damping);
-        }
-
-        if (!isDead)
-        {
-            float footstepInterval = 1.5f / agent.velocity.magnitude;
-            float timeSinceLastFootstep = Time.time - lastFootstepTime;
-
-            if (timeSinceLastFootstep >= footstepInterval)
+            if (rotateTowardsPlayer)
             {
-                AudioClip footstepSound = footsteps[Random.Range(0, footsteps.Length)];
-                audioSource.PlayOneShot(footstepSound);
-                lastFootstepTime = Time.time;
+                Vector3 directionToPlayer = player.position - transform.position;
+                directionToPlayer.y = 0;
+
+                Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer, Vector3.up);
+                targetRotation *= Quaternion.Euler(0f, 180, 0f);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * damping);
             }
 
-            if (!triggered)
+            if (!isDead)
             {
-                Vector3 raycastOrigin = transform.position;
-                if (inCover) { raycastOrigin = transform.position + coverbonus; }
+                float footstepInterval = 1.5f / agent.velocity.magnitude;
+                float timeSinceLastFootstep = Time.time - lastFootstepTime;
 
-                Vector3 playerDirection = player.position - transform.position;
-                float angleToPlayer = Vector3.Angle(transform.forward, playerDirection);
-                if (angleToPlayer <= 90f) 
+                if (timeSinceLastFootstep >= footstepInterval)
                 {
-                    if (Physics.Raycast(raycastOrigin, playerDirection, out hitInfo, detectionRange))
+                    AudioClip footstepSound = footsteps[Random.Range(0, footsteps.Length)];
+                    audioSource.PlayOneShot(footstepSound);
+                    lastFootstepTime = Time.time;
+                }
+
+                if (!triggered)
+                {
+                    Vector3 raycastOrigin = transform.position;
+                    if (inCover) { raycastOrigin = transform.position + coverbonus; }
+
+                    Vector3 playerDirection = player.position - transform.position;
+                    float angleToPlayer = Vector3.Angle(transform.forward, playerDirection);
+                    if (angleToPlayer <= 90f)
                     {
-                        if (hitInfo.collider.CompareTag("Player"))
+                        if (Physics.Raycast(raycastOrigin, playerDirection, out hitInfo, detectionRange))
                         {
-                            if (!CheckIfAnyInSquadTriggered())
+                            if (hitInfo.collider.CompareTag("Player"))
                             {
-                                AlertSquad();
+                                if (!CheckIfAnyInSquadTriggered())
+                                {
+                                    AlertSquad();
+                                }
+                                GetTriggered();
                             }
-                            GetTriggered();
                         }
                     }
-                }
-            }
 
-            if (triggered && !blockAnims)
-            {
-                if (running)
-                {
-                    if (!isShieldSoldier) { 
-                    crouching = false;
-                    animator.SetBool("Combat_Crouching", false);
-                    }
-                    agent.speed = movementSpeedRunning;
-                    TurnOffAnimations();
-                    animator.SetBool("Combat_Run", true);
-                }
-                if (!running)
-                {
-                    agent.speed = movementSpeedWalking;
-                    animator.SetBool("Combat_Run", false);
-                }
-
-                if (!isShieldSoldier)
-                {
-                    if (crouching)
+                    if (intermittendIdleSpouts.Length > 0)
                     {
-                        animator.SetBool("Combat_Crouching", true);
-                        transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center = new Vector3(transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center.x, 0.60f, transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center.z);
-                        transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().height = 1.3f;
+                        HandleIntermittendIdleSpouts();
                     }
-                    else
+
+                    if (isIdleWanderer)
                     {
-                        animator.SetBool("Combat_Crouching", false);
-                        transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center = colliderStandingScale;
-                        transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().height = colliderStandingHeight;
-                    }
-                }
-
-                Vector3 currentPosition = transform.position.normalized;
-                Vector3 movementDirection = (currentPosition - previousPosition).normalized;
-                Vector3 rightDir = transform.right;
-                Vector3 forwardDir = transform.forward;
-
-                float rightDot = Vector3.Dot(movementDirection, rightDir);
-                float forwardDot = Vector3.Dot(movementDirection, forwardDir);
-
-                float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-                if (agent.velocity.magnitude < 0.1f && !running)
-                {
-                    TurnOffAnimations();
-                    animator.SetBool("Combat_Aiming", true);
-                }
-
-                if (agent.velocity.magnitude > 0.1f && (Mathf.Abs(agent.velocity.x) > 0.1f || Mathf.Abs(agent.velocity.z) > 0.1f) && !running)
-                {
-                    if (Mathf.Abs(forwardDot) > Mathf.Abs(rightDot))
-                    {
-                        // Moving forward or backward
-                        if (forwardDot > 0)
+                        if (agent.velocity.magnitude > 1)
                         {
-                            // Moving forward
-                            TurnOffAnimations();
+                            animator.SetBool("Idle", false);
                             animator.SetBool("MovingForward", true);
                         }
-                        else if (forwardDot < 0)
+                        else
                         {
-                            // Moving backward
-                            TurnOffAnimations();
-                            animator.SetBool("MovingBackwards", true);
+                            animator.SetBool("MovingForward", false);
+                            animator.SetBool("Idle", true);
+                        }
+                        lastWanderTime += Time.deltaTime;
+                        if (lastWanderTime >= wanderInterval)
+                        {
+                            lastWanderTime = Random.Range(2, wanderInterval);
+                            Vector3 dir = Calculate8Direction();
+                            agent.SetDestination(dir);
+                            agent.updateRotation = true;
+                        }
+                    }
+                }
+
+                if (triggered && !blockAnims)
+                {
+                    if (running)
+                    {
+                        if (!isShieldSoldier)
+                        {
+                            crouching = false;
+                            animator.SetBool("Combat_Crouching", false);
+                        }
+                        agent.speed = movementSpeedRunning;
+                        TurnOffAnimations();
+                        animator.SetBool("Combat_Run", true);
+                    }
+                    if (!running)
+                    {
+                        agent.speed = movementSpeedWalking;
+                        animator.SetBool("Combat_Run", false);
+                    }
+
+                    if (!isShieldSoldier)
+                    {
+                        if (crouching)
+                        {
+                            animator.SetBool("Combat_Crouching", true);
+                            transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center = new Vector3(transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center.x, 0.60f, transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center.z);
+                            transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().height = 1.3f;
+                        }
+                        else
+                        {
+                            animator.SetBool("Combat_Crouching", false);
+                            transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().center = colliderStandingScale;
+                            transform.GetChild(0).gameObject.GetComponent<CapsuleCollider>().height = colliderStandingHeight;
+                        }
+                    }
+                    Vector3 currentPosition = transform.position.normalized;
+                    Vector3 movementDirection = (currentPosition - previousPosition).normalized;
+                    Vector3 rightDir = transform.right;
+                    Vector3 forwardDir = transform.forward;
+
+                    float rightDot = Vector3.Dot(movementDirection, rightDir);
+                    float forwardDot = Vector3.Dot(movementDirection, forwardDir);
+                    float distanceToPlayer = 0;
+                    if (player.position != null)
+                    {
+                        distanceToPlayer = Vector3.Distance(transform.position, player.position);
+                    }
+
+                    if (agent.velocity.magnitude < 0.1f && !running)
+                    {
+                        TurnOffAnimations();
+                        animator.SetBool("Combat_Aiming", true);
+                    }
+
+                    if (agent.velocity.magnitude > 0.1f && (Mathf.Abs(agent.velocity.x) > 0.1f || Mathf.Abs(agent.velocity.z) > 0.1f) && !running)
+                    {
+                        if (Mathf.Abs(forwardDot) > Mathf.Abs(rightDot))
+                        {
+                            // Moving forward or backward
+                            if (forwardDot > 0)
+                            {
+                                // Moving forward
+                                TurnOffAnimations();
+                                animator.SetBool("MovingForward", true);
+                            }
+                            else if (forwardDot < 0)
+                            {
+                                // Moving backward
+                                TurnOffAnimations();
+                                animator.SetBool("MovingBackwards", true);
+                            }
+                        }
+                        else
+                        {
+                            // Moving left or right
+                            if (rightDot > 0)
+                            {
+                                // Moving right
+                                TurnOffAnimations();
+                                animator.SetBool("MovingRight", true);
+                            }
+                            else if (rightDot < 0)
+                            {
+                                // Moving left
+                                TurnOffAnimations();
+                                animator.SetBool("MovingLeft", true);
+                            }
+                        }
+                    }
+                    Physics.Raycast(transform.position, player.position - transform.position, out losInfo, detectionRange);
+                    if (!meleeAttacking && distanceToPlayer < 2)
+                    {
+                        StartCoroutine(MeleeAttack());
+                    }
+                    if (distanceToPlayer < minimumRange && losInfo.collider != null && losInfo.collider.CompareTag("Player"))
+                    {
+                        if (followTimer > 4)
+                        {
+                            int r = Random.Range(0, 100);
+                            if (r < 75)
+                            {
+                                StartCoroutine(TransmitVoice(enemyReaquired[Random.Range(0, enemyReaquired.Length)]));
+                            }
+                        }
+                        followTimer = 0;
+                        lastSeenPlayerPos = losInfo.point;
+                        if (!meleeAttacking)
+                        {
+                            AttackPlayer();
+                        }
+                        RallySquadToFight();
+                    }
+                    else if (losInfo.collider && losInfo.collider.gameObject.transform.root.GetComponent<Soldier>())
+                    {
+                        Soldier sol = losInfo.collider.gameObject.transform.root.GetComponent<Soldier>();
+                        if (sol != null)
+                        {
+                            if (!sol.crouching && !sol.running && sol != this && sol.followTimer < 2)
+                            {
+                                sol.Crouch();
+                            }
                         }
                     }
                     else
                     {
-                        // Moving left or right
-                        if (rightDot > 0)
+                        if (!runningToReload)
+                            followTimer += Time.deltaTime;
+                        if (followTimer < 1)
                         {
-                            // Moving right
-                            TurnOffAnimations();
-                            animator.SetBool("MovingRight", true);
+                            AttackPlayer();
+                            running = false;
+                            agent.updateRotation = false;
                         }
-                        else if (rightDot < 0)
+                        else if (followTimer > 3 && followTimer < 9)
                         {
-                            // Moving left
-                            TurnOffAnimations();
-                            animator.SetBool("MovingLeft", true);
+                            agent.SetDestination(lastSeenPlayerPos);
+                            int r = Random.Range(0, 100);
+                            if (r < 25)
+                            {
+                                running = true;
+                            }
+                            if (Vector3.Distance(transform.position, lastSeenPlayerPos) <= 1f)
+                            {
+                                running = false;
+                                TurnOffAnimations();
+                                animator.SetBool("Combat_Aiming", true);
+                            }
                         }
-                    }
-                }
-                Physics.Raycast(transform.position, player.position - transform.position, out losInfo, detectionRange);
-
-                if (distanceToPlayer < minimumRange && losInfo.collider != null && losInfo.collider.CompareTag("Player"))
-                {
-                    if(followTimer > 4)
-                    {
-                        int r = Random.Range(0, 100);
-                        if (r < 75)
-                        {
-                            StartCoroutine(TransmitVoice(enemyReaquired[Random.Range(0, enemyReaquired.Length)]));
-                        }
-                    }
-                    followTimer = 0;
-                    lastSeenPlayerPos = losInfo.point;
-                    AttackPlayer();
-                    RallySquadToFight();
-                }
-                else if (losInfo.collider.gameObject.transform.root.GetComponent<Soldier>())
-                {
-                    Soldier sol = losInfo.collider.gameObject.transform.root.GetComponent<Soldier>();
-                    if (sol != null)
-                    {
-                        if (!sol.crouching && !sol.running && sol != this)
-                        {
-                            sol.Crouch();
-                        }
-                    }
-                }
-                else
-                {
-                    if (!runningToReload)
-                    followTimer += Time.deltaTime;
-                    if (followTimer < 1)
-                    {
-                        AttackPlayer();
-                        running = false;
-                    }
-                    else if(followTimer > 3 && followTimer < 15)
-                    {
-                        agent.SetDestination(lastSeenPlayerPos);
-                        int r = Random.Range(0, 100);
-                        if (r < 25)
-                        {
-                            running = true;
-                        }
-                        if(Vector3.Distance(transform.position, lastSeenPlayerPos) <= 1f)
+                        else if (followTimer > 7 && followTimer < 14)
                         {
                             running = false;
-                            TurnOffAnimations();
-                            animator.SetBool("Combat_Aiming", true);
+                            if (agent.velocity.magnitude > 1)
+                            {
+                                animator.SetBool("Combat_Aiming", false);
+                                animator.SetBool("MovingForward", true);
+                            }
+                            else
+                            {
+                                animator.SetBool("MovingForward", false);
+                                animator.SetBool("Combat_Aiming", true);
+                            }
+                            lastWanderTime += Time.deltaTime;
+                            if (lastWanderTime >= wanderInterval)
+                            {
+                                lastWanderTime = Random.Range(2, wanderInterval);
+                                Vector3 dir = Calculate8Direction();
+                                agent.SetDestination(dir);
+                                agent.updateRotation = true;
+                            }
+                        }
+                        else if (followTimer > 15)
+                        {
+                            Untrigger();
+                            isIdleWanderer = true;
                         }
                     }
-                    else if(followTimer > 15)
+
+                    previousPosition = currentPosition.normalized;
+
+                    if (followTimer < 2 && intermittendCombatSpouts.Length > 0)
                     {
-                        Untrigger();//"LOST THE TARGET"
+                        HandleIntermittendCombatSpouts();
                     }
                 }
-
-                previousPosition = currentPosition.normalized;
 
             }
 
+            if (isDead)
+            {
+                rotateTowardsPlayer = false;
+                agent.ResetPath();
+            }
         }
+    }
 
-        if (isDead)
+    private void HandleIntermittendCombatSpouts()
+    {
+        if (shouldCombatChatter && squad.Count > 0)
         {
-            rotateTowardsPlayer = false;
-            agent.ResetPath();
+            lastCombatSpoutTime += Time.deltaTime;
+            if (lastCombatSpoutTime >= combatSpoutInterval)
+            {
+                StartCoroutine(TransmitVoice(intermittendCombatSpouts[Random.Range(0, intermittendCombatSpouts.Length)]));
+                lastCombatSpoutTime = Random.Range(5, combatSpoutInterval);
+            }
+        }
+    }
+
+    private void HandleIntermittendIdleSpouts()
+    {
+        if (shouldIdleChatter)
+        {
+            lastIdleSpoutTime += Time.deltaTime;
+            if (lastIdleSpoutTime >= idleSpoutInterval)
+            {
+                StartCoroutine(TransmitVoice(intermittendIdleSpouts[Random.Range(0, intermittendIdleSpouts.Length)]));
+                lastIdleSpoutTime = Random.Range(5, idleSpoutInterval);
+            }
         }
     }
 
@@ -498,7 +615,7 @@ public class Soldier : MonoBehaviour
     {
         blockAnims = true;
         animator.Play(pointFinger.name);
-        //StartCoroutine(TransmitVoice(alertThroughHit[Random.Range(0, alertThroughHit.Length)]));
+        audioSource.PlayOneShot(alertThroughHit[Random.Range(0, alertThroughHit.Length)]);
         Invoke("stopBlockingAnims", pointFinger.length);
         Invoke("TriggerSquad", pointFinger.length);
         Invoke("resumeAiming", pointFinger.length);
@@ -539,6 +656,14 @@ public class Soldier : MonoBehaviour
                 StartCoroutine(DisableBlood(blood, 0.39f));
                 Destroy(blood, 4f);
             }
+        }
+
+        if(isDead && collision.gameObject.CompareTag("PlayerAttack"))
+        {
+            Vector3 collisionPoint = collision.GetContact(0).point;
+            GameObject blood = Instantiate(bloodParticles, collisionPoint, Quaternion.identity);
+            StartCoroutine(DisableBlood(blood, 0.39f));
+            Destroy(blood, 4f);
         }
 
         if (collision.gameObject.CompareTag("EnemyLightAttack"))
@@ -624,6 +749,7 @@ public class Soldier : MonoBehaviour
             Destroy(blood2, 2f);
             Destroy(blood3, 2f);
             FindObjectOfType<KillText>().getReportedTo();
+            SquadReactToDeath();
             Destroy(this.gameObject, 4.2f);
         }
     }
@@ -745,6 +871,52 @@ public class Soldier : MonoBehaviour
         return chosenPos;
     }
 
+    private Vector3 Calculate8Direction()
+    {
+        int random = Random.Range(0, 8);
+        float distance = Random.Range(1f, 8.0f);
+
+        Vector3 newPosition = transform.position;
+
+        switch (random)
+        {
+            case 0:
+                // Move forward
+                newPosition += transform.forward * distance;
+                break;
+            case 1:
+                // Move forward-left
+                newPosition += (transform.forward - transform.right).normalized * distance;
+                break;
+            case 2:
+                // Move left
+                newPosition -= transform.right * distance;
+                break;
+            case 3:
+                // Move back-left
+                newPosition -= (transform.forward + transform.right).normalized * distance;
+                break;
+            case 4:
+                // Move backward
+                newPosition -= transform.forward * distance;
+                break;
+            case 5:
+                // Move back-right
+                newPosition -= (-transform.forward + transform.right).normalized * distance;
+                break;
+            case 6:
+                // Move right
+                newPosition += transform.right * distance;
+                break;
+            case 7:
+                // Move forward-right
+                newPosition += (transform.forward + transform.right).normalized * distance;
+                break;
+        }
+
+        return newPosition;
+    }
+
     void playMagRelease()
     {
         audioSource.PlayOneShot(magRelease);    
@@ -768,11 +940,53 @@ public class Soldier : MonoBehaviour
         audioSource.PlayOneShot(radioBeep);
     }
 
+    public IEnumerator MeleeAttack()
+    {
+        if (!meleeAttacking)
+        {
+            meleeAttacking = true;
+            AnimationClip meleeAttackAnim = meleeAttackVsStanding;
+            if (player.gameObject.GetComponent<PlayerMovement>().isCrouching)
+            {
+                meleeAttackAnim = meleeAttackVsCrouching;
+            }
+            TurnOffAnimations();
+            blockAnims = true;
+            animator.Play(meleeAttackAnim.name);
+            audioSource.PlayOneShot(meleeAttackSounds[Random.Range(0, meleeAttackSounds.Length)]);
+            yield return new WaitForSeconds(meleeAttackAnim.length / 2);
+            player.gameObject.GetComponent<Player>().takeDamage(5);
+            Vector3 awayDirection = (player.transform.position - transform.position).normalized;
+            player.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
+            player.GetComponent<Rigidbody>().AddForce(awayDirection * 5, ForceMode.Impulse);
+            yield return new WaitForSeconds(meleeAttackAnim.length / 2);
+            resumeAiming();
+            meleeAttacking = false;
+        }
+    }
+
     public void Untrigger()
     {
         rotateTowardsPlayer = false;
         triggered = false;
         TurnOffAnimations();
         animator.SetBool("Idle", true);
+        if(Random.Range(0,100) < 25)
+        StartCoroutine(TransmitVoice(lostTheEnemy[Random.Range(0, lostTheEnemy.Length)]));
+    }
+
+    public void SquadReactToDeath()
+    {
+        if(squad.Count > 0)
+        {
+            foreach(Soldier sol in squad)
+            {
+                if(sol && (Random.Range(0,100) < 5) && !sol.isDead)
+                {
+                    sol.StartCoroutine(sol.TransmitVoice(reactToSquadDeath[Random.Range(0, reactToSquadDeath.Length)]));
+                    return;
+                }
+            }
+        }
     }
 }
