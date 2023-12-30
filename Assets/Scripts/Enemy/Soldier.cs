@@ -451,11 +451,21 @@ public class Soldier : MonoBehaviour
                 validSafeSpots.Add(safeSpot);
             }
         }
+        if(validSafeSpots.Count == 0)
+        {
+            validSafeSpots.Add(gameObject);
+        }
+        validSafeSpots.Sort((a, b) =>
+            Vector3.Distance(transform.position, a.transform.position)
+            .CompareTo(Vector3.Distance(transform.position, b.transform.position)));
+
+        int numberOfValidSpots = Mathf.Min(3, validSafeSpots.Count);
+
         int r = Random.Range(0, 100);
         if (validSafeSpots.Count > 0 && r < chanceToRetreatForReload)
         {
             runningToReload = true;
-            int randomIndex = Random.Range(0, validSafeSpots.Count);
+            int randomIndex = Random.Range(0, numberOfValidSpots);
             retreatSpot = validSafeSpots[randomIndex].transform.position;
             TurnOffAnimations();
             running = true;
