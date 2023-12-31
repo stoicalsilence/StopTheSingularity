@@ -84,7 +84,7 @@ public class Eyenemy : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.CompareTag("PlayerAttack"))
+        if (collision.collider.CompareTag("PlayerAttack") || collision.collider.CompareTag("EnemyLightAttack"))
         {
             TakeDamage();
             Knockback(collision.GetContact(0).point);
@@ -159,6 +159,14 @@ public class Eyenemy : MonoBehaviour
             FindObjectOfType<KillText>().getReportedTo();
             ScreenShake.Shake(0.25f, 0.05f);
             Destroy(this.gameObject, 15f);
+            Soldier[] soldiers = FindObjectsOfType<Soldier>();
+            if(soldiers.Length > 0)
+            {
+                foreach(Soldier sol in soldiers)
+                {
+                    sol.possibleTargets.Remove(this.transform);
+                }
+            }
             Destroy(this);
         }
     }

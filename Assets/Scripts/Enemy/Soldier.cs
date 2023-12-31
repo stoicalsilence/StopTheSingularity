@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -134,12 +135,18 @@ public class Soldier : MonoBehaviour
         lastIdleSpoutTime = Random.Range(0.5f, idleSpoutInterval);
         lastCombatSpoutTime = Random.Range(0.5f, combatSpoutInterval);
         lastWanderTime = Random.Range(2, wanderInterval);
-        possibleTargets.Add(FindObjectOfType<Player>().transform);
+       // possibleTargets.Add(FindObjectOfType<Player>().transform);
+        possibleTargets.AddRange(FindObjectsOfType<Killbot>()
+        .Select(killbot => killbot.transform));
 
+        possibleTargets.AddRange(FindObjectsOfType<Eyenemy>()
+        .Select(eyenemy => eyenemy.transform));
     }
 
     private void Update()
     {
+        possibleTargets.RemoveAll(t => t == null);
+        seenTargets.RemoveAll(t => t == null);
         isPlayerAlive = !player.gameObject.GetComponent<Player>().dead;
         if (player.gameObject.GetComponent<Player>().dead && triggered)
         {
@@ -198,6 +205,7 @@ public class Soldier : MonoBehaviour
 
                                     if (hitInfo.collider.CompareTag("EnemyBody"))
                                     {
+                                        Debug.Log(hitInfo.transform.gameObject.name);
                                         if (!CheckIfAnyInSquadTriggered())
                                         {
                                             AlertSquad();
@@ -975,7 +983,18 @@ public class Soldier : MonoBehaviour
             animator.Play(meleeAttackAnim.name);
             audioSource.PlayOneShot(meleeAttackSounds[Random.Range(0, meleeAttackSounds.Length)]);
             yield return new WaitForSeconds(meleeAttackAnim.length / 2);
-            player.gameObject.GetComponent<Player>().takeDamage(5);
+            if (seenTargets[0].transform == player)
+            {
+                player.gameObject.GetComponent<Player>().takeDamage(5);
+            }
+            if (seenTargets[0].gameObject.GetComponent<Killbot>())
+            {
+                seenTargets[0].gameObject.GetComponent<Killbot>().takeDamage();
+            }
+            if (seenTargets[0].gameObject.GetComponent<Eyenemy>())
+            {
+                seenTargets[0].gameObject.GetComponent<Eyenemy>().TakeDamage();
+            }
             Vector3 awayDirection = (ReturnFirstValidTarget().transform.position - transform.position).normalized;
             player.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
             player.GetComponent<Rigidbody>().AddForce(awayDirection * 5, ForceMode.Impulse);
