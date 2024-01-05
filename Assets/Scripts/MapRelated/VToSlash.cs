@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class VToSlash : MonoBehaviour
 {
+   public bool tooltipfalse;
     // Update is called once per frame
     void Update()
     {
@@ -12,7 +13,9 @@ public class VToSlash : MonoBehaviour
             int e = Random.Range(0, FindObjectOfType<Player>().plasmaSwings.Length);
             AudioClip d = FindObjectOfType<Player>().plasmaSwings[e];
             FindObjectOfType<Player>().plamsatanasound.PlayOneShot(d);
-            FindObjectOfType<Tooltip>().getReportedTo("Press F to slash with the Plasmatana®!");
+
+            if (!tooltipfalse) FindObjectOfType<Tooltip>().getReportedTo("Press F to slash with the Plasmatana®!");
+
             Destroy(this.gameObject);
         }
     }

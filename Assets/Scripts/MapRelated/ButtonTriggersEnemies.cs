@@ -37,8 +37,10 @@ public class ButtonTriggersEnemies : MonoBehaviour
             }
             foreach (RollingEnemy roller in rollers)
             {
+            if(roller)
             roller.getTriggered();
             }
-        puteyBoss.startBossFight();
+            if(puteyBoss != null)
+                puteyBoss.startBossFight();
     }
 }

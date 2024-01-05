@@ -177,10 +177,8 @@ public class Killbot : MonoBehaviour
                     {
                         getTriggered();
                     }
-                    int randomIndex = Random.Range(0, damageSounds.Length);
-                    AudioClip hitSound2 = damageSounds[randomIndex];
-                    audioSource.clip = hitSound2;
-                    audioSource.PlayOneShot(audioSource.clip);
+                    if(audioSource)
+                    audioSource.PlayOneShot(damageSounds[0]);
                     Vector3 collisionPoint = collision.GetContact(0).point;
                     GameObject ded = Instantiate(collisionParticles, collisionPoint, Quaternion.identity);
                     Destroy(ded, 5f);
@@ -220,9 +218,11 @@ public class Killbot : MonoBehaviour
                             Vector3 randomForce = Random.onUnitSphere * Random.Range(2f, 5f);
                             Vector3 randomTorque = new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f), Random.Range(-10f, 10f));
 
-                            childRigidbody.AddForce(randomForce, ForceMode.Impulse);
-                            childRigidbody.AddTorque(randomTorque, ForceMode.Impulse);
-
+                            if (childRigidbody)
+                            {
+                                childRigidbody.AddForce(randomForce, ForceMode.Impulse);
+                                childRigidbody.AddTorque(randomTorque, ForceMode.Impulse);
+                            }
                             BoxCollider boxCollider = child.gameObject.GetComponent<BoxCollider>();
                             if (boxCollider != null)
                             {

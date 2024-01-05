@@ -99,8 +99,10 @@ public class PuterTurret : MonoBehaviour
                 transform.rotation = Quaternion.Lerp(transform.rotation, desiredRotation, Time.deltaTime);
 
                 float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-                if (distanceToPlayer <= shootingRange)
+                RaycastHit hit;
+                Vector3 rayDirection = player.position - transform.position;
+                Physics.Raycast(transform.position, rayDirection, out hit, detectionRange);
+                if (distanceToPlayer <= shootingRange && hit.collider.CompareTag("Player"))
                 {
                     // Player is within shooting range, start shooting
                     if (Time.time >= nextShotTime)
@@ -222,9 +224,11 @@ public class PuterTurret : MonoBehaviour
                             Vector3 randomForce = Random.onUnitSphere * Random.Range(2f, 5f);
                             Vector3 randomTorque = new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f), Random.Range(-10f, 10f));
 
-                            childRigidbody.AddForce(randomForce, ForceMode.Impulse);
-                            childRigidbody.AddTorque(randomTorque, ForceMode.Impulse);
-
+                            if (childRigidbody)
+                            {
+                                childRigidbody.AddForce(randomForce, ForceMode.Impulse);
+                                childRigidbody.AddTorque(randomTorque, ForceMode.Impulse);
+                            }
                             BoxCollider boxCollider = child.gameObject.GetComponent<BoxCollider>();
                             CapsuleCollider caps = child.gameObject.GetComponent<CapsuleCollider>();
                             if (boxCollider != null)
