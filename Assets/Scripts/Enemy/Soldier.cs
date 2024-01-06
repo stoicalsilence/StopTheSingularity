@@ -305,7 +305,9 @@ public class Soldier : MonoBehaviour
                             }
                         }
                     }
-                    Physics.Raycast(transform.position, player.position - transform.position, out losInfo, detectionRange);
+                    Vector3 raycastOrigin = transform.position;
+                    if (inCover) { raycastOrigin = transform.position + coverbonus; }
+                    Physics.Raycast(raycastOrigin, player.position - transform.position, out losInfo, detectionRange);
                     if (!meleeAttacking && distanceToPlayer < 2)
                     {
                         StartCoroutine(MeleeAttack());
@@ -635,6 +637,7 @@ public class Soldier : MonoBehaviour
     {
         foreach(Soldier sol in squad)
         {
+            sol.lastSeenPlayerPos = player.position;
             if (sol.followTimer > 6)
             {
                 sol.GetTriggered();

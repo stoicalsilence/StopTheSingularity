@@ -10,7 +10,7 @@ public class TriggeredSound : MonoBehaviour
 
     public Subtitles subtitles;
 
-    private bool hasTriggered = false;
+    public bool hasTriggered = false;
 
     public bool showSubtitles;
 
@@ -24,6 +24,7 @@ public class TriggeredSound : MonoBehaviour
 
     public void GetTriggered()
     {
+        Destroy(trigger);
         hasTriggered = true;
         audioSource.PlayOneShot(clip);
 
