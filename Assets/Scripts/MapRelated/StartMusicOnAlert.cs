@@ -5,7 +5,7 @@ using UnityEngine;
 public class StartMusicOnAlert : MonoBehaviour
 {
     public Soldier[] sols;
-    public AudioSource music;
+    public AudioSource music, muffledwar;
     void Start()
     {
         sols = FindObjectsOfType<Soldier>();
@@ -19,6 +19,7 @@ public class StartMusicOnAlert : MonoBehaviour
             if (sol.triggered)
             {
                 music.Play();
+                muffledwar.volume = 0.2f;
                 Destroy(this);
             }
         }
