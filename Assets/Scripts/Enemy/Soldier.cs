@@ -51,7 +51,7 @@ public class Soldier : MonoBehaviour
     private float shootTimer = 0f;
     private float sidestepTimer = 0f;
     public float followTimer = 0f;
-    private bool isDead;
+    public bool isDead;
     private Rigidbody rb;
     private Transform player;
     public Animator animator;
