@@ -9,7 +9,15 @@ public class ExplosiveBarrel : MonoBehaviour
     public GameObject particles;
     public GameObject newparticles;
     Collider[] sorroundingObjects;
+    public int playerpushforce;
 
+    private void Start()
+    {
+        if(playerpushforce == 0)
+        {
+            playerpushforce = 6;
+        }
+    }
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "PlayerAttack" || collision.gameObject.name =="EnemyBullet(Clone)")
@@ -72,6 +80,17 @@ public class ExplosiveBarrel : MonoBehaviour
                 {
                     en5.TakeDamage();
                 }
+            }
+
+            var en6 = obj.GetComponent<Player>();
+            if(en6 != null)
+            {
+                Vector3 pushDirection = this.transform.position - transform.position;
+                pushDirection.y = Random.Range(2,4);
+
+                pushDirection = pushDirection.normalized;
+
+                FindObjectOfType<Player>().gameObject.GetComponent<Rigidbody>().AddForce(pushDirection * playerpushforce, ForceMode.Impulse);
             }
 
             //var barrel = obj.GetComponent<ExplosiveBarrel>();

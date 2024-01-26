@@ -8,6 +8,11 @@ public class EliteSquadHPSlider : MonoBehaviour
     public Slider slider;
     public Soldier[] eliteSoldiers;
     public int maxHP;
+
+    public AudioSource auds;
+    public AudioClip bossmusic;
+    bool musicstarted = false;
+    public GameObject turnoffbgm;
     void Start()
     {
         calcMaxHP();
@@ -16,15 +21,22 @@ public class EliteSquadHPSlider : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        setHP();
-        if(slider.value < 1)
+        CalcHP();
+        if(slider.value == 0)
         {
-            slider.gameObject.SetActive(false);
+            if (maxHP > 0) { auds.PlayOneShot(auds.clip); }
+            Destroy(slider.gameObject);
+            Destroy(slider);
             Destroy(this.gameObject);
         }
         if (areSoldiersTriggered())
         {
             slider.gameObject.SetActive(true);
+            if (!musicstarted)
+            {
+                auds.clip = bossmusic; Destroy(GameObject.Find("BGM").GetComponent<DoNotDestroyOnLoad>());
+                Destroy(GameObject.Find("BGM").gameObject); auds.loop = true; auds.volume = 0.33f; auds.Play(); musicstarted = true;
+            }
         }
         else
         {
@@ -41,17 +53,20 @@ public class EliteSquadHPSlider : MonoBehaviour
         }
     }
 
-    void setHP()
-    {
-        slider.value = 0;
+    
 
-        foreach(Soldier sol in eliteSoldiers)
+    void CalcHP()
+    {
+        int hp = 0;
+
+        foreach (Soldier sol in eliteSoldiers)
         {
-            if(sol.isDead == false && sol.health > 0)
+            if (sol.isDead == false && sol.health > 0)
             {
-                slider.value += sol.health;
+                hp+= sol.health;
             }
         }
+        slider.value = hp;
     }
 
     bool areSoldiersTriggered()
