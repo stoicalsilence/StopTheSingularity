@@ -20,7 +20,7 @@ public class MrZaps : MonoBehaviour
 
     public ParticleSystem[] lasers;
 
-    public GameObject shockwaveParticles, laserZapParticles;
+    public GameObject shockwaveParticles;
     // Start is called before the first frame update
     void Start()
     {

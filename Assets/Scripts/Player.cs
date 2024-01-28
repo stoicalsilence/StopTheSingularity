@@ -128,6 +128,12 @@ public class Player : MonoBehaviour
         hpSlider.maxValue = maxHP;
         vignette = postProcessProfile.GetSetting<Vignette>();
         plasmatanaReady = true;
+
+        if (BabyMode.activated)
+        {
+            maxHP = 300;
+            HP = 300;
+        }
     }
 
     // Update is called once per frame
