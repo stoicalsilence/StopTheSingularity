@@ -9,6 +9,7 @@ TagManager:
   - Box
   - EnemyLightAttack
   - SafeSpot
+  - Zap
   layers:
   - Default
   - TransparentFX

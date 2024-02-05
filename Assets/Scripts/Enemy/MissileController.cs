@@ -19,6 +19,8 @@ public class MissileController : MonoBehaviour
     public float selfexplodetimer;
     public bool shouldHurtPlayer;
 
+    public bool returnToPutey;
+    public Transform puteyBoss;
     private void Start()
     {
         Invoke("explode", selfexplodetimer);
@@ -46,7 +48,17 @@ public class MissileController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        explode();
+        if (collision.gameObject.tag != "PlayerAttack")
+        {
+            explode();
+        }
+        else
+        {
+            if (returnToPutey)
+            {
+                target = puteyBoss;
+            }
+        }
     }
 
     public void explode()

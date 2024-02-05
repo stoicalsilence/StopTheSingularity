@@ -182,6 +182,8 @@ public class PuteyBoss : MonoBehaviour
         missile.GetComponent<MissileController>().target = player;
         missile.GetComponent<MissileController>().selfexplodetimer = 15;
         missile.GetComponent<MissileController>().shouldHurtPlayer = true;
+        missile.GetComponent<MissileController>().returnToPutey = true;
+        missile.GetComponent<MissileController>().puteyBoss = this.transform;
 
         GameObject shotParticles = Instantiate(missileShotParticles, missileShotParticles.transform.position, Quaternion.identity);
         Destroy(shotParticles, 3f);
@@ -193,8 +195,12 @@ public class PuteyBoss : MonoBehaviour
     {
         if(other.gameObject.GetComponent<MissileController>())
         {
+            agent.Stop();
+            agent.ResetPath();
             other.gameObject.GetComponent<MissileController>().shouldHurtPlayer = false;
             other.gameObject.GetComponent<MissileController>().explode();
+
+            playerVeryClose = true; Invoke("resetPlayerVeryClose", 1);
 
             animator.SetBool("Stunned", true);
             animator.SetBool("Walking", false);

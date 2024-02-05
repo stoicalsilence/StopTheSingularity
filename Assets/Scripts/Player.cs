@@ -118,6 +118,7 @@ public class Player : MonoBehaviour
 
     public GameObject menu;
     public bool paused;
+    public AudioClip shockSound;
 
     // Start is called before the first frame update
     void Start()
@@ -1023,5 +1024,15 @@ public class Player : MonoBehaviour
         m9suppressed.StopAllCoroutines();
         m9suppressed.gameObject.SetActive(false);
         m9suppressedEquipped = false;
+    }
+
+    private void OnParticleCollision(GameObject other)
+    {
+        if(other.gameObject.tag == "Zap")
+        {
+            takeDamage(5);
+            other.gameObject.tag = "Untagged";
+            painAudio.PlayOneShot(shockSound);
+        }
     }
 }
