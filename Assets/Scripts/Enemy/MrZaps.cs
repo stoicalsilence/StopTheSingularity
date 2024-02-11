@@ -260,6 +260,8 @@ public class MrZaps : MonoBehaviour
                     BGM.volume = 66;
                     BGM.PlayOneShot(defeatReverb);
                 }
+
+                FindObjectOfType<AfterPuteyBossCutscene>().StartCutscene();
             }
         }
     }

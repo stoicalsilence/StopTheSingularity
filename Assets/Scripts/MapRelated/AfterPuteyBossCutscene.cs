@@ -8,7 +8,7 @@ public class AfterPuteyBossCutscene : MonoBehaviour
     public GameObject player, elevator, putey, itemholder;
     public Vector3 playerTarget, elevatorTarget, puteyTarget;
     bool started;
-
+    public int openelevatortimer;
     public AudioSource audioS;
     public AudioClip machineSound;
     public TriggeredSound triggeredSound;
@@ -20,6 +20,7 @@ public class AfterPuteyBossCutscene : MonoBehaviour
         {
             //player.transform.position = Vector3.MoveTowards(player.transform.position, playerTarget, 5 * Time.deltaTime);
             elevator.transform.position = Vector3.MoveTowards(elevator.transform.position, elevatorTarget, 5 * Time.deltaTime);
+            if(putey)
             putey.transform.position = Vector3.MoveTowards(putey.transform.position, puteyTarget, 5 * Time.deltaTime);
         }
     }

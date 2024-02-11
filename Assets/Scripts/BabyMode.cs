@@ -4,5 +4,5 @@ using UnityEngine;
 
 public static class BabyMode
 {
-    public static bool activated = true;   
+    public static bool activated = false;   
 }
