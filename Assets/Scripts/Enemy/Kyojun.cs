@@ -18,12 +18,19 @@ public class Kyojun : MonoBehaviour
     public GameObject leftArmModelToDestroy;
     public GameObject rightArmModelToDestroy;
     public Transform player;
+    public Transform gunTip;
+    public Transform ejectionPoint;
 
     public Animator animator;
-    public AnimationClip Aim, Shot, Unaim;
-    bool ischasing, rangeAttacking, rotateTowardsPlayer;
+    public AnimationClip Aim, Shot, ShotHigh, Unaim, ClubAttack;
+    bool ischasing, rangeAttacking, meleeAttacking, rotateTowardsPlayer;
     public AudioSource gunAudioSource;
-    public AudioClip gunshot1, gunshot2;
+    public AudioSource clubAudioSource;
+    public AudioClip gunshot1, gunshot2, clubSmash, mechmove, mechmove2;
+    public GameObject bullet, orangeLight, bulletCasing;
+    public ParticleSystem muzzleFlare, muzzleSmoke;
+    public ParticleSystem clubParticles1, clubParticles2, clubParticles3;
+    public float bulletInaccuracy;
 
     public IEnumerator RangedAttack()
     {
@@ -31,23 +38,115 @@ public class Kyojun : MonoBehaviour
         rotateTowardsPlayer = true;
 
         animator.Play(Aim.name);
+        bool rmove = Random.Range(0, 100) < 50;
+        AudioClip move = rmove ? mechmove : mechmove2;
+        gunAudioSource.PlayOneShot(move);
         int shotsFired = 0;
         yield return new WaitForSeconds(Aim.length);
         while (shotsFired < 10)
         {    
-            animator.Play(Shot.name);
             bool r = Random.Range(0, 100) <50;
             AudioClip gunshot = r ? gunshot1 : gunshot2;
+            float distanceToPlayer = Vector3.Distance(transform.position, player.position);
             gunAudioSource.PlayOneShot(gunshot);
+            if (distanceToPlayer < 26.5f)
+            {
+                animator.Play(Shot.name);
+            }
+            else
+            {
+                animator.Play(ShotHigh.name);
+            }
             shotsFired++;
+            muzzleFlare.Play();
+            StartCoroutine(bulletLight());
+            Vector3 directionToPlayer = player.position - gunTip.position;
+            directionToPlayer = ApplyBulletInaccuracy(directionToPlayer);
+            GameObject bulletObject = Instantiate(bullet, gunTip.position, Quaternion.identity);
+            Destroy(bulletObject, 3f);
+            Rigidbody bulletRigidbody = bulletObject.GetComponent<Rigidbody>();
+            bulletRigidbody.velocity = directionToPlayer.normalized * 15;
+
+            GameObject casing = Instantiate(bulletCasing, ejectionPoint.position, Quaternion.identity);
+            casing.transform.eulerAngles = new Vector3(
+                    casing.transform.eulerAngles.x + 90,
+                    casing.transform.eulerAngles.y,
+                    casing.transform.eulerAngles.z);
+
+            float forceMagnitude = 5f;
+            float torqueMagnitude = 2f;
+            casing.GetComponent<Rigidbody>().AddForce(-transform.right * forceMagnitude, ForceMode.Impulse);
+            casing.GetComponent<Rigidbody>().AddTorque(Random.insideUnitSphere * torqueMagnitude, ForceMode.Impulse);
+
             yield return new WaitForSeconds(Shot.length);
         }
         animator.Play(Unaim.name);
+        muzzleSmoke.Play();
         yield return new WaitForSeconds(Unaim.length);
         rangeAttacking = false;
         rotateTowardsPlayer = false;
-        //TODO: While rangeAttacking, change z rotation of gun arm to look at player
     }
+
+    private Vector3 ApplyBulletInaccuracy(Vector3 direction)
+    {
+        float horizontalInaccuracyAngle = Random.Range(-bulletInaccuracy, bulletInaccuracy);
+        float verticalInaccuracyAngle = Random.Range(-bulletInaccuracy, bulletInaccuracy);
+        Quaternion horizontalRotation = Quaternion.AngleAxis(horizontalInaccuracyAngle, Vector3.up);
+        direction = horizontalRotation * direction;
+        Quaternion verticalRotation = Quaternion.AngleAxis(verticalInaccuracyAngle, Vector3.right);
+        direction = verticalRotation * direction;
+
+        return direction;
+    }
+    public IEnumerator bulletLight()
+    {
+        orangeLight.SetActive(true);
+        yield return new WaitForSeconds(0.16f);
+        orangeLight.SetActive(false);
+    }
+
+    public IEnumerator MeleeAttack()
+    {
+        bool rmove = Random.Range(0, 100) < 50;
+        AudioClip move = rmove ? mechmove : mechmove2;
+        clubAudioSource.PlayOneShot(move);
+        meleeAttacking = true;
+        rotateTowardsPlayer = true;
+        animator.Play(ClubAttack.name);
+        yield return new WaitForSeconds(1);
+        clubParticles1.Play();
+        clubParticles2.Play();
+        clubParticles3.Play();
+        clubAudioSource.PlayOneShot(clubSmash);
+        Collider[] colliders = Physics.OverlapSphere(clubAudioSource.gameObject.transform.position, 10);
+        foreach (Collider collider in colliders)
+        {
+            if (collider.CompareTag("Player"))
+            {
+                Player player = collider.GetComponent<Player>();
+                if (player != null)
+                {
+                    Vector3 pushDirection = player.transform.position- this.clubAudioSource.gameObject.transform.position;
+                    pushDirection.y = Random.Range(3, 4);
+
+                    pushDirection = pushDirection.normalized;
+
+                    FindObjectOfType<Player>().gameObject.GetComponent<Rigidbody>().AddForce(pushDirection * 50, ForceMode.Impulse);
+                    player.takeDamage(10);
+                }
+            }
+            Rigidbody rb = collider.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.AddExplosionForce(50, clubAudioSource.gameObject.transform.position, 10);
+            }
+        }
+
+        yield return new WaitForSeconds(Unaim.length-1);
+        meleeAttacking = false;
+        rotateTowardsPlayer = false;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -59,9 +158,15 @@ public class Kyojun : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        //Debug.Log(distanceToPlayer);
         if (Input.GetKeyDown(KeyCode.K))
         {
             StartCoroutine(RangedAttack());
+        }
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            StartCoroutine(MeleeAttack());
         }
         if (rotateTowardsPlayer)
         {

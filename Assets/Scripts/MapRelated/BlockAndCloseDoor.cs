@@ -17,6 +17,7 @@ public class BlockAndCloseDoor : MonoBehaviour
     bool zapstriggered;
     public GameObject zapslid;
     public Transform zapsLidPos;
+    bool triggered;
 
     private void Update()
     {
@@ -27,8 +28,9 @@ public class BlockAndCloseDoor : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.tag == "Player")
+        if(other.gameObject.tag == "Player" && !triggered)
         {
+            triggered = true;
             blocking = true;
             collider.enabled = true;
             if (door != null) door.openDoorButton.isPressed = false;

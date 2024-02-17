@@ -85,7 +85,7 @@ public class ExplosiveBarrel : MonoBehaviour
             var en6 = obj.GetComponent<Player>();
             if(en6 != null)
             {
-                Vector3 pushDirection = this.transform.position - transform.position;
+                Vector3 pushDirection = this.transform.position - en6.transform.position;
                 pushDirection.y = Random.Range(2,4);
 
                 pushDirection = pushDirection.normalized;
