@@ -14,6 +14,7 @@ public class Kyojun : MonoBehaviour
     public GameObject legDestroyedParticles;
     public GameObject leftArmDestroyedParticles;
     public GameObject rightArmDestroyedParticles;
+    public GameObject bodyDestroyedParticles;
 
     public GameObject leftArmModelToDestroy;
     public GameObject rightArmModelToDestroy;
@@ -23,7 +24,7 @@ public class Kyojun : MonoBehaviour
 
     public Animator animator;
     public AnimationClip Aim, Shot, ShotHigh, Unaim, ClubAttack;
-    bool ischasing, rangeAttacking, meleeAttacking, rotateTowardsPlayer;
+    bool ischasing, attacking, rotateTowardsPlayer;
     public AudioSource gunAudioSource;
     public AudioSource clubAudioSource;
     public AudioClip gunshot1, gunshot2, clubSmash, mechmove, mechmove2;
@@ -31,10 +32,12 @@ public class Kyojun : MonoBehaviour
     public ParticleSystem muzzleFlare, muzzleSmoke;
     public ParticleSystem clubParticles1, clubParticles2, clubParticles3;
     public float bulletInaccuracy;
+    bool dead = false;
+    public GameObject slidersContainer;
 
     public IEnumerator RangedAttack()
     {
-        rangeAttacking = true;
+        attacking = true;
         rotateTowardsPlayer = true;
 
         animator.Play(Aim.name);
@@ -83,7 +86,7 @@ public class Kyojun : MonoBehaviour
         animator.Play(Unaim.name);
         muzzleSmoke.Play();
         yield return new WaitForSeconds(Unaim.length);
-        rangeAttacking = false;
+        attacking = false;
         rotateTowardsPlayer = false;
     }
 
@@ -110,7 +113,7 @@ public class Kyojun : MonoBehaviour
         bool rmove = Random.Range(0, 100) < 50;
         AudioClip move = rmove ? mechmove : mechmove2;
         clubAudioSource.PlayOneShot(move);
-        meleeAttacking = true;
+        attacking = true;
         rotateTowardsPlayer = true;
         animator.Play(ClubAttack.name);
         yield return new WaitForSeconds(1);
@@ -118,6 +121,19 @@ public class Kyojun : MonoBehaviour
         clubParticles2.Play();
         clubParticles3.Play();
         clubAudioSource.PlayOneShot(clubSmash);
+        float distanceToPlayer = Vector3.Distance(clubAudioSource.gameObject.transform.position, player.position);
+        if (distanceToPlayer < 30)
+        {
+            ScreenShake.Shake(1.3f, 0.8f);
+        }
+        else if(distanceToPlayer < 40 && distanceToPlayer > 30)
+        {
+            ScreenShake.Shake(0.7f, 0.4f);
+        }
+        else
+        {
+            ScreenShake.SmoothShake(0.5f, 0.3f);
+        }
         Collider[] colliders = Physics.OverlapSphere(clubAudioSource.gameObject.transform.position, 10);
         foreach (Collider collider in colliders)
         {
@@ -143,7 +159,7 @@ public class Kyojun : MonoBehaviour
         }
 
         yield return new WaitForSeconds(Unaim.length-1);
-        meleeAttacking = false;
+        attacking = false;
         rotateTowardsPlayer = false;
     }
 
@@ -153,13 +169,25 @@ public class Kyojun : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         player = FindObjectOfType<Player>().transform;
         agent.updateRotation = true;
+        Invoke("GetTriggered", 5);
     }
 
+    public void GetTriggered()
+    {
+        Invoke("performAttack", 8);
+        Invoke("toggleIsChasing", 5);
+    }
     // Update is called once per frame
     void Update()
     {
-        //float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-        //Debug.Log(distanceToPlayer);
+        if (attacking)
+        {
+            agent.Stop();
+            agent.ResetPath();
+        }
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        Debug.Log(distanceToPlayer);
+       
         if (Input.GetKeyDown(KeyCode.K))
         {
             StartCoroutine(RangedAttack());
@@ -177,7 +205,7 @@ public class Kyojun : MonoBehaviour
             targetRotation *= Quaternion.Euler(0f, 180, 0f);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 2);
         }
-        if (agent.velocity.magnitude > 0.5f)
+        if (agent.velocity.magnitude > 0.5f && !dead)
         {
             animator.SetBool("Walking", true);
         }
@@ -189,6 +217,7 @@ public class Kyojun : MonoBehaviour
         {
             agent.SetDestination(player.position);
         }
+
         if(Legs.currentHP < 1)
         {
             legDestroyedParticles.gameObject.SetActive(true);
@@ -203,14 +232,59 @@ public class Kyojun : MonoBehaviour
             rightArmDestroyedParticles.gameObject.SetActive(true);
             rightArmModelToDestroy.gameObject.SetActive(false);
         }
+        if(Body.currentHP < 1)
+        {
+            bodyDestroyedParticles.gameObject.SetActive(true);
+        }
+
+        if(Body.currentHP < 1 && !dead)
+        {
+            dead = true;
+            animator.Play("Defeat");
+            Destroy(this.gameObject, 19);
+            Invoke("TurnOffSliders", 1);
+            FindObjectOfType<KillText>().getReportedTo();
+        }
     }
 
+    void performAttack()
+    {
+        ischasing = false;
+        agent.ResetPath();
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        if (!attacking && distanceToPlayer < 25)
+        {
+            StartCoroutine(MeleeAttack());
+        }
+        else
+        {
+            StartCoroutine(RangedAttack());
+        }
+        int random = Random.Range(2, 7);
+        Invoke("performAttack", random);
+    }
     void toggleIsChasing()
     {
-        if (ischasing)
+        if (!attacking)
         {
-            agent.ResetPath();
+            if (ischasing)
+            {
+                agent.ResetPath();
+                rotateTowardsPlayer = false;
+            }
+            else
+            {
+                rotateTowardsPlayer = true;
+            }
+            ischasing = !ischasing;
         }
-        ischasing = !ischasing;
+        int random = Random.Range(2, 7);
+        Invoke("toggleIsChasing", random);
+    }
+
+    void TurnOffSliders()
+    {
+        slidersContainer.gameObject.SetActive(false);
+        ScreenShake.Shake(1.3f, 0.8f);
     }
 }

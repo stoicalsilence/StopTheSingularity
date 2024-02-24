@@ -51,7 +51,7 @@ AnimatorStateMachine:
     m_Position: {x: 460, y: -30, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 7834863529859017982}
-    m_Position: {x: 495, y: 35, z: 0}
+    m_Position: {x: 310, y: 270, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 8526930047566006206}
     m_Position: {x: 560, y: -110, z: 0}
@@ -307,7 +307,7 @@ AnimatorState:
   m_PrefabAsset: {fileID: 0}
   m_Name: Defeat
   m_Speed: 1
-  m_CycleOffset: 0
+  m_CycleOffset: 1
   m_Transitions: []
   m_StateMachineBehaviours: []
   m_Position: {x: 50, y: 50, z: 0}

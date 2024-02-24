@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class KjoyunBodyPart : MonoBehaviour
 {
@@ -8,16 +9,23 @@ public class KjoyunBodyPart : MonoBehaviour
     public int maxHP;
     public string bodypartName;
     public bool destroyed;
+    public GameObject hitSparkles;
+    public GameObject fillRectToDisable;
+    public Slider hpSlider;
 
     private void Start()
     {
+        hpSlider.maxValue = maxHP;
         currentHP = maxHP;
     }
     void Update()
     {
-        if(currentHP < 0)
+        hpSlider.value = currentHP;
+        if (currentHP < 1 && !destroyed)
         {
+            ScreenShake.Shake(0.75f, 0.4f);
             destroyed = true;
+            fillRectToDisable.SetActive(false);
         }
     }
 
@@ -25,7 +33,14 @@ public class KjoyunBodyPart : MonoBehaviour
     {
         if (collision.gameObject.tag == "PlayerAttack")
         {
-            Debug.Log(bodypartName + " HIT!");
+            hpSlider.value = currentHP;
+            Vector3 collisionPoint = collision.GetContact(0).point;
+            GameObject spark = Instantiate(hitSparkles, collisionPoint, Quaternion.identity);
+            Destroy(spark, 3f);
+            if (currentHP > 0)
+            {
+                FindObjectOfType<HitmarkerEffect>().ShowHitmarker();
+            }
             currentHP--;
         }
     }

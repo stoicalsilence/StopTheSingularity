@@ -269,6 +269,7 @@ public class PuteyBoss : MonoBehaviour
     {
         Instantiate(defeatExplosion, explosionSpawnPos.position, Quaternion.identity);
         Instantiate(defeatExplosion2, explosionSpawnPos.position, Quaternion.identity);
+        ScreenShake.Shake(0.75f, 0.4f);
         Destroy(this.gameObject);
     }
     void removeStun()

@@ -371,7 +371,6 @@ public class PlayerMovement : MonoBehaviour
         readyToJump = true;
         exitingSlope = false;
         //slideSpeed = maxSlideSpeed;
-        ScreenShake.Shake(0.05f, 0.05f);
     }
 
     private bool OnSlope()

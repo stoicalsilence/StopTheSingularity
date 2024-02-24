@@ -31,6 +31,10 @@ public class ScreenShake : MonoBehaviour
         {
             transform.localPosition = originalPosition + Random.insideUnitSphere * shakeMagnitude;
             shakeDuration -= Time.deltaTime * dampingSpeed;
+            if (shakeMagnitude > 0f)
+            {
+                shakeMagnitude -= Time.deltaTime / 2;
+            }
         }
         else
         {

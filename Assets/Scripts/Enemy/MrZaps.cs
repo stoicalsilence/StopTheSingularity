@@ -158,7 +158,6 @@ public class MrZaps : MonoBehaviour
         {
             Vector3 directionToPlayer = (player.position - teslaTip.position).normalized;
             int inaccuracyRoll = Random.Range(1, 100);
-            Debug.Log(inaccuracyRoll);
             if (inaccuracyRoll < 50)
             {
                 float r1 = Random.Range(-100, 100);
@@ -168,7 +167,7 @@ public class MrZaps : MonoBehaviour
             }
             else if (inaccuracyRoll > 50)
             {
-                float r = Random.Range(-0.4f, 0.4f);
+                float r = Random.Range(-0.6f, 0.6f);
                 directionToPlayer += new Vector3(directionToPlayer.x + r, directionToPlayer.y + r, directionToPlayer.z + r);
             }
 
@@ -280,7 +279,7 @@ public class MrZaps : MonoBehaviour
 
         player.gameObject.GetComponent<Rigidbody>().AddForce(pushDirection * playerPushForce, ForceMode.Impulse);
 
-        FindObjectOfType<Player>().takeDamage(5);
+        FindObjectOfType<Player>().takeDamage(2);
     }
 
     private Vector3 Calculate8Direction()
@@ -333,6 +332,7 @@ public class MrZaps : MonoBehaviour
     {
         Instantiate(defeatExplosion, transform.position, Quaternion.identity);
         Instantiate(defeatExplosion2, transform.position, Quaternion.identity);
+        ScreenShake.Shake(0.75f, 0.4f);
         Destroy(this.gameObject);
     }
 
@@ -390,10 +390,14 @@ public class MrZaps : MonoBehaviour
 
         playChargeUpDownSound();
         toggleActiveInactive();
-
+        Invoke("screenshake", 0.8f);
         Invoke("startBGM", 1.5f);
     }
 
+    void screenshake()
+    {
+        ScreenShake.Shake(0.75f, 0.4f);
+    }
     public void startBGM()
     {
         BGM.Play();
