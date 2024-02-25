@@ -34,7 +34,8 @@ public class Kyojun : MonoBehaviour
     public float bulletInaccuracy;
     bool dead = false;
     public GameObject slidersContainer;
-
+    public AudioSource generalAudiosource;
+    public AudioClip dropCrash, thump;
     public IEnumerator RangedAttack()
     {
         attacking = true;
@@ -47,7 +48,12 @@ public class Kyojun : MonoBehaviour
         int shotsFired = 0;
         yield return new WaitForSeconds(Aim.length);
         while (shotsFired < 10)
-        {    
+        {
+            if (dead)
+            {
+                rotateTowardsPlayer = false;
+                yield break;
+            }
             bool r = Random.Range(0, 100) <50;
             AudioClip gunshot = r ? gunshot1 : gunshot2;
             float distanceToPlayer = Vector3.Distance(transform.position, player.position);
@@ -60,6 +66,15 @@ public class Kyojun : MonoBehaviour
             {
                 animator.Play(ShotHigh.name);
             }
+            if(LeftArm.currentHP < 1)
+            {
+                animator.Play(Unaim.name);
+                yield return new WaitForSeconds(Unaim.length);
+                attacking = false;
+                rotateTowardsPlayer = false;
+                yield break;
+            }
+            
             shotsFired++;
             muzzleFlare.Play();
             StartCoroutine(bulletLight());
@@ -158,9 +173,9 @@ public class Kyojun : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(Unaim.length-1);
-        attacking = false;
         rotateTowardsPlayer = false;
+        yield return new WaitForSeconds(1.1f);
+        attacking = false;
     }
 
     // Start is called before the first frame update
@@ -180,22 +195,21 @@ public class Kyojun : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (attacking)
+        if (attacking || dead)
         {
             agent.Stop();
             agent.ResetPath();
         }
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-        Debug.Log(distanceToPlayer);
        
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            StartCoroutine(RangedAttack());
-        }
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            StartCoroutine(MeleeAttack());
-        }
+        //if (Input.GetKeyDown(KeyCode.K))
+        //{
+        //    StartCoroutine(RangedAttack());
+        //}
+        //if (Input.GetKeyDown(KeyCode.J))
+        //{
+        //    StartCoroutine(MeleeAttack());
+        //}
         if (rotateTowardsPlayer)
         {
             Vector3 directionToPlayer = player.position - transform.position;
@@ -221,16 +235,25 @@ public class Kyojun : MonoBehaviour
         if(Legs.currentHP < 1)
         {
             legDestroyedParticles.gameObject.SetActive(true);
+            ischasing = false;
         }
         if (LeftArm.currentHP < 1)
         {
             leftArmDestroyedParticles.gameObject.SetActive(true);
             leftArmModelToDestroy.gameObject.SetActive(false);
+            if (attacking)
+            {
+                StopCoroutine(RangedAttack());
+            }
         }
         if (RightArm.currentHP < 1)
         {
             rightArmDestroyedParticles.gameObject.SetActive(true);
             rightArmModelToDestroy.gameObject.SetActive(false);
+            if (attacking)
+            {
+                StopCoroutine(MeleeAttack());
+            }
         }
         if(Body.currentHP < 1)
         {
@@ -241,6 +264,7 @@ public class Kyojun : MonoBehaviour
         {
             dead = true;
             animator.Play("Defeat");
+            generalAudiosource.PlayOneShot(thump);
             Destroy(this.gameObject, 19);
             Invoke("TurnOffSliders", 1);
             FindObjectOfType<KillText>().getReportedTo();
@@ -249,42 +273,61 @@ public class Kyojun : MonoBehaviour
 
     void performAttack()
     {
-        ischasing = false;
         agent.ResetPath();
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-        if (!attacking && distanceToPlayer < 25)
+        if (!dead)
         {
-            StartCoroutine(MeleeAttack());
+            float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+            if (!attacking && distanceToPlayer < 25)
+            {
+                if (RightArm.currentHP > 0)
+                {
+                    ischasing = false;
+                    StartCoroutine(MeleeAttack());
+                }
+            }
+            else if (!attacking)
+            {
+                if (LeftArm.currentHP > 0)
+                {
+                    ischasing = false;
+                    StartCoroutine(RangedAttack());
+                }
+            }
+            int random = Random.Range(2, 7);
+            Invoke("performAttack", random);
         }
-        else
-        {
-            StartCoroutine(RangedAttack());
-        }
-        int random = Random.Range(2, 7);
-        Invoke("performAttack", random);
     }
     void toggleIsChasing()
     {
-        if (!attacking)
+        if (!dead)
         {
-            if (ischasing)
+            if (Legs.currentHP < 1)
             {
-                agent.ResetPath();
-                rotateTowardsPlayer = false;
+                ischasing = false;
+                return;
             }
-            else
+            if (!attacking)
             {
-                rotateTowardsPlayer = true;
+                if (ischasing)
+                {
+                    agent.ResetPath();
+                    rotateTowardsPlayer = false;
+                }
+                else
+                {
+                    rotateTowardsPlayer = true;
+                }
+                ischasing = !ischasing;
             }
-            ischasing = !ischasing;
+            int random = Random.Range(2, 7);
+            Invoke("toggleIsChasing", random);
         }
-        int random = Random.Range(2, 7);
-        Invoke("toggleIsChasing", random);
     }
 
     void TurnOffSliders()
     {
         slidersContainer.gameObject.SetActive(false);
+        generalAudiosource.PlayOneShot(dropCrash);
         ScreenShake.Shake(1.3f, 0.8f);
     }
 }
