@@ -23,6 +23,11 @@ public class KjoyunExplosiveBullet : MonoBehaviour
             {
                 obj.GetComponent<Player>().takeDamage(5);
             }
+
+            if (obj.GetComponent<KyojunPillar>())
+            {
+                obj.GetComponent<KyojunPillar>().getBroken();
+            }
         }
 
         GameObject part = Instantiate(particles, transform.position, Quaternion.identity);

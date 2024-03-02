@@ -14,4 +14,9 @@ public class GameOverPanel : MonoBehaviour
     {
         SceneManager.LoadScene("MainMenu");
     }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 }

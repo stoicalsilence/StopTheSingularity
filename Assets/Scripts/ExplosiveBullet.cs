@@ -40,6 +40,13 @@ public class ExplosiveBullet : MonoBehaviour
                 }
             }
             rb.AddExplosionForce(explosionForce, transform.position, explosionRadius);
+
+            var en6 = obj.GetComponent<KjoyunBodyPart>();
+            if (en6 != null)
+            {
+                en6.takeDamage();
+                en6.takeDamage();
+            }
         }
 
         GameObject part = Instantiate(particles, transform.position, Quaternion.identity);

@@ -116,7 +116,6 @@ public class Player : MonoBehaviour
     private int burstCount = 0;
     private float burstCooldown = 0.075f;
     private float lastBurstTime = 0f;
-
     public GameObject menu;
     public bool paused;
     public AudioClip shockSound;
@@ -145,24 +144,7 @@ public class Player : MonoBehaviour
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            paused = !paused;
-        }
-        if (!paused)
-        {
-            Time.timeScale = 1;
-            menu.SetActive(false);
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else
-        {
-            menu.SetActive(true);
-            Time.timeScale = 0;
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.Confined;
-        }
+        
         if(HP < 1)
         {
             HP = 0;
@@ -180,6 +162,25 @@ public class Player : MonoBehaviour
             playerMovement.enabled = false;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            paused = !paused;
+        }
+        if (!paused)
+        {
+            Time.timeScale = 1;
+            menu.SetActive(false);
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        else
+        {
+            menu.SetActive(true);
+            Time.timeScale = 0;
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.Confined;
         }
 
         if (Input.GetKeyDown(KeyCode.F) && plasmatanaReady && hasPlasmatana)
@@ -208,7 +209,7 @@ public class Player : MonoBehaviour
         }
         else if (battleRifleEquipped)
         {
-            ammoText.text = "Battle Rifle\n" + battleRifle.ammoInMag.ToString() + " / " + battleRifle.magCapacity.ToString();
+            ammoText.text = "Burst Rifle\n" + battleRifle.ammoInMag.ToString() + " / " + battleRifle.magCapacity.ToString();
         }
         else if (shotgunEquipped)
         {

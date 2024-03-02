@@ -82,6 +82,19 @@ public class PlayerInventory : MonoBehaviour
             {
                 DropWeapon(activeSlot);
             }
+
+            // Check for mouse scroll input
+            float scroll = Input.GetAxis("Mouse ScrollWheel");
+            if (scroll < 0f)
+            {
+                activeSlot = (activeSlot + 1) % totalInventorySlots;
+                SwitchWeapon((activeSlot - 1 + totalInventorySlots) % totalInventorySlots, activeSlot);
+            }
+            else if (scroll > 0f)
+            {
+                activeSlot = (activeSlot - 1 + totalInventorySlots) % totalInventorySlots;
+                SwitchWeapon((activeSlot + 1) % totalInventorySlots, activeSlot);
+            }
         }
     }
 

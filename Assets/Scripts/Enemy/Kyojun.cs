@@ -35,7 +35,11 @@ public class Kyojun : MonoBehaviour
     bool dead = false;
     public GameObject slidersContainer;
     public AudioSource generalAudiosource;
-    public AudioClip dropCrash, thump;
+    public AudioClip dropCrash, thump, glitchyRobotScream;
+    public AudioSource BGM;
+    bool canttogglechasing;
+    public AudioClip defeatWeep;
+
     public IEnumerator RangedAttack()
     {
         attacking = true;
@@ -83,7 +87,7 @@ public class Kyojun : MonoBehaviour
             GameObject bulletObject = Instantiate(bullet, gunTip.position, Quaternion.identity);
             Destroy(bulletObject, 3f);
             Rigidbody bulletRigidbody = bulletObject.GetComponent<Rigidbody>();
-            bulletRigidbody.velocity = directionToPlayer.normalized * 15;
+            bulletRigidbody.velocity = directionToPlayer.normalized * 19;
 
             GameObject casing = Instantiate(bulletCasing, ejectionPoint.position, Quaternion.identity);
             casing.transform.eulerAngles = new Vector3(
@@ -103,6 +107,9 @@ public class Kyojun : MonoBehaviour
         yield return new WaitForSeconds(Unaim.length);
         attacking = false;
         rotateTowardsPlayer = false;
+        canttogglechasing = true;
+        Invoke("toggleIsChasingImmunity", 5f);
+        ischasing = true;
     }
 
     private Vector3 ApplyBulletInaccuracy(Vector3 direction)
@@ -171,6 +178,10 @@ public class Kyojun : MonoBehaviour
             {
                 rb.AddExplosionForce(50, clubAudioSource.gameObject.transform.position, 10);
             }
+            if (collider.CompareTag("Pillar"))
+            {
+                rb.gameObject.GetComponent<KyojunPillar>().getBroken();
+            }
         }
 
         rotateTowardsPlayer = false;
@@ -184,13 +195,17 @@ public class Kyojun : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         player = FindObjectOfType<Player>().transform;
         agent.updateRotation = true;
-        Invoke("GetTriggered", 5);
+        slidersContainer.gameObject.SetActive(false);
+        //Invoke("GetTriggered", 5);
     }
 
     public void GetTriggered()
     {
-        Invoke("performAttack", 8);
-        Invoke("toggleIsChasing", 5);
+        Invoke("performAttack", 5);
+        Invoke("toggleIsChasing", 2);
+        slidersContainer.gameObject.SetActive(true);
+        BGM.Play();
+        //generalAudiosource.PlayOneShot(glitchyRobotScream);
     }
     // Update is called once per frame
     void Update()
@@ -227,7 +242,7 @@ public class Kyojun : MonoBehaviour
         {
             animator.SetBool("Walking", false);
         }
-        if (ischasing)
+        if (ischasing && !attacking && !dead)
         {
             agent.SetDestination(player.position);
         }
@@ -236,6 +251,8 @@ public class Kyojun : MonoBehaviour
         {
             legDestroyedParticles.gameObject.SetActive(true);
             ischasing = false;
+            agent.Stop();
+            agent.ResetPath();
         }
         if (LeftArm.currentHP < 1)
         {
@@ -245,6 +262,7 @@ public class Kyojun : MonoBehaviour
             {
                 StopCoroutine(RangedAttack());
             }
+            canttogglechasing = true;
         }
         if (RightArm.currentHP < 1)
         {
@@ -267,6 +285,7 @@ public class Kyojun : MonoBehaviour
             generalAudiosource.PlayOneShot(thump);
             Destroy(this.gameObject, 19);
             Invoke("TurnOffSliders", 1);
+            //Invoke("playweep", 1.3f);
             FindObjectOfType<KillText>().getReportedTo();
         }
     }
@@ -301,23 +320,30 @@ public class Kyojun : MonoBehaviour
     {
         if (!dead)
         {
-            if (Legs.currentHP < 1)
+            if (!canttogglechasing)
             {
-                ischasing = false;
-                return;
+                if (Legs.currentHP < 1)
+                {
+                    ischasing = false;
+                    return;
+                }
+                if (!attacking)
+                {
+                    if (ischasing)
+                    {
+                        agent.ResetPath();
+                        rotateTowardsPlayer = false;
+                    }
+                    else
+                    {
+                        rotateTowardsPlayer = true;
+                    }
+                    ischasing = !ischasing;
+                }
             }
-            if (!attacking)
+            else
             {
-                if (ischasing)
-                {
-                    agent.ResetPath();
-                    rotateTowardsPlayer = false;
-                }
-                else
-                {
-                    rotateTowardsPlayer = true;
-                }
-                ischasing = !ischasing;
+                ischasing = true;
             }
             int random = Random.Range(2, 7);
             Invoke("toggleIsChasing", random);
@@ -329,5 +355,14 @@ public class Kyojun : MonoBehaviour
         slidersContainer.gameObject.SetActive(false);
         generalAudiosource.PlayOneShot(dropCrash);
         ScreenShake.Shake(1.3f, 0.8f);
+        BGM.Stop();
+    }
+    void toggleIsChasingImmunity()
+    {
+        canttogglechasing = false;
+    }
+    void playweep()
+    {
+        generalAudiosource.PlayOneShot(defeatWeep);
     }
 }
