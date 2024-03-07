@@ -276,6 +276,8 @@ public class Kyojun : MonoBehaviour
         if(Body.currentHP < 1)
         {
             bodyDestroyedParticles.gameObject.SetActive(true);
+
+            FindObjectOfType<AfterPuteyBossCutscene>().StartCutscene();
         }
 
         if(Body.currentHP < 1 && !dead)
@@ -302,6 +304,11 @@ public class Kyojun : MonoBehaviour
                 {
                     ischasing = false;
                     StartCoroutine(MeleeAttack());
+                }
+                if (RightArm.currentHP < 1)
+                {
+                    ischasing = false;
+                    StartCoroutine(RangedAttack());
                 }
             }
             else if (!attacking)

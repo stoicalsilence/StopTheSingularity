@@ -123,6 +123,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        AudioListener.volume = PlayerPrefs.GetFloat("volume") * 10;
         paused = false;
         playerInventory = GetComponent<PlayerInventory>();
         plasmatanaAnimation = plasmatana.GetComponent<Animator>();
@@ -144,8 +145,25 @@ public class Player : MonoBehaviour
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
-        
-        if(HP < 1)
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            paused = !paused;
+        }
+        if (!paused)
+        {
+            Time.timeScale = 1;
+            menu.SetActive(false);
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            menu.SetActive(true);
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            Time.timeScale = 0;
+        }
+        if (HP < 1)
         {
             HP = 0;
             dead = true;
@@ -162,25 +180,6 @@ public class Player : MonoBehaviour
             playerMovement.enabled = false;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            paused = !paused;
-        }
-        if (!paused)
-        {
-            Time.timeScale = 1;
-            menu.SetActive(false);
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else
-        {
-            menu.SetActive(true);
-            Time.timeScale = 0;
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.Confined;
         }
 
         if (Input.GetKeyDown(KeyCode.F) && plasmatanaReady && hasPlasmatana)

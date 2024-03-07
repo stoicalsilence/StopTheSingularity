@@ -10,7 +10,6 @@ public class VolumeControl : MonoBehaviour
     public Slider volumeSlider;
     public TextMeshProUGUI sliderText;
     public bool paused;
-    public GameObject menu;
     // Start is called before the first frame update
     void Start()
     {
@@ -28,31 +27,9 @@ public class VolumeControl : MonoBehaviour
         sliderText.text = "Volume (" + volumeSlider.value *1000 + ")";
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            paused = !paused;
-        }
-        if (!paused)
-        {
-            Time.timeScale = 1;
-            menu.SetActive(false);
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else
-        {
-            menu.SetActive(true);
-            Time.timeScale = 0;
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.Confined;
-        }
-    }
-
     public void ChangeVolume()
     {
-        AudioListener.volume = volumeSlider.value;
+        AudioListener.volume = volumeSlider.value*10;
         sliderText.text = "Volume (" + volumeSlider.value * 1000 + ")";
         SaveVolume();
     }

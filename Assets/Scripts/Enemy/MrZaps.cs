@@ -49,6 +49,7 @@ public class MrZaps : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        player = FindObjectOfType<Player>().transform;
         animator.Play("Fall");
         teslaTorusInactiveC = teslaTorusArray[0].GetComponent<Renderer>().material;
         animator.SetBool("IsWalking", true);

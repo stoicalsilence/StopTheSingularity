@@ -86,16 +86,19 @@ public class PuteyBoss : MonoBehaviour
 
             agent.SetDestination(player.position);
 
-            float footstepInterval = 1;
-            float timeSinceLastFootstep = Time.time - lastFootstepTime;
-
-            if (timeSinceLastFootstep >= footstepInterval)
+            if (!attacking)
             {
-                audioSource.PlayOneShot(stomp);
-                GameObject step = Instantiate(footstepParticles, footstepFXPos.transform.position, Quaternion.identity);
-                step.transform.localScale = new Vector3(3, 3, 3);
-                Destroy(step, 3f);
-                lastFootstepTime = Time.time;
+                float footstepInterval = 1;
+                float timeSinceLastFootstep = Time.time - lastFootstepTime;
+
+                if (timeSinceLastFootstep >= footstepInterval)
+                {
+                    audioSource.PlayOneShot(stomp);
+                    GameObject step = Instantiate(footstepParticles, footstepFXPos.transform.position, Quaternion.identity);
+                    step.transform.localScale = new Vector3(3, 3, 3);
+                    Destroy(step, 3f);
+                    lastFootstepTime = Time.time;
+                }
             }
         }
         else
