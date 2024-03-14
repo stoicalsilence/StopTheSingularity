@@ -17,6 +17,7 @@ public class KjoyunBodyPart : MonoBehaviour
     public static float defenseMultiplier = 0.9f;
     public AudioSource audioSource;
     public AudioClip[] damageSounds;
+    public bool isGetty; 
 
     private void Start()
     {
@@ -35,7 +36,14 @@ public class KjoyunBodyPart : MonoBehaviour
             {
                 KjoyunBodyPart.defenseMultiplier -= 0.3f;
                 bodyFillRect.GetComponent<Image>().color = new Color(bodyFillRect.GetComponent<Image>().color.r + 50, bodyFillRect.GetComponent<Image>().color.g, bodyFillRect.GetComponent<Image>().color.b, bodyFillRect.GetComponent<Image>().color.a);
-                FindObjectOfType<Kyojun>().generalAudiosource.PlayOneShot(explodesound);
+                if (isGetty)
+                {
+                    FindObjectOfType<Getty>().generalAudiosource.PlayOneShot(explodesound);
+                }
+                else
+                {
+                    FindObjectOfType<Kyojun>().generalAudiosource.PlayOneShot(explodesound);
+                }
             }
         }
     }

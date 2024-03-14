@@ -93,7 +93,7 @@ public class Kyojun : MonoBehaviour
             casing.transform.eulerAngles = new Vector3(
                     casing.transform.eulerAngles.x + 90,
                     casing.transform.eulerAngles.y,
-                    casing.transform.eulerAngles.z);
+                    casing.transform.eulerAngles.z + 50);
 
             float forceMagnitude = 5f;
             float torqueMagnitude = 2f;

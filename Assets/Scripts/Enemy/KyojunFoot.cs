@@ -9,6 +9,7 @@ public class KyojunFoot : MonoBehaviour
     public AudioSource source;
     public AudioClip step;
     public GameObject particles;
+    public bool isGetty;
     // Start is called before the first frame update
 
 
@@ -23,11 +24,25 @@ public class KyojunFoot : MonoBehaviour
             Destroy(obj, 4f);
             if(distanceToPlayer < 10)
             {
-                ScreenShake.Shake(0.45f, 0.4f);
+                if (isGetty)
+                {
+                    ScreenShake.Shake(0.22f, 0.22f);
+                }
+                else
+                {
+                    ScreenShake.Shake(0.45f, 0.4f);
+                }
             }
             else if (distanceToPlayer < 30 && distanceToPlayer > 10)
             {
-                ScreenShake.Shake(0.15f, 0.3f);
+                if (isGetty)
+                {
+                    ScreenShake.Shake(0.05f, 0.15f);
+                }
+                else
+                {
+                    ScreenShake.Shake(0.15f, 0.3f);
+                }
             }
         }
     }

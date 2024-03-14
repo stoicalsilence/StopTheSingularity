@@ -48,7 +48,7 @@ public class MissileController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag != "PlayerAttack")
+        if (collision.gameObject.tag != "PlayerAttack" || collision.gameObject.tag != "AntiRocketGel")
         {
             explode();
         }
@@ -59,10 +59,21 @@ public class MissileController : MonoBehaviour
                 target = puteyBoss;
             }
         }
+
+        if (collision.gameObject.tag == "PlayerAttack" && !returnToPutey)
+        {
+            explode();
+        }
     }
 
     public void explode()
     {
+        float distanceToPlayer = Vector3.Distance(transform.position, target.position);
+        if (distanceToPlayer < 30)
+        {
+            ScreenShake.Shake(0.7f, 0.4f);
+        }
+
         var surroundingObjects = Physics.OverlapSphere(transform.position, explosionRadius);
 
         foreach (var obj in surroundingObjects)

@@ -10,15 +10,21 @@ public class Getty : MonoBehaviour
     public KjoyunBodyPart LeftArm;
     public KjoyunBodyPart RightArm;
     public KjoyunBodyPart Body;
-    //When KyojunbodyPart is destroyed, i cant explode and hide it... well unless i hide an array of objects then i can. otherwise just add the destroyed particles and whatever
+
     public GameObject legDestroyedParticles;
     public GameObject leftArmDestroyedParticles;
     public GameObject rightArmDestroyedParticles;
     public GameObject bodyDestroyedParticles;
 
+    public GameObject leftArmModelToDestroy;
+    public GameObject rightArmModelToDestroy;
+    bool lArmDead;
+    bool RArmDead;
+
     public Transform player;
     public Transform gunTip;
     public Transform ejectionPoint;
+    public Transform missilePoint;
 
     public Animator animator;
 
@@ -29,7 +35,7 @@ public class Getty : MonoBehaviour
 
     public GameObject bullet, orangeLight, bulletCasing;
     public GameObject missile;
-    public ParticleSystem muzzleFlare, muzzleSmoke;
+    public ParticleSystem muzzleFlare, muzzleSmoke, missileShotParticles, missileShotSmoke;
 
     public float bulletInaccuracy;
     bool dead = false;
@@ -38,19 +44,149 @@ public class Getty : MonoBehaviour
 
     bool canttogglechasing;
 
-    public AnimationClip Aim, Shot, Unaim;
+    public AnimationClip Aim, Shot, Unaim, missileshot, init;
 
-    public AudioClip gunshot1, gunshot2, mechmove, mechmove2;
+    public AudioClip gunshot1, gunshot2, mechmove, mechmove2, thump;
     // Start is called before the first frame update
     void Start()
     {
-        
+        player = FindObjectOfType<Player>().transform;
+        Invoke("GetTriggered", 5);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (rotateTowardsPlayer)
+        {
+            Vector3 directionToPlayer = player.position - transform.position;
+            directionToPlayer.y = 0;
+
+            Quaternion targetRotation = Quaternion.LookRotation(-directionToPlayer, Vector3.up);
+            targetRotation *= Quaternion.Euler(0f, 180, 0f);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 2);
+        }
+
+        if (agent.velocity.magnitude > 0.5f && !dead)
+        {
+            animator.SetBool("Walking", true);
+        }
+        else
+        {
+            animator.SetBool("Walking", false);
+        }
+        if (ischasing && !attacking && !dead)
+        {
+            agent.SetDestination(player.position);
+        }
+
+        if (Legs.currentHP < 1)
+        {
+            legDestroyedParticles.gameObject.SetActive(true);
+            ischasing = false;
+            agent.Stop();
+            agent.ResetPath();
+        }
+        if (LeftArm.currentHP < 1 && !lArmDead)
+        {
+            lArmDead = true;
+            leftArmDestroyedParticles.gameObject.SetActive(true);
+            leftArmModelToDestroy.gameObject.SetActive(false);
+            if (attacking)
+            {
+                StopCoroutine(RangedAttack());
+            }
+            canttogglechasing = true;
+        }
+        if (RightArm.currentHP < 1 && !RArmDead)
+        {
+            RArmDead = true;
+            rightArmDestroyedParticles.gameObject.SetActive(true);
+            rightArmModelToDestroy.gameObject.SetActive(false);
+            if (attacking)
+            {
+                StopCoroutine(MissileAttack());
+            }
+        }
+
+        if (Body.currentHP < 1 && !dead)
+        {
+            bodyDestroyedParticles.gameObject.SetActive(true);
+            //FindObjectOfType<AfterPuteyBossCutscene>().StartCutscene();
+            dead = true;
+            animator.Play("Defeat");
+            generalAudiosource.PlayOneShot(thump);
+            Destroy(this.gameObject, 19);
+            Invoke("TurnOffSliders", 1);
+            //Invoke("playweep", 1.3f);
+            FindObjectOfType<KillText>().getReportedTo();
+        }
+    }
+
+    public void GetTriggered()
+    {
+        animator.Play(init.name);
+        Invoke("performAttack", 5);
+        Invoke("toggleIsChasing", 2);
+        slidersContainer.gameObject.SetActive(true);
+        //BGM.Play();
+        //generalAudiosource.PlayOneShot(glitchyRobotScream);
+    }
+    void TurnOffSliders()
+    {
+        slidersContainer.gameObject.SetActive(false);
+        //generalAudiosource.PlayOneShot(dropCrash);
+        ScreenShake.Shake(1.3f, 0.8f);
+        //BGM.Stop();
+    }
+    void toggleIsChasing()
+    {
+        if (!dead)
+        {
+            if (!canttogglechasing)
+            {
+                if (Legs.currentHP < 1)
+                {
+                    ischasing = false;
+                    return;
+                }
+                if (!attacking)
+                {
+                    if (ischasing)
+                    {
+                        agent.ResetPath();
+                        rotateTowardsPlayer = false;
+                    }
+                    else
+                    {
+                        rotateTowardsPlayer = true;
+                    }
+                    ischasing = !ischasing;
+                }
+            }
+            else
+            {
+                ischasing = true;
+            }
+            int random = Random.Range(2, 7);
+            Invoke("toggleIsChasing", random);
+        }
+    }
+
+    public IEnumerator MissileAttack()
+    {
+        attacking = true;
+        bool rmove = Random.Range(0, 100) < 50;
+        AudioClip move = rmove ? mechmove : mechmove2;
+        generalAudiosource.PlayOneShot(move);
+        animator.Play(missileshot.name);
+        yield return new WaitForSeconds(1);
+        missileShotSmoke.Play();
+        missileShotParticles.Play();
+        GameObject mis = Instantiate(missile, missilePoint.position, Quaternion.identity);
+        mis.GetComponent<MissileController>().target = player;
+        yield return new WaitForSeconds(0.4f);
+        attacking = false;
     }
 
     public IEnumerator RangedAttack()
@@ -64,7 +200,7 @@ public class Getty : MonoBehaviour
         gunAudioSource.PlayOneShot(move);
         int shotsFired = 0;
         yield return new WaitForSeconds(Aim.length);
-        while (shotsFired < 10)
+        while (shotsFired < 12)
         {
             if (dead)
             {
@@ -94,6 +230,7 @@ public class Getty : MonoBehaviour
             Vector3 directionToPlayer = player.position - gunTip.position;
             directionToPlayer = ApplyBulletInaccuracy(directionToPlayer);
             GameObject bulletObject = Instantiate(bullet, gunTip.position, Quaternion.identity);
+            bulletObject.GetComponent<KjoyunExplosiveBullet>().isGetty = true;
             Destroy(bulletObject, 3f);
             Rigidbody bulletRigidbody = bulletObject.GetComponent<Rigidbody>();
             bulletRigidbody.velocity = directionToPlayer.normalized * 19;
@@ -102,7 +239,7 @@ public class Getty : MonoBehaviour
             casing.transform.eulerAngles = new Vector3(
                     casing.transform.eulerAngles.x + 90,
                     casing.transform.eulerAngles.y,
-                    casing.transform.eulerAngles.z);
+                    casing.transform.eulerAngles.z + 50);
 
             float forceMagnitude = 5f;
             float torqueMagnitude = 2f;
@@ -116,9 +253,9 @@ public class Getty : MonoBehaviour
         yield return new WaitForSeconds(Unaim.length);
         attacking = false;
         rotateTowardsPlayer = false;
-        canttogglechasing = true;
-        Invoke("toggleIsChasingImmunity", 5f);
-        ischasing = true;
+    //    canttogglechasing = true;
+    //    Invoke("toggleIsChasingImmunity", 5f);
+    //    ischasing = true;
     }
 
     private Vector3 ApplyBulletInaccuracy(Vector3 direction)
@@ -137,5 +274,51 @@ public class Getty : MonoBehaviour
         orangeLight.SetActive(true);
         yield return new WaitForSeconds(0.16f);
         orangeLight.SetActive(false);
+    }
+
+    void performAttack()
+    {
+        agent.ResetPath();
+        if (!dead)
+        {
+            float playerYPos = player.transform.position.y;
+            int r = Random.Range(0, 100);
+            if(r < 20)
+            {
+                ischasing = false;
+                StartCoroutine(MissileAttack());
+                int random2 = Random.Range(2, 7);
+                Invoke("performAttack", random2);
+                return;
+            }
+            if (!attacking && playerYPos > 3) //adjust this according to the map
+            {
+                if (RightArm.currentHP > 0)
+                {
+                    ischasing = false;
+                    StartCoroutine(MissileAttack());
+                }
+                if (RightArm.currentHP < 1)
+                {
+                    ischasing = false;
+                    StartCoroutine(RangedAttack());
+                }
+            }
+            else if (!attacking)
+            {
+                if (LeftArm.currentHP > 0)
+                {
+                    ischasing = false;
+                    StartCoroutine(RangedAttack());
+                }
+                if (LeftArm.currentHP < 1)
+                {
+                    ischasing = false;
+                    StartCoroutine(MissileAttack());
+                }
+            }
+            int random = Random.Range(2, 7);
+            Invoke("performAttack", random);
+        }
     }
 }

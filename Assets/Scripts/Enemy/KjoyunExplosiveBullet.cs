@@ -7,6 +7,7 @@ public class KjoyunExplosiveBullet : MonoBehaviour
     public float explosionRadius;
     public float explosionForce;
     public GameObject particles;
+    public bool isGetty;
 
 
     private void OnCollisionEnter(Collision collision)
@@ -21,7 +22,14 @@ public class KjoyunExplosiveBullet : MonoBehaviour
 
             if (obj.GetComponent<Player>())
             {
-                obj.GetComponent<Player>().takeDamage(5);
+                if (!isGetty)
+                {
+                    obj.GetComponent<Player>().takeDamage(5);
+                }
+                else
+                {
+                    obj.GetComponent<Player>().takeDamage(2);
+                }
             }
 
             if (obj.GetComponent<KyojunPillar>())
