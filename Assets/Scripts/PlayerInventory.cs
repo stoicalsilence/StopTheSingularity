@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerInventory : MonoBehaviour
 {
@@ -50,6 +51,8 @@ public class PlayerInventory : MonoBehaviour
         // Initialize the inventory slots array
         inventorySlots = new GameObject[totalInventorySlots];
         player = GetComponent<Player>();
+         
+        PlayerPrefs.SetInt(SceneManager.GetActiveScene().ToString() + "Unlocked", 1);
     }
 
     // Update is called once per frame
