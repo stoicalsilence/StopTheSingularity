@@ -39,6 +39,7 @@ public class Getty : MonoBehaviour
 
     public float bulletInaccuracy;
     bool dead = false;
+    public bool triggered;
     public GameObject slidersContainer;
     public AudioSource generalAudiosource;
 
@@ -47,11 +48,17 @@ public class Getty : MonoBehaviour
     public AnimationClip Aim, Shot, Unaim, missileshot, init;
 
     public AudioClip gunshot1, gunshot2, mechmove, mechmove2, thump;
+
+    public GameObject tankerPrefab;
+
+    public AudioSource BGM;
+
+    public AudioClip drill;
     // Start is called before the first frame update
     void Start()
     {
         player = FindObjectOfType<Player>().transform;
-        Invoke("GetTriggered", 5);
+       // Invoke("GetTriggered", 5);
     }
 
     // Update is called once per frame
@@ -114,22 +121,32 @@ public class Getty : MonoBehaviour
             bodyDestroyedParticles.gameObject.SetActive(true);
             //FindObjectOfType<AfterPuteyBossCutscene>().StartCutscene();
             dead = true;
+            FindObjectOfType<FinalBossAssorter>().hideRamp = true;
+            Invoke("playdrill", 3.1f);
             animator.Play("Defeat");
             generalAudiosource.PlayOneShot(thump);
             Destroy(this.gameObject, 19);
             Invoke("TurnOffSliders", 1);
             //Invoke("playweep", 1.3f);
             FindObjectOfType<KillText>().getReportedTo();
+            Invoke("nextPhase", 8);
         }
+    }
+    void nextPhase()
+    {
+        Instantiate(tankerPrefab, transform.position, Quaternion.identity);
+        Destroy(this.gameObject);
     }
 
     public void GetTriggered()
     {
+        triggered = true;
+        Invoke("playdrill", 0.25f);
         animator.Play(init.name);
         Invoke("performAttack", 5);
         Invoke("toggleIsChasing", 2);
         slidersContainer.gameObject.SetActive(true);
-        //BGM.Play();
+        BGM.Play();
         //generalAudiosource.PlayOneShot(glitchyRobotScream);
     }
     void TurnOffSliders()
@@ -175,18 +192,22 @@ public class Getty : MonoBehaviour
 
     public IEnumerator MissileAttack()
     {
-        attacking = true;
-        bool rmove = Random.Range(0, 100) < 50;
-        AudioClip move = rmove ? mechmove : mechmove2;
-        generalAudiosource.PlayOneShot(move);
-        animator.Play(missileshot.name);
-        yield return new WaitForSeconds(1);
-        missileShotSmoke.Play();
-        missileShotParticles.Play();
-        GameObject mis = Instantiate(missile, missilePoint.position, Quaternion.identity);
-        mis.GetComponent<MissileController>().target = player;
-        yield return new WaitForSeconds(0.4f);
-        attacking = false;
+        if (RightArm.currentHP > 0)
+        {
+            attacking = true;
+            bool rmove = Random.Range(0, 100) < 50;
+            AudioClip move = rmove ? mechmove : mechmove2;
+            generalAudiosource.PlayOneShot(move);
+            animator.Play(missileshot.name);
+            yield return new WaitForSeconds(1);
+            missileShotSmoke.Play();
+            missileShotParticles.Play();
+            GameObject mis = Instantiate(missile, missilePoint.position, Quaternion.identity);
+            mis.GetComponent<MissileController>().target = player;
+            mis.GetComponent<MissileController>().shouldHurtPlayer = true;
+            yield return new WaitForSeconds(0.4f);
+            attacking = false;
+        }
     }
 
     public IEnumerator RangedAttack()
@@ -283,15 +304,15 @@ public class Getty : MonoBehaviour
         {
             float playerYPos = player.transform.position.y;
             int r = Random.Range(0, 100);
-            if(r < 20)
-            {
-                ischasing = false;
-                StartCoroutine(MissileAttack());
-                int random2 = Random.Range(2, 7);
-                Invoke("performAttack", random2);
-                return;
-            }
-            if (!attacking && playerYPos > 3) //adjust this according to the map
+            //if(r < 20 && !RArmDead)
+            //{
+            //    ischasing = false;
+            //    StartCoroutine(MissileAttack());
+            //    int random2 = Random.Range(2, 7);
+            //    Invoke("performAttack", random2);
+            //    return;
+            //}
+            if (!attacking && r < 50) //adjust this according to the map
             {
                 if (RightArm.currentHP > 0)
                 {
@@ -320,5 +341,10 @@ public class Getty : MonoBehaviour
             int random = Random.Range(2, 7);
             Invoke("performAttack", random);
         }
+    }
+
+    void playdrill()
+    {
+        generalAudiosource.PlayOneShot(drill);
     }
 }

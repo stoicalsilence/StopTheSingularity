@@ -123,6 +123,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //vignette.intensity.value = 0;
         AudioListener.volume = PlayerPrefs.GetFloat("volume") * 10;
         paused = false;
         playerInventory = GetComponent<PlayerInventory>();
@@ -828,6 +829,23 @@ public class Player : MonoBehaviour
 
         // Disable vignette
         vignette.enabled.value = false;
+    }
+
+    public IEnumerator FullFadeVignette()
+    {
+        vignette.enabled.value = true;
+        vignette.intensity.value = 0;
+        float startIntensity = vignette.intensity.value;
+
+        float duration = 4f; // Duration of the fade
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            vignette.intensity.value = Mathf.Lerp(startIntensity, 1f, elapsedTime / duration);
+            yield return null; // Yielding allows other processes to run
+        }
     }
 
     public void spawnJumpParticles()

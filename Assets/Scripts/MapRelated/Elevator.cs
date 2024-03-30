@@ -29,6 +29,9 @@ public class Elevator : MonoBehaviour
     private bool sceneTransitionStarted = false;
     public string nextSceneName;
 
+    public bool isFinale;
+    bool finaletriggered;
+
     private void Update()
     {
         if (opened != wasOpened)
@@ -86,8 +89,19 @@ public class Elevator : MonoBehaviour
 
     private IEnumerator StartSceneTransition()
     {
-        sceneTransitionStarted = true;
-        yield return new WaitForSeconds(2f);
-        SceneManager.LoadScene(nextSceneName);
+        if (!isFinale)
+        {
+            sceneTransitionStarted = true;
+            yield return new WaitForSeconds(2f);
+            SceneManager.LoadScene(nextSceneName);
+        }
+        else if(!finaletriggered)
+        {
+            finaletriggered = true;
+            FindObjectOfType<Player>().FullFadeVignette();
+            yield return new WaitForSeconds(5f);
+            SceneManager.LoadScene(nextSceneName);
+        }
+
     }
 }

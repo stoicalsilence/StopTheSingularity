@@ -16508,7 +16508,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 130017070}
+      - m_Target: {fileID: 576013739}
         m_TargetAssemblyTypeName: LevelManagerButton, Assembly-CSharp
         m_MethodName: LoadLevel
         m_Mode: 1
@@ -19724,7 +19724,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 130017070}
+      - m_Target: {fileID: 788721475}
         m_TargetAssemblyTypeName: LevelManagerButton, Assembly-CSharp
         m_MethodName: LoadLevel
         m_Mode: 1
@@ -25293,7 +25293,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.19624422, g: 0.2983834, b: 0.6603774, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

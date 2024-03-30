@@ -13,7 +13,15 @@ public class AfterPuteyBossCutscene : MonoBehaviour
     public AudioClip machineSound;
     public TriggeredSound triggeredSound;
     public OpenElevatorTimed elevatorTimed;
-   
+    public float startdialoguetime;
+
+    private void Start()
+    {
+        if(startdialoguetime == 0)
+        {
+            startdialoguetime = 6.5f;
+        }
+    }
     void Update()
     {
         if (cutsceneStarted)
@@ -31,7 +39,7 @@ public class AfterPuteyBossCutscene : MonoBehaviour
         {
             started = true;
             Invoke("settottrue", 5);
-            Invoke("startDialogue", 6.5f);
+            Invoke("startDialogue", startdialoguetime);
             Invoke("openelevator", 22);
         }
     }

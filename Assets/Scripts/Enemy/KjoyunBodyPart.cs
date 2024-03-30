@@ -50,7 +50,7 @@ public class KjoyunBodyPart : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "PlayerAttack")
+        if (collision.gameObject.tag == "PlayerAttack" && FindObjectOfType<Getty>().triggered)
         {
             takeDamage();
             

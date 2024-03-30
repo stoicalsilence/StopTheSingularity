@@ -10,9 +10,11 @@ public class BlockAndCloseDoor : MonoBehaviour
 
     public bool shouldTriggerPutey;
     public bool shouldTriggerZaps;
+    public bool shouldTriggerGetty;
 
     public PuteyBoss putey;
     public MrZaps zaps;
+    public Getty getty;
 
     bool zapstriggered;
     public GameObject zapslid;
@@ -42,6 +44,11 @@ public class BlockAndCloseDoor : MonoBehaviour
             {
                 Invoke("zapstrigger", 1);
                 zaps.gameObject.SetActive(true);
+            }
+
+            if (shouldTriggerGetty)
+            {
+                getty.GetTriggered();
             }
         }
     }

@@ -54,6 +54,7 @@ public class MissileController : MonoBehaviour
         }
         else
         {
+            shouldHurtPlayer = false;
             if (returnToPutey)
             {
                 target = puteyBoss;
@@ -62,6 +63,7 @@ public class MissileController : MonoBehaviour
 
         if (collision.gameObject.tag == "PlayerAttack" && !returnToPutey)
         {
+            shouldHurtPlayer = false;
             explode();
         }
     }
