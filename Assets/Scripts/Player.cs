@@ -123,10 +123,8 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        float audiovalue = PlayerPrefs.GetFloat("volume", 1);
-        AudioListener.volume = audiovalue;
         //vignette.intensity.value = 0;
-        AudioListener.volume = PlayerPrefs.GetFloat("volume") * 10;
+        AudioListener.volume = PlayerPrefs.GetFloat("volume", 1) * 10;
         paused = false;
         playerInventory = GetComponent<PlayerInventory>();
         plasmatanaAnimation = plasmatana.GetComponent<Animator>();
