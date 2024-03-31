@@ -23,4 +23,9 @@ public class MainMenuButtons : MonoBehaviour
         mainmenubuts.SetActive(!mainmenubuts.activeInHierarchy);
         levelselectbuts.SetActive(!levelselectbuts.activeInHierarchy);
     }
+
+    public void credits()
+    {
+        SceneManager.LoadScene("Ending");
+    }
 }

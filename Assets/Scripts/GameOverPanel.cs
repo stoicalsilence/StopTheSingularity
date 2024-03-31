@@ -12,6 +12,11 @@ public class GameOverPanel : MonoBehaviour
 
     public void mainMenu()
     {
+        AudioSource[] auds = FindObjectsOfType<AudioSource>();
+        foreach(AudioSource a in auds)
+        {
+            a.Stop();
+        }
         SceneManager.LoadScene("MainMenu");
     }
 

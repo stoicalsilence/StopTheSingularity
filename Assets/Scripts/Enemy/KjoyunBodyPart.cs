@@ -50,14 +50,26 @@ public class KjoyunBodyPart : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "PlayerAttack" && FindObjectOfType<Getty>().triggered)
+        if (collision.gameObject.tag == "PlayerAttack")
         {
-            takeDamage();
-            
-            Vector3 collisionPoint = collision.GetContact(0).point;
-            GameObject spark = Instantiate(hitSparkles, collisionPoint, Quaternion.identity);
-            Destroy(spark, 3f);
-            audioSource.PlayOneShot(damageSounds[Random.Range(0, damageSounds.Length)]);
+            if (!isGetty)
+            {
+                takeDamage();
+
+                Vector3 collisionPoint = collision.GetContact(0).point;
+                GameObject spark = Instantiate(hitSparkles, collisionPoint, Quaternion.identity);
+                Destroy(spark, 3f);
+                audioSource.PlayOneShot(damageSounds[Random.Range(0, damageSounds.Length)]);
+            }
+            else if (isGetty && FindObjectOfType<Getty>().triggered)
+            {
+                takeDamage();
+
+                Vector3 collisionPoint = collision.GetContact(0).point;
+                GameObject spark = Instantiate(hitSparkles, collisionPoint, Quaternion.identity);
+                Destroy(spark, 3f);
+                audioSource.PlayOneShot(damageSounds[Random.Range(0, damageSounds.Length)]);
+            }
         }
     }
     public void takeDamage()
