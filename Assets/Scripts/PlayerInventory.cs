@@ -52,7 +52,7 @@ public class PlayerInventory : MonoBehaviour
         inventorySlots = new GameObject[totalInventorySlots];
         player = GetComponent<Player>();
          
-        PlayerPrefs.SetInt(SceneManager.GetActiveScene().ToString() + "Unlocked", 1);
+        PlayerPrefs.SetInt(SceneManager.GetActiveScene().name + "Unlocked", 1);
     }
 
     // Update is called once per frame
