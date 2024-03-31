@@ -124,7 +124,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         //vignette.intensity.value = 0;
-        AudioListener.volume = PlayerPrefs.GetFloat("volume", 1) * 10;
+        AudioListener.volume = PlayerPrefs.GetFloat("volume", 0.1f) * 10;
         paused = false;
         playerInventory = GetComponent<PlayerInventory>();
         plasmatanaAnimation = plasmatana.GetComponent<Animator>();
